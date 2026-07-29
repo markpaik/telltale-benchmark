@@ -1,0 +1,3047 @@
+registry_version: 1
+schema_version: 1
+updated: 2026-07-28
+tells:
+- id: lex.delve
+  name: delve
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bdelv(?:e|es|ed|ing)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Before we set the budget, let us delve into the enrollment data.
+  - The audit delves into three years of purchasing records.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Near-canonical LLM marker; almost absent from human business prose.
+- id: lex.tapestry
+  name: tapestry
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \btapestr(?:y|ies)\b(?!\s+(?:hanging|hung|woven\s+in|on\s+the\s+wall))
+    flags:
+    - IGNORECASE
+  examples:
+  - The initiative adds another thread to the district's tapestry of supports.
+  - Our staffing model reflects a rich tapestry of professional backgrounds.
+  counter_examples:
+  - The tapestry hanging in the lobby dates to 1890.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Metaphorical use only; literal textile references are excluded.
+- id: lex.crucial
+  name: crucial
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bcrucial(?:ly)?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Timely attendance data is crucial to the intervention model.
+  - Crucially, the pilot ran without additional staffing.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.pivotal
+  name: pivotal
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bpivotal\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Principals play a pivotal part in the rollout.
+  - This was a pivotal quarter for the enrollment campaign.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.robust
+  name: robust
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \brobust(?:ly|ness)?\b(?!\s+standard\s+errors?)
+    flags:
+    - IGNORECASE
+  examples:
+  - The team built a robust process for reconciling the two systems.
+  - We need robust reporting before the next Board cycle.
+  counter_examples:
+  - We clustered by school and reported robust standard errors.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Statistical usage ('robust standard errors') is excluded.
+- id: lex.seamless
+  name: seamless
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bseamless(?:ly|ness)?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The vendor promised a seamless transition between platforms.
+  - Data now flows seamlessly from the SIS to the dashboard.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.leverage
+  name: leverage
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bleverag(?:e|es|ed|ing)\b(?!\s+ratios?\b)
+    flags:
+    - IGNORECASE
+  examples:
+  - We can leverage the existing contract instead of rebidding.
+  - The team leveraged last year's survey instrument.
+  counter_examples:
+  - The firm's leverage ratio exceeded the covenant threshold.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Financial 'leverage ratio' is excluded.
+- id: lex.utilize
+  name: utilize
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \butiliz(?:e|es|ed|ing|ation)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Schools utilize the same intake form each fall.
+  - Room utilization dropped after the schedule change.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Almost always 'use' in human prose.
+- id: lex.foster
+  name: foster
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bfoster(?:s|ed|ing)?\b(?!\s+(?:care|child|children|parent|parents|home|homes|famil|youth|placement))
+    flags:
+    - IGNORECASE
+  examples:
+  - The new schedule fosters more collaboration between departments.
+  - We want to foster a culture of early data review.
+  counter_examples:
+  - The student entered foster care placement in March.
+  - We contacted the foster parents before the meeting.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Child-welfare senses are excluded.
+- id: lex.bolster
+  name: bolster
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bbolster(?:s|ed|ing)?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The grant will bolster tutoring capacity at six schools.
+  - These findings bolster the case for an earlier start date.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.underscore
+  name: underscore
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: (?<!an )(?<!the )\bunderscor(?:e|es|ed|ing)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The results underscore the need for a second data pull.
+  - This underscores how thin our substitute coverage has become.
+  counter_examples:
+  - Replace each space with an underscore in the file name.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: The typographic character sense is excluded.
+- id: lex.multifaceted
+  name: multifaceted
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bmulti-?faceted\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Chronic absenteeism is a multifaceted problem.
+  - The response has to be multi-faceted to work at scale.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.myriad
+  name: myriad
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bmyriads?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Principals face a myriad of competing demands each morning.
+  - There are myriad reasons a family withdraws mid-year.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.plethora
+  name: plethora
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bplethora\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The vendor shipped a plethora of dashboards nobody opened.
+  - We collected a plethora of survey responses last spring.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.holistic
+  name: holistic
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bholistic(?:ally)?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The team took a holistic view of student supports.
+  - We need to look at attendance holistically, not school by school.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.synergy
+  name: synergy
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bsynerg(?:y|ies|istic|istically)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - There is real synergy between the tutoring and attendance teams.
+  - The merger creates synergies across the two departments.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.streamline
+  name: streamline
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bstreamlin(?:e|es|ed|ing)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The new form streamlines the approval path.
+  - We streamlined intake from nine steps to four.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.empower
+  name: empower
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bempower(?:s|ed|ing|ment)?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The dashboard empowers principals to act on daily data.
+  - This policy empowers school teams to adjust their own schedules.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.unlock-potential
+  name: unlock the potential
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bunlock(?:s|ed|ing)?\s+(?:the\s+)?(?:value|potential|insights?|growth|opportunit)
+    flags:
+    - IGNORECASE
+  examples:
+  - The integration unlocks the value already sitting in our warehouse.
+  - Better attendance data unlocks insights we cannot see today.
+  counter_examples:
+  - Facilities will unlock the building at 6:30 a.m. for testing.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.harness
+  name: harness
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bharness(?:es|ed|ing)?\b(?!\s+(?:racing|race|horse|driver))
+    flags:
+    - IGNORECASE
+  examples:
+  - We should harness the momentum from the fall campaign.
+  - The office harnesses vendor data to flag billing errors.
+  counter_examples:
+  - He spent Saturday at the harness racing track.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Equestrian sense is excluded.
+- id: lex.navigate-complexity
+  name: navigate the complexity
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bnavigat\w+\s+(?:the\s+)?(?:complexit|landscape|challenge|uncertaint)
+    flags:
+    - IGNORECASE
+  examples:
+  - Principals must navigate the complexity of three overlapping grants.
+  - The team is navigating uncertainty around next year's allocation.
+  counter_examples:
+  - Drivers navigate the detour using the posted signs.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.landscape-metaphor
+  name: the X landscape
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bthe\s+\w+\s+landscape\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The funding landscape shifted after the state budget passed.
+  - We are watching the vendor landscape closely this year.
+  counter_examples:
+  - The landscape architect submitted revised drawings.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.realm
+  name: realm
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \brealms?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - That decision sits in the realm of the operations team.
+  - These are two different realms of accountability.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.journey-metaphor
+  name: journey metaphor
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:customer|user|student|transformation|learning|improvement|our|this)\s+journey\b
+    flags:
+    - IGNORECASE
+  examples:
+  - This is early in our journey toward daily data use.
+  - The user journey breaks down at the second login screen.
+  counter_examples:
+  - The bus journey from the east side takes forty minutes.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.intricate
+  name: intricate
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bintrica(?:te|tely|cies|cy)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The funding rules are intricate and poorly documented.
+  - Few staff understand the intricacies of the transfer process.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.nuanced
+  name: nuanced
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bnuanced?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The picture is more nuanced than the headline suggests.
+  - There is nuance in how schools code the same absence.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.meticulous
+  name: meticulous
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bmeticulous(?:ly|ness)?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The team kept meticulous records of every override.
+  - She meticulously reconciled both rosters before the deadline.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.game-changer
+  name: game-changer
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bgame[-\s]?chang(?:er|ers|ing)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Same-day attendance data would be a game-changer for principals.
+  - The new staffing rule is game-changing for small schools.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.cutting-edge
+  name: cutting-edge
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bcutting[-\s]?edge\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The vendor pitched a cutting-edge analytics platform.
+  - None of this requires cutting edge technology.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: lex.ever-evolving
+  name: ever-evolving
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bever[-\s]?(?:evolving|changing|growing|shifting)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The compliance rules are ever-evolving.
+  - We work in an ever changing funding environment.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.important-to-note
+  name: it is important to note
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bit(?:'s|’s| is)\s+(?:important|worth|essential|critical)\s+to\s+(?:note|remember|mention|highlight|understand)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - It's important to note that the two counts use different denominators.
+  - It is worth remembering that the survey closed before spring break.
+  counter_examples:
+  - Note that the two counts use different denominators.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.worth-noting
+  name: worth noting
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:it(?:'s|’s| is)\s+)?worth noting\b
+    flags:
+    - IGNORECASE
+  examples:
+  - 'Worth noting: three schools never submitted the roster.'
+  - It's worth noting that the vendor missed the same deadline last year.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.fast-paced-world
+  name: in today's fast-paced world
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bin today'?s\s+(?:fast.?paced|digital|rapidly\s+(?:changing|evolving)|competitive|modern|ever.?changing)\s+(?:world|age|era|landscape|environment|economy|market)
+    flags:
+    - IGNORECASE
+  examples:
+  - In today's fast-paced world, families expect an answer the same day.
+  - In today's digital environment, paper forms slow everything down.
+  counter_examples:
+  - In today's meeting we settled the calendar question.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.when-it-comes-to
+  name: when it comes to
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bwhen it comes to\b
+    flags:
+    - IGNORECASE
+  examples:
+  - When it comes to attendance, the first two weeks set the pattern.
+  - Schools differ widely when it comes to coding tardies.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.plays-a-crucial-role
+  name: plays a crucial role
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bplay(?:s|ed|ing)?\s+an?\s+(?:crucial|critical|key|vital|pivotal|essential|important|central)\s+role\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Attendance clerks play a critical role in the data pipeline.
+  - The counselor played a key role in re-enrolling the student.
+  counter_examples:
+  - She played a role in the fall production of Our Town.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.testament-to
+  name: a testament to
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \ba testament to\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The turnout is a testament to the outreach team's persistence.
+  - This is a testament to what steady follow-up can do.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.stands-as
+  name: stands as a
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bstands?\s+as\s+an?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The pilot stands as a model for the other two regions.
+  - This report stands as an example of what the team can produce.
+  counter_examples:
+  - He stands at the door and greets every student.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.serves-as
+  name: serves as a
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bserv(?:e|es|ed|ing)\s+as\s+an?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The dashboard serves as a single view for the whole cabinet.
+  - This memo serves as an update ahead of Thursday's meeting.
+  counter_examples:
+  - The cafeteria serves breakfast until nine.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.deep-dive
+  name: deep dive
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bdeep.?div(?:e|es|ing)\b|\bdiv(?:e|ing)\s+deep(?:er)?\s+into\b
+    flags:
+    - IGNORECASE
+  examples:
+  - We scheduled a deep dive on the enrollment variance for Friday.
+  - Let's dive deeper into the third-grade results.
+  counter_examples:
+  - The team went diving off the coast during the retreat.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.shed-light
+  name: shed light on
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bshed(?:s|ding)?\s+(?:some\s+)?light on\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The interviews shed light on why the forms come back blank.
+  - This analysis sheds some light on the mid-year drop.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.paves-the-way
+  name: paves the way
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bpav(?:e|es|ed|ing)\s+the\s+way\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The contract change paves the way for a fall rollout.
+  - That decision paved the way for the current staffing model.
+  counter_examples:
+  - The crew is paving the parking lot next week.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.double-edged-sword
+  name: double-edged sword
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bdouble[-\s]?edged sword\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Open enrollment is a double-edged sword for neighborhood schools.
+  - Flexibility here is a double edged sword.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.end-of-the-day
+  name: at the end of the day
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bat the end of the day\b(?!\s+(?:on|today|tomorrow|friday|monday|tuesday|wednesday|thursday))
+    flags:
+    - IGNORECASE
+  examples:
+  - At the end of the day, principals need one number they trust.
+  - The cost matters, but at the end of the day this is a staffing problem.
+  counter_examples:
+  - Please submit the timesheet at the end of the day on Friday.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Literal time-of-day usage is excluded.
+- id: phr.moving-forward
+  name: moving forward
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: (?<!was )(?<!is )(?<!keeps )\b(?:moving|going)\s+forward\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Moving forward, we will pull the roster every Monday.
+  - Going forward the team owns the reconciliation step.
+  counter_examples:
+  - The truck was moving forward at five miles per hour.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Literal motion is excluded.
+- id: phr.best-practices
+  name: best practices
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bbest practices?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The guide collects best practices from the four pilot schools.
+  - This follows best practice for records retention.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.actionable-insights
+  name: actionable insights
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bactionable\s+(?:insights?|recommendations?|takeaways?)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The report ends with actionable insights for each region.
+  - Principals asked for actionable recommendations, not more charts.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.key-takeaways
+  name: key takeaways
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bkey takeaways?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Here are the key takeaways from the March pilot.
+  - The key takeaway is that the form, not the staff, is the bottleneck.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.in-conclusion
+  name: in conclusion / in summary
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: ^(?:in conclusion|in summary|to summarize|to sum up)\b
+    flags:
+    - MULTILINE
+    - IGNORECASE
+  examples:
+  - In conclusion, the pilot met two of its three targets.
+  - To summarize, the data supports a fall start.
+  counter_examples:
+  - The findings in summary tables appear on page four.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Anchored at line start so mid-sentence uses do not fire.
+- id: phr.think-of-it-as
+  name: think of it as
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bthink of (?:it|this) (?:as|like)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Think of it as a triage list rather than a ranking.
+  - Think of this like a dress rehearsal for the fall count.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.heres-the-thing
+  name: here's the thing
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bhere'?s (?:the thing|what|how|why|where)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - 'Here''s the thing: the data was late every single month.'
+  - Here's what changed since the last review.
+  counter_examples:
+  - Here is the roster you asked for.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.bottom-line
+  name: the bottom line
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:the\s+)?bottom line\b
+    flags:
+    - IGNORECASE
+  examples:
+  - 'Bottom line: we cannot staff this without a waiver.'
+  - The bottom line is that two of the four schools need more time.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: phr.simply-put
+  name: simply put / in other words
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bsimply put\b|\bput simply\b|\bin other words\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Simply put, the form asks for data the school does not have.
+  - In other words, the count changed because the rule changed.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: crt.hope-finds-you-well
+  name: I hope this email finds you well
+  category: lexical
+  scope: general
+  formats:
+  - email
+  - memo
+  - meeting-minutes
+  detection:
+    method: regex
+    unit: binary
+    pattern: \bi (?:hope|trust) this (?:email|message|note)\s*finds\b|\bhope this finds you\b
+    flags:
+    - IGNORECASE
+  examples:
+  - I hope this email finds you well.
+  - I trust this message finds you in the middle of a good week.
+  counter_examples:
+  - I hope the roster reaches you before Friday.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: crt.dont-hesitate
+  name: don't hesitate to reach out
+  category: lexical
+  scope: general
+  formats:
+  - email
+  - memo
+  - meeting-minutes
+  detection:
+    method: regex
+    unit: binary
+    pattern: \b(?:please\s+)?do(?:n'?t| not) hesitate to (?:reach out|contact|ask)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Please don't hesitate to reach out with questions.
+  - Do not hesitate to contact me if the numbers look off.
+  counter_examples:
+  - She did not hesitate when the alarm sounded.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: crt.feel-free
+  name: feel free to
+  category: lexical
+  scope: general
+  formats:
+  - email
+  - memo
+  - meeting-minutes
+  detection:
+    method: regex
+    unit: binary
+    pattern: \bfeel free to (?:reach out|contact|ping|ask|share|forward)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Feel free to reach out if you want the underlying file.
+  - Feel free to share this with your leadership team.
+  counter_examples:
+  - The room felt free of the usual tension.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: crt.thanks-patience
+  name: thank you for your patience
+  category: lexical
+  scope: general
+  formats:
+  - email
+  - memo
+  - meeting-minutes
+  detection:
+    method: regex
+    unit: binary
+    pattern: \bthank you for your (?:patience|understanding|flexibility)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Thank you for your patience while we rebuilt the report.
+  - Thank you for your flexibility on the meeting time.
+  counter_examples:
+  - Thank you for your notes from Tuesday.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: crt.rest-assured
+  name: rest assured
+  category: lexical
+  scope: general
+  formats:
+  - email
+  - memo
+  - meeting-minutes
+  detection:
+    method: regex
+    unit: binary
+    pattern: \brest assured\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Rest assured, the September numbers will be final by the 15th.
+  - You can rest assured that no student record left the district.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: crt.happy-to-discuss
+  name: happy to discuss
+  category: lexical
+  scope: general
+  formats:
+  - email
+  - memo
+  - meeting-minutes
+  detection:
+    method: regex
+    unit: count
+    pattern: \bhappy to (?:discuss|chat|connect|help|walk (?:you )?through|jump on a call)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Happy to discuss any of this before the cabinet meeting.
+  - I'm happy to walk you through the calculation.
+  counter_examples:
+  - The team was happy with how the session went.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: crt.warm-signoff
+  name: warm sign-off
+  category: lexical
+  scope: general
+  formats:
+  - email
+  - memo
+  - meeting-minutes
+  detection:
+    method: regex
+    unit: count
+    pattern: ^(?:warm(?:est)? regards|best regards|kind regards|warmly|best),?\s*$
+    flags:
+    - MULTILINE
+    - IGNORECASE
+  examples:
+  - Warm regards,
+  - |-
+    Thanks for the quick turnaround.
+
+    Best regards,
+    Mark
+  counter_examples:
+  - Best of luck with the launch.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: crt.looking-forward
+  name: I look forward to
+  category: lexical
+  scope: general
+  formats:
+  - email
+  - memo
+  - meeting-minutes
+  detection:
+    method: regex
+    unit: binary
+    pattern: \bi look forward to (?:hearing|connecting|discussing|working|seeing|meeting)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - I look forward to hearing your read on the draft.
+  - I look forward to working with the operations team on this.
+  counter_examples:
+  - The students look forward to the field trip.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.load-bearing
+  name: load-bearing
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bload[-\s]?bearing\b(?!\s+(?:wall|walls|beam|beams|column|columns|member|members|structure|structural|capacity))
+    flags:
+    - IGNORECASE
+  examples:
+  - That one assumption is load-bearing for the whole model.
+  - The deadline is doing load bearing work in this plan.
+  counter_examples:
+  - The contractor scheduled a load-bearing wall inspection.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Structural-engineering sense is excluded.
+- id: cl.heavy-lifting
+  name: does the heavy lifting
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:do|does|doing|did|done)\s+(?:the|most of the|much of the)\s+heavy lifting\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The nightly job does the heavy lifting; the dashboard just renders it.
+  - Two clerks did most of the heavy lifting on this cleanup.
+  counter_examples:
+  - Warehouse staff should avoid heavy lifting without a back brace.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.through-line
+  name: through-line
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bthrough[-\s]?lines?\b(?!\s+\d)
+    flags:
+    - IGNORECASE
+  examples:
+  - The through-line across all four findings is stale data.
+  - There is a clear through line from intake to enrollment.
+  counter_examples:
+  - Step through line 42 of the config to see the default.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.table-stakes
+  name: table stakes
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \btable[-\s]?stakes\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Same-day attendance data is table stakes at this point.
+  - A working export is table-stakes for any vendor we consider.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.connective-tissue
+  name: connective tissue
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bconnective tissue\b(?!\s+(?:disorder|disease|damage|injur|biops))
+    flags:
+    - IGNORECASE
+  examples:
+  - The weekly standup is the connective tissue between the two teams.
+  - There is no connective tissue between the plan and the budget.
+  counter_examples:
+  - Patients with connective tissue disorders were excluded from the sample.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Medical sense is excluded.
+- id: cl.footgun
+  name: footgun
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bfoot[-\s]?guns?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Letting schools edit the roster directly is a footgun.
+  - The override field is a foot-gun we keep stepping on.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.sharp-edges
+  name: sharp edges
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bsharp edges\b(?!\s+(?:on|along|of\s+the\s+(?:shelf|table|metal|counter)))
+    flags:
+    - IGNORECASE
+  examples:
+  - The process works, but it still has sharp edges for new clerks.
+  - We shipped it with known sharp edges and a short list of workarounds.
+  counter_examples:
+  - The custodian reported sharp edges on the metal shelving.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.the-shape-of
+  name: the shape of the problem
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bthe shape of (?:the|this|that|our|a)\s+(?:problem|solution|work|change|deal|risk|conversation|project)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - We agree on the shape of the problem, not the fix.
+  - The shape of this work changes once the contract lands.
+  counter_examples:
+  - The shape of the roof made the repair expensive.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.stands-on-its-own
+  name: stands on its own
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bstands? on (?:its|their) own\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Each section stands on its own for a reader who skips ahead.
+  - The finding stands on its own without the appendix.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.north-star
+  name: north star
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bnorth star\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Daily attendance is our north star for this initiative.
+  - The team needs a north star metric before it picks tactics.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.single-source-of-truth
+  name: single source of truth
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bsingle source of truth\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The warehouse is the single source of truth for enrollment.
+  - We still lack a single source of truth for staff assignments.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.first-class-citizen
+  name: first-class citizen
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bfirst[-\s]?class (?:citizen|concern|support)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Accessibility should be a first-class citizen in the redesign.
+  - Make data quality a first-class concern, not a cleanup task.
+  counter_examples:
+  - The delegation traveled first class to the conference.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.happy-path
+  name: happy path
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bhappy path\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The form only works on the happy path.
+  - We tested the happy path and nothing else.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.escape-hatch
+  name: escape hatch
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bescape hatch(?:es)?\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The policy needs an escape hatch for schools with no clerk.
+  - Build in an escape hatch before you automate the approval.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.guardrails
+  name: guardrails
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bguard[-\s]?rails?\b(?!\s+(?:installation|repair|replacement|posts?|barrier|along the))
+    flags:
+    - IGNORECASE
+  examples:
+  - We need guardrails before schools can edit the field directly.
+  - The policy sets a guardrail on mid-year transfers.
+  counter_examples:
+  - The contractor completed guardrail repair on the access road.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Highway hardware sense is excluded.
+- id: cl.surface-area
+  name: surface area
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bsurface area\b(?!\s+of\s+(?:the|a|each)\s+(?:cube|sphere|cylinder|prism|shape|solid|roof))
+    flags:
+    - IGNORECASE
+  examples:
+  - Every new field adds surface area for errors.
+  - The integration reduces the surface area we have to support.
+  counter_examples:
+  - Students calculated the surface area of the cube.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Geometry sense is excluded.
+- id: cl.under-the-hood
+  name: under the hood
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bunder the hood\b(?!\s+of\s+(?:the\s+|his\s+|her\s+|a\s+)?(?:car|truck|van|bus|vehicle))
+    flags:
+    - IGNORECASE
+  examples:
+  - Under the hood, the report still runs on last year's query.
+  - Nothing changed under the hood; only the labels moved.
+  counter_examples:
+  - The mechanic looked under the hood of the bus.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.battle-tested
+  name: battle-tested
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bbattle[-\s]?tested\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The reconciliation script is battle-tested at this point.
+  - We picked the battle tested vendor over the cheaper one.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.non-trivial
+  name: non-trivial
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bnon[-\s]?trivial\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The migration is non-trivial and needs its own timeline.
+  - There is a non trivial chance the state extends the deadline.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: cl.the-ask
+  name: the ask
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bthe ask\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The ask is two analysts for six weeks.
+  - Make the ask explicit in the first paragraph.
+  counter_examples:
+  - The asking price was above the appraisal.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: pnc.em-dash-rate
+  name: em dash rate
+  category: punctuation
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: em_dash_per_1k
+    direction: high_is_telling
+    ramp:
+    - 1.5
+    - 6.0
+  examples:
+  - The pilot worked — attendance rose four points — but only at two schools.
+  - We paused the rollout — the data was late — and restarted in March.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Em dashes per 1,000 words.
+- id: pnc.semicolon-rate
+  name: semicolon rate
+  category: punctuation
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: semicolon_per_1k
+    direction: high_is_telling
+    ramp:
+    - 1.0
+    - 4.0
+  examples:
+  - The form is short; the review is not; the delay sits in between.
+  - Enrollment fell; attendance held steady; staffing did neither.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Semicolons per 1,000 words.
+- id: pnc.arrow-chain
+  name: arrow chain
+  category: punctuation
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \S\s*(?:→|->)\s*\S
+    flags:
+    - IGNORECASE
+  examples:
+  - Intake -> review -> approval takes nine days.
+  - 'The path is simple: request → principal sign-off → payroll.'
+  counter_examples:
+  - The value fell from 12 to 9 over the same period.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: pnc.bold-lead-in-bullet
+  name: bold lead-in bullets
+  category: punctuation
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: ^\s*[-*+]\s+\*\*[^*\n]{2,60}\*\*[:.]?\s
+    flags:
+    - MULTILINE
+  examples:
+  - '- **Scope**: four schools in the northwest region.'
+  - '* **Timeline:** the pilot runs from September to December.'
+  counter_examples:
+  - '- Scope: four schools in the northwest region.'
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: pnc.numbered-bold-lead
+  name: numbered bold lead-ins
+  category: punctuation
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: ^\s*\d+\.\s+\*\*[^*\n]{2,60}\*\*
+    flags:
+    - MULTILINE
+  examples:
+  - 1. **Confirm the roster** before Friday.
+  - 2. **Reconcile the two counts** with the state file.
+  counter_examples:
+  - 1. Confirm the roster before Friday.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: pnc.emoji
+  name: emoji
+  category: punctuation
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: '[\U0001F300-\U0001F5FF\U0001F600-\U0001F64F\U0001F680-\U0001F6FF\U0001F900-\U0001F9FF\U0001FA70-\U0001FAFF\U00002600-\U000026FF\U00002700-\U000027BF\U00002B00-\U00002BFF\U0001F1E6-\U0001F1FF]'
+    flags: []
+  examples:
+  - ✅ Draft complete; review opens Monday.
+  - 🚀 The launch is on track for the fall term.
+  - Great turnaround on this one 🎉
+  counter_examples:
+  - Revenue rose 12% in Q3 — see the attached table.
+  - The Δ between forecast and actual was four points.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Explicit Unicode ranges for the major emoji blocks.
+- id: pnc.colon-subtitle-heading
+  name: colon subtitle heading
+  category: punctuation
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: ^#{1,4}\s+[^\n:]{3,60}:\s+[A-Z]
+    flags:
+    - MULTILINE
+  examples:
+  - '## Attendance: A Closer Look at the Fall Term'
+  - '### Staffing: What the Vacancy Data Shows'
+  counter_examples:
+  - '## Attendance in the fall term'
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: 'Case-sensitive on purpose: the tell is the capitalized subtitle.'
+- id: pnc.hr-density
+  name: horizontal rule density
+  category: punctuation
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: ^(?:---+|\*\*\*+)\s*$
+    flags:
+    - MULTILINE
+  examples:
+  - |-
+    Key findings follow.
+
+    ---
+
+    Next steps are listed below.
+  - |-
+    Section one ends here.
+
+    ***
+
+    Section two begins.
+  counter_examples:
+  - The range is 12--15 students per section.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: rht.not-x-but-y
+  name: not X but Y
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bnot\s+(?:just\s+|only\s+|merely\s+|simply\s+)?[^.!?\n]{2,60}?,?\s+but\s+(?!also\b)(?:rather\s+)?
+    flags:
+    - IGNORECASE
+  examples:
+  - This is not a staffing problem, but a scheduling problem.
+  - The issue is not the form but the review that follows it.
+  counter_examples:
+  - We reviewed not only the budget but also the staffing plan.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: rht.not-only-but-also
+  name: not only X but also Y
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bnot only\b[^.!?\n]{2,80}\bbut also\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The change not only shortens intake but also cuts two handoffs.
+  - Not only did enrollment fall, but also the mix shifted toward K-2.
+  counter_examples:
+  - The budget covers not the software but the training.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: rht.not-just-its
+  name: it's not just X — it's Y
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:is|'s|are|was|were)\s+not just\s+[^.!?\n]{2,60}?[—–;,-]+\s*(?:it|this|that|they)(?:'s| is| are)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The delay is not just inconvenient — it's expensive.
+  - These are not just reporting gaps; they are compliance risks.
+  counter_examples:
+  - The delay is not just inconvenient for families.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: rht.rule-of-three
+  name: rule of three
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: judge
+    unit: count
+    rubric: |
+      A span exhibits RULE OF THREE when ALL criteria hold:
+      (a) three coordinate items appear in one sentence or one clause, joined by commas and/or a final
+          conjunction ("X, Y, and Z"), or as three parallel clauses of similar length, AND
+      (b) the three items belong to the same grammatical form (three nouns, three verb phrases, three
+          adjectives), AND
+      (c) the third item adds cadence rather than information: dropping it would not remove a fact,
+          a number, an owner, or a named entity from the passage.
+      EXCLUSIONS:
+      (x) genuinely enumerative content does not qualify — three actual budget lines, three named
+          schools, three dated milestones, three people assigned to work, or any triple whose members
+          carry distinct facts the reader needs.
+      (y) a list rendered as bullets or numbered items is out of scope here; that is covered by the
+          structural tells.
+      (z) a triple quoted from a source document or from another speaker does not qualify.
+      Evidence to extract: quote the full sentence; quote each of the three items separately; state in
+      one clause which fact would be lost if the third item were deleted (if none, criterion (c) holds).
+    rubric_version: 1
+    judge_view: chunk
+  examples:
+  - The plan is faster, cleaner, and cheaper.
+  - We need better data, better tools, and better habits.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Tricolon used for cadence rather than enumeration.
+- id: rht.rhetorical-qa
+  name: rhetorical question and answer
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: judge
+    unit: count
+    rubric: |
+      A span exhibits RHETORICAL Q&A when BOTH criteria hold:
+      (a) the writer poses a question in their own voice — as a sentence, a heading, or a fragment
+          ending in "?", AND
+      (b) the writer answers it immediately, within the same paragraph or in the sentence(s) directly
+          following, without any intervening turn from another speaker.
+      EXCLUSIONS:
+      (x) a question posed to the reader and left open — no answer supplied by the writer — does not
+          qualify.
+      (y) quoted dialogue, interview transcript, survey items, and FAQ documents whose stated format is
+          question-and-answer do not qualify.
+      (z) a question the writer explicitly defers ("we take this up in the next section") does not
+          qualify.
+      Evidence to extract: quote the question verbatim; quote the first sentence of the answer; note
+      whether the question appears as a heading or in running prose.
+    rubric_version: 1
+    judge_view: chunk
+  examples:
+  - So why did the count change? The rule changed in November.
+  - What does this mean for schools? Two fewer forms each month.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: rht.the-result-q
+  name: The result?
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bThe (?:result|upshot|verdict|takeaway|catch|answer|goal|kicker|problem|difference)\?
+    flags:
+    - MULTILINE
+  examples:
+  - We ran the same query twice. The result? Two different numbers.
+  - Everyone approved the plan. The catch? Nobody funded it.
+  counter_examples:
+  - What was the result? Nobody could say.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: 'Case-sensitive: the tell is the capitalized sentence-initial form.'
+- id: rht.hedging-formula
+  name: hedging formula
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:it could be argued|some (?:might|may|would) (?:say|argue)|it'?s worth considering|arguably)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - It could be argued that the pilot ended too early.
+  - Some might say the sample was too small to act on.
+  counter_examples:
+  - The team argued about the sample size for an hour.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: rht.while-initial
+  name: sentences opening with 'While'
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: pct_sentences_starting_while
+    direction: high_is_telling
+    ramp:
+    - 2.0
+    - 8.0
+  examples:
+  - While the pilot met its target, the cost ran over.
+  - While enrollment fell, attendance held steady.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Percent of sentences beginning with 'While'.
+- id: rht.however-initial
+  name: sentences opening with 'However'
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: pct_sentences_starting_however
+    direction: high_is_telling
+    ramp:
+    - 1.5
+    - 6.0
+  examples:
+  - However, the two counts use different denominators.
+  - However, no school reported the change on time.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Percent of sentences beginning with 'However'.
+- id: rht.transition-density
+  name: transition word density
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: transition_words_per_1k
+    direction: high_is_telling
+    ramp:
+    - 3.0
+    - 12.0
+  examples:
+  - Moreover, the vendor missed the deadline. Furthermore, the invoice was wrong.
+  - Additionally, three schools opted out. Consequently, the sample shrank.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Explicit connectives (moreover, furthermore, additionally, consequently) per 1,000 words.
+- id: rht.anaphora
+  name: anaphora
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: anaphora_share
+    direction: high_is_telling
+    ramp:
+    - 3.0
+    - 10.0
+  examples:
+  - We owe families an answer. We owe principals a plan. We owe the Board a number.
+  - This is about time. This is about trust. This is about follow-through.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Share of adjacent sentences sharing an opening word or phrase.
+- id: rht.whether-youre
+  name: whether you're X or Y
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bwhether you'?re\s+[^.!?\n]{2,60}\bor\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Whether you're a principal or a central office lead, the form is the same.
+  - Whether you're new to the process or a veteran of it, start on page two.
+  counter_examples:
+  - We asked whether the school had submitted the roster.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: rht.colon-elaboration
+  name: colon elaboration opener
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: ^(?:The (?:goal|catch|result|risk|plan|upshot)|Bottom line|Translation|The short version):\s
+    flags:
+    - MULTILINE
+  examples:
+  - 'The catch: the vendor needs sixty days'' notice.'
+  - 'Bottom line: we cannot staff this without a waiver.'
+  counter_examples:
+  - The goal of the pilot was a shorter intake.
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: rht.fragment-emphasis
+  name: fragment for emphasis
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: judge
+    unit: count
+    rubric: |
+      A span exhibits FRAGMENT EMPHASIS when BOTH criteria hold:
+      (a) the span is punctuated as a sentence — it begins after a terminal mark and ends in a period,
+          question mark, or exclamation point — but lacks a finite verb, a subject, or both
+          ("Not anymore." / "Every single school." / "A real problem."), AND
+      (b) its position shows it is there for emphasis: it follows or precedes a complete sentence whose
+          content it intensifies, restates, or undercuts.
+      EXCLUSIONS:
+      (x) headings, subheadings, and titles do not qualify, including bolded run-in headings.
+      (y) list items, table cells, and bullet text do not qualify.
+      (z) salutations, sign-offs, captions, labels, bylines, dates, and callout tags ("Note:", "Action:")
+          do not qualify.
+      (w) a fragment inside quoted speech attributed to someone other than the writer does not qualify.
+      Evidence to extract: quote the fragment; quote the adjacent complete sentence it leans on; name
+      which element is missing (subject, finite verb, or both).
+    rubric_version: 1
+    judge_view: chunk
+  examples:
+  - Nobody caught the error for six weeks. Six weeks.
+  - The fix took one afternoon. One afternoon.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: rht.from-x-to-y
+  name: from X to Y breadth
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: judge
+    unit: count
+    rubric: |
+      A span exhibits FROM-X-TO-Y BREADTH RHETORIC when ALL criteria hold:
+      (a) the span has the form "from X to Y" (or "from X through Y"), AND
+      (b) X and Y are category exemplars, not endpoints of a measurable scale, AND
+      (c) the pair functions as scene-setting or scope-signalling — it gestures at everything in between
+          rather than naming a specific interval the reader must use.
+      EXCLUSIONS:
+      (x) literal ranges do not qualify: dates ("from March to June"), page ranges, grade bands, dollar
+          or percentage spans, times, ages, or any numeric interval.
+      (y) literal movement or transfer does not qualify: "from the warehouse to the school", "from the
+          old vendor to the new one", "from draft to final" when it names an actual process step.
+      (z) a range that is later used in a calculation or a filter does not qualify.
+      Evidence to extract: quote the full "from X to Y" phrase with its sentence; name X and name Y;
+      state whether X and Y are exemplars or scale endpoints.
+    rubric_version: 1
+    judge_view: chunk
+  examples:
+  - From attendance clerks to cabinet members, everyone reads this report.
+  - The change touches everything from intake forms to state reporting.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: str.summary-sandwich
+  name: summary sandwich
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: judge
+    unit: binary
+    rubric: |
+      A document exhibits SUMMARY SANDWICH when BOTH criteria hold:
+      (a) the opening section previews the document's structure or restates the ask ("this document will
+          cover X, Y, Z"), AND
+      (b) a closing section re-summarizes points already made, adding no new information.
+      EXCLUSIONS:
+      (x) a closing section that adds a NEW decision, deadline, owner, or open question does not
+          satisfy (b).
+      Evidence to extract: quote the opening preview sentence(s); quote the closing recap sentence(s);
+      quote any new-information sentence in the closing if present.
+    rubric_version: 1
+    judge_view: skeleton
+  examples:
+  - 'This memo will cover three topics: cost, timeline, and staffing.'
+  - In summary, we covered cost, timeline, and staffing.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Preview at the top, recap at the bottom, nothing new in either.
+- id: str.conclusion-heading
+  name: conclusion heading
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: binary
+    pattern: ^#{1,4}\s+(?:conclusion|in summary|final thoughts|key takeaways|wrapping up|closing thoughts)\b
+    flags:
+    - MULTILINE
+    - IGNORECASE
+  examples:
+  - '## Conclusion'
+  - '### Key Takeaways'
+  counter_examples:
+  - '## Recommendation'
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: str.meta-narration-opener
+  name: meta-narration opener
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: binary
+    pattern: \A.{0,500}?\bthis (?:report|memo|brief|document|proposal|review|analysis)\s+(?:outlines|provides|presents|summarizes|examines|explores|details)\b
+    flags:
+    - IGNORECASE
+    - DOTALL
+  examples:
+  - This memo outlines three options for the fall calendar.
+  - |-
+    # Fall Calendar
+
+    This brief summarizes what the pilot showed.
+  counter_examples:
+  - 'This memo is short: we need a decision by Friday.'
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Only fires within the first 500 characters.
+- id: str.heading-density
+  name: heading density
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: headings_per_1k
+    direction: high_is_telling
+    ramp:
+    - 3.0
+    - 9.0
+  examples:
+  - |-
+    ## Background
+
+    One paragraph.
+
+    ## Findings
+
+    One paragraph.
+
+    ## Next Steps
+
+    One paragraph.
+  - A 600-word memo carrying nine headings.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Markdown headings per 1,000 words.
+- id: str.bullet-density
+  name: bullet density
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: bullet_lines_per_1k
+    direction: high_is_telling
+    ramp:
+    - 10.0
+    - 40.0
+  examples:
+  - |-
+    - point one
+    - point two
+    - point three
+    - point four
+    - point five
+  - A memo where two-thirds of the lines begin with a dash.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Bulleted or numbered lines per 1,000 words.
+- id: str.bold-density
+  name: bold density
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: bold_spans_per_1k
+    direction: high_is_telling
+    ramp:
+    - 3.0
+    - 15.0
+  examples:
+  - The **timeline** is tight, the **budget** is fixed, and the **scope** is growing.
+  - Every paragraph opens with a **bolded phrase** before the sentence starts.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Bold spans per 1,000 words.
+- id: str.para-uniformity
+  name: paragraph length uniformity
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: paragraph_length_cv
+    direction: low_is_telling
+    ramp:
+    - 0.75
+    - 0.4
+  examples:
+  - Eleven paragraphs, each between 58 and 64 words.
+  - Every section runs exactly three sentences.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Low coefficient of variation in paragraph length is the tell.
+- id: str.section-uniformity
+  name: section length uniformity
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: section_length_cv
+    direction: low_is_telling
+    ramp:
+    - 0.6
+    - 0.25
+  examples:
+  - Six sections, each roughly 150 words.
+  - Every heading is followed by the same amount of text.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Low coefficient of variation in section length is the tell.
+- id: str.triple-bullet-habit
+  name: three-item list habit
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: pct_lists_exactly_three
+    direction: high_is_telling
+    ramp:
+    - 35.0
+    - 70.0
+  examples:
+  - Seven of the document's nine lists hold exactly three items.
+  - Every section closes with a three-bullet list.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Percent of lists with exactly three items.
+- id: str.question-headings
+  name: question headings
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: ^#{1,4}\s+[^\n]{3,80}\?\s*$
+    flags:
+    - MULTILINE
+  examples:
+  - '## What changed in the fall count?'
+  - '### Why did three schools opt out?'
+  counter_examples:
+  - '## What changed in the fall count'
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: str.parallel-bullet-grammar
+  name: parallel bullet grammar
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: judge
+    unit: binary
+    rubric: |
+      A document exhibits PARALLEL BULLET GRAMMAR when ALL criteria hold:
+      (a) a list contains three or more bullets or numbered items, AND
+      (b) every item in that list opens with the same grammatical form — all imperative verbs, all
+          gerunds ("-ing"), all "Noun:" lead-ins, or all the same opening word, AND
+      (c) the uniformity runs to the end of the list: not one item breaks the pattern.
+      EXCLUSIONS:
+      (x) lists of two items do not qualify.
+      (y) a list whose items are single words, proper nouns, dates, or numbers does not qualify —
+          parallelism there is a property of the content, not the prose.
+      (z) a list of steps in a procedure where the imperative form is required by the format (a runbook,
+          a checklist, an agenda) does not qualify.
+      Evidence to extract: for each qualifying list, quote the first three to five words of every item,
+      in order; name the shared opening form; note the list's location by its heading.
+    rubric_version: 1
+    judge_view: skeleton
+  examples:
+  - |-
+    - Improving intake speed
+    - Reducing manual entry
+    - Strengthening data quality
+  - |-
+    - Confirm the roster
+    - Reconcile the counts
+    - Publish the summary
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: str.table-overuse
+  name: table overuse
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: judge
+    unit: binary
+    rubric: |
+      A document exhibits TABLE OVERUSE when ANY criterion holds:
+      (a) a markdown table has exactly two columns of the "Aspect / Description", "Item / Detail", or
+          "Factor / Explanation" kind, where the second column holds prose sentences, OR
+      (b) a markdown table has a single data row, so the table carries no comparison, OR
+      (c) a markdown table's cells hold running prose that would read as ordinary paragraphs or bullets
+          with no loss.
+      EXCLUSIONS:
+      (x) a genuine data table — two or more columns of numeric or categorical values, one row per
+          entity — does not qualify, however many rows it has.
+      (y) a schedule, roster, budget, or crosswalk whose columns are read against each other does not
+          qualify.
+      (z) a table required by the document's stated format (a compliance appendix, a required form) does
+          not qualify.
+      Evidence to extract: quote the table's header row; quote one representative data row; state the
+      row count and the column count; name which criterion (a), (b), or (c) it meets.
+    rubric_version: 1
+    judge_view: skeleton
+  examples:
+  - |-
+    | Aspect | Description |
+    |---|---|
+    | Cost | The pilot ran under budget. |
+  - |-
+    | Item | Detail |
+    |---|---|
+    | Timeline | Twelve weeks from approval to launch. |
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Tables carrying prose instead of data.
+- id: sta.sentence-burstiness
+  name: sentence length burstiness
+  category: statistical
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: sentence_length_cv
+    direction: low_is_telling
+    ramp:
+    - 0.65
+    - 0.35
+  examples:
+  - Every sentence lands within two words of eighteen.
+  - No short sentence appears anywhere in the document.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Low variation in sentence length is the tell.
+- id: sta.mean-sentence-length
+  name: mean sentence length band
+  category: statistical
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: sentence_length_band_distance
+    direction: high_is_telling
+    ramp:
+    - 0.0
+    - 8.0
+  examples:
+  - The document averages 24 words per sentence with no relief.
+  - Mean sentence length sits far outside the human business-prose band.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Distance in words from the typical human band for the format.
+- id: sta.mattr
+  name: moving-average type-token ratio
+  category: statistical
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: mattr_500
+    direction: high_is_telling
+    ramp:
+    - 0.78
+    - 0.86
+  examples:
+  - The vocabulary never repeats a content word across 500-word windows.
+  - Unusually even lexical variety from first page to last.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: MATTR over 500-word windows.
+- id: sta.adverb-ly-rate
+  name: -ly adverb rate
+  category: statistical
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: ly_adverbs_per_1k
+    direction: high_is_telling
+    ramp:
+    - 12.0
+    - 30.0
+  examples:
+  - The team significantly, consistently, and materially improved the process.
+  - Crucially, the pilot ran smoothly and finished comfortably ahead of schedule.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: -ly adverbs per 1,000 words.
+- id: sta.comma-rate
+  name: commas per sentence
+  category: statistical
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: commas_per_sentence
+    direction: high_is_telling
+    ramp:
+    - 1.6
+    - 3.0
+  examples:
+  - In the fall, after the count closed, the team, working from two files, rebuilt the report.
+  - Every sentence carries three or more commas.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: null
+- id: sta.opener-diversity
+  name: sentence opener diversity
+  category: statistical
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: sentence_opener_diversity
+    direction: low_is_telling
+    ramp:
+    - 0.55
+    - 0.35
+  examples:
+  - Nine sentences in a row open with 'The'.
+  - Most paragraphs begin with the same two or three words.
+  counter_examples: []
+  provenance:
+    source: seed
+    added: 2026-07-28
+    run_id: null
+    evidence: literature
+  status: active
+  weight: 1.0
+  notes: Low diversity of sentence-opening words is the tell.
