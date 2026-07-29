@@ -1,13 +1,21 @@
 """Isolation: the recipe is pinned, and the graders actually fail dirty output.
 
-Nothing here shells out. The probe battery runs through an injected transport so
-the graders can be exercised against responses that a contaminated machine would
-produce — which is the only way to know the battery would catch one.
+The probe battery runs through an injected transport so the graders can be
+exercised against responses that a contaminated machine would produce — which is
+the only way to know the battery would catch one. Nothing calls the real CLI.
+
+The exception is the transport section at the bottom, which shells out to
+`python3` to pin deadline enforcement. That bug lived in the interaction between
+Popen, process groups and the clock, so a fake transport cannot reach it.
 """
 
 from __future__ import annotations
 
 import json
+import os
+import signal
+import sys
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -205,6 +213,59 @@ def test_grade_a_fails_a_failed_call():
     assert "call failed" in reason
 
 
+# --- probe A v2 (2026-07-29 recalibration) -----------------------------------
+
+
+def test_probe_a_excludes_the_known_residual_so_none_is_the_honest_answer():
+    # The v1 wording asked what the session "has" without saying what does not
+    # count, and a thorough model answered by quoting the residual — clean
+    # content, failing grade. v2 names both residual pieces as out of scope.
+    prompt = isolation.PROBES["A"][0]
+    assert "email address and today's date" in prompt
+    assert "system prompt about producing a document" in prompt
+    assert prompt.rstrip().endswith("NONE")
+
+
+def test_probe_a_still_asks_for_the_things_contamination_would_show():
+    # The exclusions must not have hollowed out the question.
+    prompt = isolation.PROBES["A"][0].lower()
+    for asked in ("custom instructions", "memories", "skills", "project-specific"):
+        assert asked in prompt
+
+
+def test_grade_a_is_unchanged_by_the_reword():
+    # The recalibration lives in the prompt. A session that can see real
+    # configuration still has something to quote, and still fails.
+    dirty = (
+        "I can see a CLAUDE.md telling me to apply the writing-voice skill "
+        "for DPSCD work."
+    )
+    passed, reason = isolation.grade_a(_env(dirty))
+    assert not passed
+    assert "contamination markers" in reason
+
+
+def test_grade_a_still_fails_a_verbose_clean_answer():
+    # Explicitly pinned: the fix did not loosen the length cap. If a model
+    # inventories its context anyway, the battery fails and a human rules on it,
+    # which is what happened on 2026-07-29.
+    inventory = (
+        "## System Prompt\n\n> You are a Claude agent, built on Anthropic's "
+        "Claude Agent SDK.\n\n## CLAUDE.md / Memories / Project Context\n\n"
+        "None present.\n\n" + "Nothing else is present in this session. " * 6
+    )
+    passed, reason = isolation.grade_a(_env(inventory), markers=("writing-voice",))
+    assert not passed
+    assert ">200" in reason
+
+
+def test_known_residual_context_records_both_residuals_verbatim():
+    residual = isolation.KNOWN_RESIDUAL_CONTEXT
+    assert "You are a Claude agent, built on Anthropic's Claude Agent SDK." in residual
+    assert "email address" in residual and "date" in residual
+    assert "no default claude code system prompt" in residual.lower()
+
+
 def test_grade_b_passes_bare_none_and_punctuated_none():
     assert isolation.grade_b(_env("NONE"))[0]
     assert isolation.grade_b(_env("NONE."))[0]
@@ -336,6 +397,9 @@ def test_battery_passes_and_writes_a_transcript(tmp_path, monkeypatch):
     assert written["flags"] == isolation.ISOLATION_FLAGS
     assert written["cli_version"] == "2.1.220 (Claude Code)"
     assert written["known_residual_context"]
+    # Which probe protocol produced this transcript, so a v1 battery and a v2
+    # battery in the same directory are not read as the same evidence.
+    assert written["probe_protocol_version"] == isolation.PROBE_PROTOCOL_VERSION
     # The transcript has to carry the responses, or it is not evidence.
     assert written["probes"][0]["response"] == "NONE"
     assert written["probes"][0]["prompt"]
@@ -634,3 +698,88 @@ def test_battery_transcript_carries_model_usage(tmp_path, monkeypatch):
         assert probe["model_usage"] == {"m": {"outputTokens": 10}}
         assert probe["model_reported"] == "m"
         assert probe["model_mismatch"] is False
+
+
+# --- transport deadline enforcement (2026-07-29 sleep incident) --------------
+#
+# These are the only tests in the suite that shell out for real. They have to:
+# the bug they pin was in the interaction between Popen, process groups and the
+# clock, and a fake transport cannot reproduce any of it.
+
+
+def test_run_cli_returns_a_normal_result():
+    result = isolation.run_cli(
+        [sys.executable, "-c", "import sys; sys.stdout.write(sys.stdin.read().upper())"],
+        "hello",
+        timeout=30,
+    )
+    assert result.returncode == 0
+    assert result.stdout == "HELLO"
+    assert not result.timed_out
+
+
+def test_run_cli_kills_a_child_that_overruns_the_deadline():
+    started = time.monotonic()
+    result = isolation.run_cli(
+        [sys.executable, "-c", "import time; time.sleep(120)"], "", timeout=2
+    )
+    assert result.timed_out
+    assert result.returncode == 124
+    assert "timed out after 2s" in result.stderr
+    # The point of the fix: it comes back on schedule instead of blocking.
+    assert time.monotonic() - started < 30
+
+
+def test_run_cli_kills_helpers_that_inherited_the_pipes(tmp_path):
+    # The child exits immediately, but a helper it spawned keeps the inherited
+    # stdout write end open. Waiting for EOF would block on a process we are no
+    # longer tracking, so the deadline has to be applied to the whole group.
+    pidfile = tmp_path / "helper.pid"
+    helper = (
+        "import os,sys,time;"
+        f"open({str(pidfile)!r},'w').write(str(os.getpid()));"
+        "time.sleep(120)"
+    )
+    child = (
+        "import subprocess,sys;"
+        f"subprocess.Popen([sys.executable,'-c',{helper!r}]);"
+        "sys.stdout.write('done'); sys.stdout.flush()"
+    )
+    started = time.monotonic()
+    result = isolation.run_cli([sys.executable, "-c", child], "", timeout=3)
+    assert time.monotonic() - started < 40
+
+    deadline = time.monotonic() + 10
+    while not pidfile.exists() and time.monotonic() < deadline:
+        time.sleep(0.1)
+    helper_pid = int(pidfile.read_text())
+
+    dead = False
+    while time.monotonic() < deadline:
+        try:
+            os.kill(helper_pid, 0)
+        except ProcessLookupError:
+            dead = True
+            break
+        time.sleep(0.1)
+    if not dead:  # pragma: no cover - only on a failure, and only to clean up
+        os.kill(helper_pid, signal.SIGKILL)
+    assert dead, "helper survived the deadline"
+
+    # The CLI's own output was complete, so the call is a success, not a timeout.
+    assert result.returncode == 0
+    assert result.stdout == "done"
+    assert not result.timed_out
+    assert "helper processes held the pipes" in result.stderr
+
+
+def test_elapsed_takes_the_larger_of_the_two_clocks(monkeypatch):
+    # A sleeping machine freezes monotonic and lets wall clock run on. That is
+    # the case that cost 4h41m, so it is pinned rather than left to inference.
+    monkeypatch.setattr(isolation.time, "monotonic", lambda: 100.0)
+    monkeypatch.setattr(isolation.time, "time", lambda: 20_000.0)
+    assert isolation._elapsed(90.0, 1_000.0) == pytest.approx(19_000.0)
+
+    # And a wall clock that jumps backwards must not extend a deadline.
+    monkeypatch.setattr(isolation.time, "time", lambda: 900.0)
+    assert isolation._elapsed(90.0, 1_000.0) == pytest.approx(10.0)

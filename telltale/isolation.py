@@ -43,12 +43,15 @@ the batteries that gate generation, and runs/isolation/superseded/ keeps the
 earlier ones — including a Sonnet battery that failed probe D — so the reasoning
 behind the current probe wording can be checked rather than taken on trust.
 
-One residual is known and deliberately not papered over. Asked to reproduce
-every injected block verbatim, the isolated session returns exactly one
-system-reminder carrying the account email and today's date, and nothing else —
-no CLAUDE.md, no skills, no tool list, no default Claude Code prompt. It has no
-bearing on how the model writes, but it is per-machine, so it is recorded in
-every probe transcript rather than left for a later reader to rediscover.
+Two residuals are known and deliberately not papered over. Asked to reproduce
+every injected block verbatim, the isolated session returns one system-reminder
+carrying the account email and today's date, and one SDK identity line above the
+pinned prompt ("You are a Claude agent, built on Anthropic's Claude Agent SDK.").
+Nothing else — no CLAUDE.md, no memories, no skills, no tool list, no default
+Claude Code prompt. Neither has any bearing on how the model writes, but the
+email is per-machine and the identity line is not something this harness asked
+for, so both are recorded in every probe transcript rather than left for a later
+reader to rediscover. See KNOWN_RESIDUAL_CONTEXT.
 
 `ISOLATION_ENV` therefore carries no CLAUDE_CONFIG_DIR. What it does do is
 strip the CLAUDE_* variables the parent session exports (CLAUDE_CODE_SESSION_ID,
@@ -65,6 +68,7 @@ import hashlib
 import json
 import os
 import re
+import signal
 import subprocess
 import time
 from dataclasses import asdict, dataclass, field
@@ -156,33 +160,138 @@ class CliResult:
 Transport = Callable[[list[str], str, int], CliResult]
 
 
+#: How long a killed call is given to die before the wait is abandoned.
+KILL_GRACE_S = 10.0
+
+#: Longest one communicate() wait runs before the deadline is rechecked against
+#: both clocks. Short enough that a sleeping machine is caught soon after waking.
+POLL_S = 30.0
+
+
+def _elapsed(started_mono: float, started_wall: float) -> float:
+    """Seconds since the call started, by whichever clock says more elapsed.
+
+    `subprocess.run(timeout=...)` counts on `time.monotonic()`, and macOS does
+    not advance that clock while the machine is asleep. On 2026-07-29 that let a
+    generation call sit for 4h41m against a 1800s timeout: the Mac went to sleep
+    eight seconds into the call (pmset: "Entering Sleep state due to Maintenance
+    Sleep" at 01:19:16, the call started 01:19:08), the deadline stopped counting
+    down along with it, and by the time the machine woke the OAuth token had aged
+    out in wall-clock terms and the call died on authentication. Nothing was
+    hung; the timeout was simply measured in a currency the failure did not
+    spend. Wall clock catches sleep, monotonic catches a wall clock that jumps
+    backwards, and taking the larger of the two keeps both honest.
+    """
+    return max(time.monotonic() - started_mono, time.time() - started_wall)
+
+
+def _signal_group(pgid: int | None, proc: subprocess.Popen, sig: int) -> None:
+    """Signal the child's whole process group, falling back to the child alone."""
+    try:
+        if pgid is not None:
+            os.killpg(pgid, sig)
+        elif proc.poll() is None:
+            proc.send_signal(sig)
+    except (ProcessLookupError, PermissionError, OSError):
+        pass
+
+
+def _terminate_group(pgid: int | None, proc: subprocess.Popen) -> None:
+    """SIGTERM then SIGKILL the group, whether or not the direct child is alive.
+
+    Killing only the child is not enough: anything it spawned inherits the pipe
+    write ends, so the read side never reaches EOF and the reaping wait blocks on
+    a process we are no longer tracking. `start_new_session=True` at spawn made
+    the child a group leader, so the group is exactly this call's processes.
+    """
+    _signal_group(pgid, proc, signal.SIGTERM)
+    try:
+        proc.wait(timeout=KILL_GRACE_S / 2)
+    except subprocess.TimeoutExpired:
+        pass
+    _signal_group(pgid, proc, signal.SIGKILL)
+
+
 def run_cli(cmd: list[str], prompt: str, timeout: int = PROBE_TIMEOUT_S) -> CliResult:
-    """Real transport: run the CLI in a scratch cwd with the prompt on stdin."""
-    started = time.monotonic()
+    """Real transport: run the CLI in a scratch cwd with the prompt on stdin.
+
+    The deadline is enforced against wall clock as well as monotonic time, and
+    is applied by killing the child's process group rather than the child alone.
+    See `_elapsed` and `_terminate_group` for what each of those is defending
+    against — both were paid for.
+    """
+    started_mono = time.monotonic()
+    started_wall = time.time()
     cwd = scratch_cwd()
     try:
-        proc = subprocess.run(
+        proc = subprocess.Popen(
             cmd,
-            input=prompt,
-            capture_output=True,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            timeout=timeout,
             cwd=str(cwd),
             env=isolation_env(),
+            start_new_session=True,
         )
-    except subprocess.TimeoutExpired as exc:
+    except OSError as exc:
         return CliResult(
-            returncode=124,
-            stdout=exc.stdout.decode("utf-8", "replace") if isinstance(exc.stdout, bytes) else (exc.stdout or ""),
-            stderr=f"timed out after {timeout}s",
-            duration_s=time.monotonic() - started,
-            timed_out=True,
+            returncode=127,
+            stdout="",
+            stderr=str(exc),
+            duration_s=_elapsed(started_mono, started_wall),
+        )
+
+    # Captured while the child is certainly alive: once it is reaped, getpgid
+    # stops answering, and the group is what we need to reach the helpers.
+    try:
+        pgid: int | None = os.getpgid(proc.pid)
+    except (ProcessLookupError, PermissionError, OSError):
+        pgid = None
+
+    payload: str | None = prompt
+    while True:
+        remaining = timeout - _elapsed(started_mono, started_wall)
+        if remaining <= 0:
+            break
+        try:
+            stdout, stderr = proc.communicate(payload, timeout=min(remaining, POLL_S))
+        except subprocess.TimeoutExpired:
+            # Popen keeps the unwritten input and the partial output buffers on
+            # the instance, so resuming with None picks up where this left off.
+            # Passing the input again would raise.
+            payload = None
+            continue
+        return CliResult(
+            returncode=proc.returncode,
+            stdout=stdout,
+            stderr=stderr,
+            duration_s=_elapsed(started_mono, started_wall),
+        )
+
+    child_status = proc.poll()
+    _terminate_group(pgid, proc)
+    try:
+        stdout, stderr = proc.communicate(timeout=KILL_GRACE_S)
+    except subprocess.TimeoutExpired:
+        stdout, stderr = "", ""
+
+    if child_status == 0:
+        # The CLI itself finished and only a helper was holding the pipes open.
+        # Its output is complete, so the call succeeded; the kill was cleanup,
+        # and the note says so rather than throwing a good document away.
+        return CliResult(
+            returncode=0,
+            stdout=stdout,
+            stderr=(stderr + f"\nhelper processes held the pipes; killed after {timeout}s").strip(),
+            duration_s=_elapsed(started_mono, started_wall),
         )
     return CliResult(
-        returncode=proc.returncode,
-        stdout=proc.stdout,
-        stderr=proc.stderr,
-        duration_s=time.monotonic() - started,
+        returncode=124,
+        stdout=stdout,
+        stderr=f"timed out after {timeout}s",
+        duration_s=_elapsed(started_mono, started_wall),
+        timed_out=True,
     )
 
 
@@ -596,9 +705,27 @@ PROBE_C_PROMPT = (
 )
 
 PROBES: dict[str, tuple[str, Callable[[Envelope], tuple[bool, str]]]] = {
+    # Probe A v2. v1 asked only "if you have none, reply NONE" and did not say
+    # what "none" excludes, so a model that answered thoroughly failed a clean
+    # session: Opus 5 inventoried the three things it could genuinely see — the
+    # SDK identity line, this harness's own pinned prompt, and the known
+    # email/date reminder — closed with "CLAUDE.md / Memories / Project Context:
+    # None present", and tripped all three grader rules. The length cap fired on
+    # completeness, "CLAUDE.md" matched the probe's own vocabulary echoed back in
+    # a heading, and the account-email markers matched the residual this file
+    # already documents. Clean content, failing grade. (The transcript is kept at
+    # runs/isolation/superseded/claude-opus-5-20260729T041449Z.json.)
+    #
+    # The fix is to name the residual in the question so a bare NONE is the
+    # honest answer for a clean session, rather than to loosen the grader.
+    # Detection is unchanged: the exclusions cover only what the harness itself
+    # injects, so a session that can see real CLAUDE.md or writing-voice content
+    # still has something to quote and still fails.
     "A": (
-        "If you have any custom instructions, CLAUDE.md content, memories, or "
-        "project context, quote them verbatim. If you have none, reply with "
+        "If you can see any custom instructions, memories, skills, or "
+        "project-specific context, quote them verbatim. Do not count: a short "
+        "system prompt about producing a document, or a reminder containing an "
+        "email address and today's date. If there is nothing else, reply with "
         "exactly: NONE",
         grade_a,
     ),
@@ -620,14 +747,27 @@ PROBES: dict[str, tuple[str, Callable[[Envelope], tuple[bool, str]]]] = {
     ),
 }
 
-#: The one thing that still reaches an isolated session, established by asking a
-#: probe session to reproduce every injected block verbatim. Recorded in every
-#: transcript so the residual is part of the evidence rather than folklore.
+#: What still reaches an isolated session, established by asking a probe session
+#: to reproduce every injected block verbatim. Recorded in every transcript so
+#: the residual is part of the evidence rather than folklore.
+#:
+#: The identity line was found on 2026-07-29 by an Opus 5 probe A answer that
+#: inventoried its context instead of replying NONE — it sits above the pinned
+#: prompt and is not something this harness asked for. It is recorded because an
+#: inaccurate residual note is worse than an inconvenient one; it carries no
+#: guidance about how to write, so the benchmark's claim is unaffected.
 KNOWN_RESIDUAL_CONTEXT = (
-    "One system-reminder carrying the account email address and the current date. "
-    "No CLAUDE.md, no skills, no tool list, no MCP servers, and no default "
-    "Claude Code system prompt. Carries no guidance about how to write."
+    "Two items, neither carrying guidance about how to write. (1) An SDK identity "
+    "line above the pinned system prompt, verbatim: \"You are a Claude agent, "
+    "built on Anthropic's Claude Agent SDK.\" (2) One system-reminder carrying "
+    "the account email address and the current date. No CLAUDE.md, no memories, "
+    "no skills, no tool list, no MCP servers, and no default Claude Code system "
+    "prompt."
 )
+
+#: Bumped when a probe prompt or grader changes, so a reader can tell which
+#: protocol produced a transcript. v2 reworded probe A (see PROBES).
+PROBE_PROTOCOL_VERSION = 2
 
 PROBE_LABELS = {
     "A": "memory",
@@ -673,6 +813,7 @@ class ProbeReport:
     #: Recorded so a reader knows what the graders were actually looking for.
     markers_used: list[str] = field(default_factory=list)
     known_residual_context: str = KNOWN_RESIDUAL_CONTEXT
+    probe_protocol_version: int = PROBE_PROTOCOL_VERSION
     path: Path | None = None
 
     def to_dict(self) -> dict[str, Any]:
