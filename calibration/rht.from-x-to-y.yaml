@@ -1,0 +1,178 @@
+# Calibration set for rht.from-x-to-y (rubric_version 1).
+#
+# The surface form "from X to Y" is common and usually literal. Nine of the ten
+# negatives contain the exact phrase and are excluded by (x), (y), or (z) —
+# dates, money, grade bands, page ranges, times, physical movement, vendor
+# transfer, a process step, and a range that is later used as a filter. Only the
+# positives use the pair as scope-signalling rhetoric.
+tell: rht.from-x-to-y
+rubric_version: 1
+view: chunk
+snippets:
+  - id: pos-01
+    label: positive
+    source: registry
+    text: |
+      The monthly attendance summary is not a specialist document any more. From
+      attendance clerks to cabinet members, everyone reads this report. That is
+      an argument for making it shorter, not longer.
+
+  - id: pos-02
+    label: positive
+    source: registry
+    text: |
+      Changing the identifier is not a one-system fix. The change touches
+      everything from intake forms to state reporting, and the sequencing
+      matters more than the work in any single system.
+
+  - id: pos-03
+    label: positive
+    source: synthetic
+    text: |
+      Nobody could tell me who signs off on the exception codes. From the front
+      office to the boardroom, the answer was some version of "not me."
+
+  - id: pos-04
+    label: positive
+    source: synthetic
+    text: |
+      One bad field in the student record propagates further than people expect.
+      The gap shows up everywhere from bus routing to lunch counts, and both of
+      those get reported to the state.
+
+  - id: pos-05
+    label: positive
+    source: synthetic
+    text: |
+      The exit survey was unusually consistent this year. From new teachers to
+      thirty-year veterans, the complaint was the same: too many systems asking
+      for the same information.
+
+  - id: pos-06
+    label: positive
+    source: synthetic
+    text: |
+      That field was never designed to be an identifier and it has become one.
+      Everything from paper intake forms to the data warehouse now keys off it,
+      which is why nobody wants to be the one to change it.
+
+  - id: pos-07
+    label: positive
+    source: synthetic
+    text: |
+      The utilization problem is not confined to the small buildings. From the
+      smallest elementary to the comprehensive high school, the pattern holds:
+      capacity built for a district twenty percent larger than this one.
+
+  - id: pos-08
+    label: positive
+    source: synthetic
+    text: |
+      Human resources treats these as separate policies and staff experience
+      them as one. The rulebook reaches from hiring through retirement, and a
+      single inconsistent definition of "continuous service" runs the length of
+      it.
+
+  - id: pos-09
+    label: positive
+    source: synthetic
+    text: |
+      We heard the same three questions at every session. From parents to
+      principals, nobody asked about the savings — they asked about the bus
+      ride, the start time, and the principal.
+
+  - id: pos-10
+    label: positive
+    source: synthetic
+    text: |
+      The duplicate-entry problem is structural, not local. From payroll to
+      procurement, every system asks for the same number twice and reconciles it
+      differently.
+
+  - id: neg-01
+    label: negative
+    source: synthetic
+    note: exclusion (x) — literal date range
+    text: |
+      The pilot ran from March to June with two nurse educators and one
+      part-time dietitian. Enrollment closed at the end of the second month.
+
+  - id: neg-02
+    label: negative
+    source: synthetic
+    note: exclusion (x) — dollar span
+    text: |
+      Depending on how the transportation assumptions are set, savings range
+      from $1.2 million to $2.8 million a year. The low end assumes no change to
+      the walk-zone policy.
+
+  - id: neg-03
+    label: negative
+    source: synthetic
+    note: exclusion (x) — grade band
+    text: |
+      The program serves students from grade 6 to grade 8 at two campuses. Ninth
+      graders were included in the first year and moved to the high school model
+      in the second.
+
+  - id: neg-04
+    label: negative
+    source: synthetic
+    note: exclusion (x) — page range
+    text: |
+      The findings run from page 14 to page 22 of the consultant's report, and
+      the methodology appendix follows them. The cost tables are in a separate
+      workbook.
+
+  - id: neg-05
+    label: negative
+    source: synthetic
+    note: exclusion (y) — literal movement
+    text: |
+      Files move from the warehouse to the school in one truck on the second
+      Tuesday of the month. Anything that misses that run waits four weeks.
+
+  - id: neg-06
+    label: negative
+    source: synthetic
+    note: exclusion (y) — transfer between two named vendors
+    text: |
+      We are moving from the old vendor to the new one in August, during the two
+      weeks when neither payroll nor scheduling is running. The cutover plan is
+      attached.
+
+  - id: neg-07
+    label: negative
+    source: synthetic
+    note: exclusion (y) — an actual process step
+    text: |
+      The document goes from draft to final after the cabinet review, and only
+      the final version is posted to BoardDocs. Comments on the draft close the
+      Friday before.
+
+  - id: neg-08
+    label: negative
+    source: synthetic
+    note: exclusion (z) — the range is used as a filter in a calculation
+    text: |
+      Filter the roster from age 5 to age 21, then divide by the certified
+      October count to get the participation rate. Students who exited mid-year
+      stay in the denominator.
+
+  - id: neg-09
+    label: negative
+    source: synthetic
+    note: exclusion (x) — clock times
+    text: |
+      The session runs from 9:00 a.m. to 11:30 a.m. in the board room, with a
+      fifteen-minute break at the top of the second hour. Lunch is not provided.
+
+  - id: neg-10
+    label: negative
+    source: synthetic
+    note: no from-to construction at all
+    text: |
+      Every system in the district asks for the student identifier and each one
+      validates it differently. Payroll accepts leading zeros, procurement
+      strips them, and the warehouse stores both. Reconciliation is manual and
+      takes two days a month.

@@ -1,0 +1,578 @@
+# Calibration set for str.parallel-bullet-grammar (rubric_version 1).
+#
+# Mini-skeletons in the shape `protocol.skeleton_view` renders, so the LIST
+# blocks carry the item openings the judge is asked to quote. The judge reports
+# per-list evidence; the decision runs in code — a list of three or more items,
+# one shared opening form, not one item breaking it, and no exclusion.
+#
+# The negatives are deliberately the near misses: a two-item list, single-word
+# items, dates, numbers, a runbook, a checklist, an agenda, and two lists whose
+# uniformity breaks on the last item. A judge that reads "the bullets look
+# tidy" rather than the rubric fails most of them.
+tell: str.parallel-bullet-grammar
+rubric_version: 1
+view: skeleton
+snippets:
+  - id: pos-01
+    label: positive
+    source: registry
+    note: registry example — all gerunds
+    text: |
+      SKELETON sample/memo-01
+      format: memo
+      words: 420
+
+      OUTLINE
+      H1: Data Team Priorities
+      PARA: 46w | The working group settled on three priorities for the year.
+      LIST: 3 items
+        - Improving intake speed
+        - Reducing manual entry
+        - Strengthening data quality
+      PARA: 38w | Each has an owner and a first checkpoint in October.
+
+      FIRST PARAGRAPH
+      The working group settled on three priorities for the year. None of them requires new money and all three require attention from the same two people.
+
+      LAST PARAGRAPH
+      Each has an owner and a first checkpoint in October. Progress will be reported in the quarterly update rather than in a separate memo.
+
+      TABLES
+      (none)
+
+  - id: pos-02
+    label: positive
+    source: registry
+    note: registry example — all imperatives, under a recommendations heading
+    text: |
+      SKELETON sample/brief-01
+      format: brief
+      words: 510
+
+      OUTLINE
+      H1: October Count — Recommendations
+      PARA: 54w | Three actions would prevent a repeat of the October discrepancy.
+      H2: Recommendations
+      LIST: 3 items
+        - Confirm the roster
+        - Reconcile the counts
+        - Publish the summary
+      PARA: 41w | None of the three adds staff time beyond the first month.
+
+      FIRST PARAGRAPH
+      Three actions would prevent a repeat of the October discrepancy. They are listed in the order they would be performed, though none depends on the others.
+
+      LAST PARAGRAPH
+      None of the three adds staff time beyond the first month. The reconciliation step is already performed informally in six of the nineteen buildings.
+
+      TABLES
+      (none)
+
+  - id: pos-03
+    label: positive
+    source: synthetic
+    note: all "Noun:" lead-ins
+    text: |
+      SKELETON sample/report-01
+      format: report
+      words: 880
+
+      OUTLINE
+      H1: Consolidation Package A
+      PARA: 62w | Package A holds four buildings and moves two grade configurations.
+      H2: Components
+      LIST: 4 items
+        - Cost: $4.1 million in annual savings
+        - Timeline: eighteen months from board action
+        - Staffing: forty-one positions affected
+        - Transportation: eleven routes redrawn
+      PARA: 58w | The transportation figure is the least certain of the four.
+
+      FIRST PARAGRAPH
+      Package A holds four buildings and moves two grade configurations. It is the largest of the three packages and the only one that reaches the full savings target.
+
+      LAST PARAGRAPH
+      The transportation figure is the least certain of the four. Routing has not been re-run against the proposed boundaries, so the estimate carries the 2023 route lengths.
+
+      TABLES
+      (none)
+
+  - id: pos-04
+    label: positive
+    source: synthetic
+    note: every item opens with the same word
+    text: |
+      SKELETON sample/update-01
+      format: update
+      words: 640
+
+      OUTLINE
+      H1: Migration Update
+      PARA: 51w | Progress against the four workstreams is summarized below.
+      LIST: 4 items
+        - Extract is complete for all twelve sources
+        - Extract validation runs nightly at two
+        - Extract failures page the on-call analyst
+        - Extract logs are retained for ninety days
+      PARA: 44w | Transform and load are covered in the next section.
+
+      FIRST PARAGRAPH
+      Progress against the four workstreams is summarized below. The extract workstream is the only one that is finished.
+
+      LAST PARAGRAPH
+      Transform and load are covered in the next section. Neither has moved since the last update, for the reason described there.
+
+      TABLES
+      (none)
+
+  - id: pos-05
+    label: positive
+    source: synthetic
+    note: all gerunds, five items
+    text: |
+      SKELETON sample/plan-01
+      format: plan
+      words: 970
+
+      OUTLINE
+      H1: Engagement Plan
+      PARA: 57w | The engagement strategy has five components running in parallel.
+      H2: Components
+      LIST: 5 items
+        - Hosting six community listening sessions
+        - Publishing the modeling assumptions online
+        - Briefing the PTA presidents monthly
+        - Convening a staff advisory group
+        - Reporting attendance at each board meeting
+      PARA: 49w | Hana owns all five and reports weekly.
+
+      FIRST PARAGRAPH
+      The engagement strategy has five components running in parallel. Running them in sequence would push the last one past the April board meeting.
+
+      LAST PARAGRAPH
+      Hana owns all five and reports weekly. The advisory group is the only component that requires a formal appointment.
+
+      TABLES
+      (none)
+
+  - id: pos-06
+    label: positive
+    source: synthetic
+    note: all noun phrases with the same determiner-free shape
+    text: |
+      SKELETON sample/white-paper-01
+      format: white-paper
+      words: 1520
+
+      OUTLINE
+      H1: Identifier Integrity
+      PARA: 74w | Three failure modes account for nearly all reconciliation error.
+      H2: Failure modes
+      LIST: 3 items
+        - Leading zeros stripped on write
+        - Trailing spaces preserved on read
+        - Mixed case accepted without normalization
+      PARA: 66w | The first accounts for roughly two-thirds of the observed failures.
+
+      FIRST PARAGRAPH
+      Three failure modes account for nearly all reconciliation error. Each is a property of a different system and none is difficult to fix in isolation.
+
+      LAST PARAGRAPH
+      The first accounts for roughly two-thirds of the observed failures. The other two are individually rare and jointly responsible for the hardest cases to diagnose.
+
+      TABLES
+      (none)
+
+  - id: pos-07
+    label: positive
+    source: synthetic
+    note: all infinitives
+    text: |
+      SKELETON sample/proposal-01
+      format: proposal
+      words: 1040
+
+      OUTLINE
+      H1: Consolidated Upload — Proposal
+      PARA: 68w | The proposal is designed to meet four objectives.
+      H2: Objectives
+      LIST: 4 items
+        - To reduce clerk hours spent on monthly filing
+        - To remove the duplicate signature requirement
+        - To standardize the exception codes across buildings
+        - To shorten the reconciliation window to five days
+      PARA: 52w | The first objective carries most of the savings.
+
+      FIRST PARAGRAPH
+      The proposal is designed to meet four objectives. They are stated in priority order and the fourth is contingent on the third.
+
+      LAST PARAGRAPH
+      The first objective carries most of the savings. The others are largely quality improvements that happen to be cheap once the filing change is made.
+
+      TABLES
+      (none)
+
+  - id: pos-08
+    label: positive
+    source: synthetic
+    note: all past-tense clauses
+    text: |
+      SKELETON sample/case-study-01
+      format: case-study
+      words: 1090
+
+      OUTLINE
+      H1: Riverbend — What the Program Did
+      PARA: 71w | The program's first year had three phases.
+      H2: Phases
+      LIST: 3 items
+        - Enrolled 412 patients between January and October
+        - Delivered twelve monthly education sessions per cohort
+        - Retained 268 patients through the twelve-month mark
+      PARA: 63w | Retention was the metric the board cared about.
+
+      FIRST PARAGRAPH
+      The program's first year had three phases. They overlapped by design, since enrollment stayed open through the tenth month.
+
+      LAST PARAGRAPH
+      Retention was the metric the board cared about. It came in eighteen points above the target set in the grant application.
+
+      TABLES
+      (none)
+
+  - id: pos-09
+    label: positive
+    source: synthetic
+    note: all questions, same grammatical shape
+    text: |
+      SKELETON sample/review-01
+      format: review
+      words: 720
+
+      OUTLINE
+      H1: Vendor Review — Open Items
+      PARA: 58w | Four questions remain unanswered by the vendor.
+      H2: Open items
+      LIST: 4 items
+        - What caused the March outage?
+        - What changed in the April release?
+        - What is the current escalation path?
+        - What does the renewal price include?
+      PARA: 47w | None has been answered in writing.
+
+      FIRST PARAGRAPH
+      Four questions remain unanswered by the vendor. All four were sent on March 30 and repeated on April 14.
+
+      LAST PARAGRAPH
+      None has been answered in writing. The account manager has answered two of them verbally, which is not sufficient for the cure notice.
+
+      TABLES
+      (none)
+
+  - id: pos-10
+    label: positive
+    source: synthetic
+    note: all gerunds, six items
+    text: |
+      SKELETON sample/report-02
+      format: report
+      words: 1240
+
+      OUTLINE
+      H1: Attendance Recovery — What We Changed
+      PARA: 66w | Six changes were made to the attendance protocol in September.
+      H2: Changes
+      LIST: 6 items
+        - Adding a second call on day two
+        - Moving the letter from day five to day three
+        - Assigning each case to a named clerk
+        - Logging every contact attempt in the student record
+        - Reporting building totals weekly
+        - Reviewing chronic cases at the monthly meeting
+      PARA: 61w | The second call is the only change with a measurable effect.
+
+      FIRST PARAGRAPH
+      Six changes were made to the attendance protocol in September. Three of them were procedural and three added work for building clerks.
+
+      LAST PARAGRAPH
+      The second call is the only change with a measurable effect. The others may still be worth keeping, but this analysis cannot say so.
+
+      TABLES
+      (none)
+
+  - id: neg-01
+    label: negative
+    source: synthetic
+    note: exclusion (x) — a two-item list
+    text: |
+      SKELETON sample/memo-02
+      format: memo
+      words: 380
+
+      OUTLINE
+      H1: Two Packages for the Board
+      PARA: 52w | The board will be asked to choose between two packages.
+      LIST: 2 items
+        - Closing four buildings over three years
+        - Closing two buildings and redrawing boundaries
+      PARA: 46w | Both hold the elementary boundaries east of the river.
+
+      FIRST PARAGRAPH
+      The board will be asked to choose between two packages. Neither reaches the full savings target on its own.
+
+      LAST PARAGRAPH
+      Both hold the elementary boundaries east of the river. That constraint came out of the December listening sessions and has not been revisited.
+
+      TABLES
+      (none)
+
+  - id: neg-02
+    label: negative
+    source: synthetic
+    note: exclusion (y) — the items are proper nouns
+    text: |
+      SKELETON sample/brief-02
+      format: brief
+      words: 460
+
+      OUTLINE
+      H1: Buildings Under Review
+      PARA: 58w | Four buildings appear in every version of the model.
+      LIST: 4 items
+        - Ponderosa
+        - Juniper Flat
+        - Sawyer Creek
+        - Deschutes View
+      PARA: 51w | All four sit below 60 percent utilization.
+
+      FIRST PARAGRAPH
+      Four buildings appear in every version of the model. They were selected on utilization alone, before any consideration of condition or program.
+
+      LAST PARAGRAPH
+      All four sit below 60 percent utilization. Deschutes View is the only one that also carries a major roof liability inside five years.
+
+      TABLES
+      (none)
+
+  - id: neg-03
+    label: negative
+    source: synthetic
+    note: exclusion (y) — the items are dates
+    text: |
+      SKELETON sample/update-02
+      format: update
+      words: 400
+
+      OUTLINE
+      H1: Key Dates
+      PARA: 44w | The schedule has four fixed points between now and the vote.
+      LIST: 4 items
+        - March 9
+        - March 16
+        - April 6
+        - April 20
+      PARA: 39w | Nothing between those dates can slip without moving the vote.
+
+      FIRST PARAGRAPH
+      The schedule has four fixed points between now and the vote. Two of them are contractual and two are board calendar dates.
+
+      LAST PARAGRAPH
+      Nothing between those dates can slip without moving the vote. The May 15 notice deadline is the binding constraint behind all four.
+
+      TABLES
+      (none)
+
+  - id: neg-04
+    label: negative
+    source: synthetic
+    note: exclusion (y) — the items are numbers
+    text: |
+      SKELETON sample/report-03
+      format: report
+      words: 520
+
+      OUTLINE
+      H1: Utilization Summary
+      PARA: 49w | Utilization across the four buildings under review is as follows.
+      LIST: 4 items
+        - 55 percent
+        - 54 percent
+        - 58 percent
+        - 61 percent
+      PARA: 42w | The board policy threshold is 65 percent.
+
+      FIRST PARAGRAPH
+      Utilization across the four buildings under review is as follows. Figures are from the certified October count and use program capacity, not building capacity.
+
+      LAST PARAGRAPH
+      The board policy threshold is 65 percent. No building under review has cleared it in any of the last four years.
+
+      TABLES
+      (none)
+
+  - id: neg-05
+    label: negative
+    source: synthetic
+    note: exclusion (z) — a runbook whose format requires the imperative
+    text: |
+      SKELETON sample/sop-01
+      format: sop
+      words: 610
+
+      OUTLINE
+      H1: Monthly Upload Runbook
+      PARA: 46w | Perform these steps in order on the first business day of the month.
+      H2: Procedure
+      LIST: 5 items
+        - Open the attendance module and select the prior month
+        - Export the certified daily file to the staging share
+        - Run the reconciliation script against the staging copy
+        - Review the exception report for codes 12 and 14
+        - Submit the upload and record the confirmation number
+      PARA: 38w | Escalate to the data team if the exception count exceeds twenty.
+
+      FIRST PARAGRAPH
+      Perform these steps in order on the first business day of the month. Do not begin before the prior month is closed in the attendance module.
+
+      LAST PARAGRAPH
+      Escalate to the data team if the exception count exceeds twenty. Do not resubmit an upload that has already returned a confirmation number.
+
+      TABLES
+      (none)
+
+  - id: neg-06
+    label: negative
+    source: synthetic
+    note: exclusion (z) — a checklist
+    text: |
+      SKELETON sample/checklist-01
+      format: sop
+      words: 340
+
+      OUTLINE
+      H1: Pre-Board-Meeting Checklist
+      PARA: 41w | Complete every item before the packet is released.
+      H2: Checklist
+      LIST: 4 items
+        - Confirm the agenda with the board secretary
+        - Verify the fiscal note against the budget office figure
+        - Attach the modeling appendix in final form
+        - Circulate the draft to cabinet for review
+      PARA: 35w | The packet releases seventy-two hours before the meeting.
+
+      FIRST PARAGRAPH
+      Complete every item before the packet is released. Items may be completed in any order but all four are required.
+
+      LAST PARAGRAPH
+      The packet releases seventy-two hours before the meeting. Late items go to the following meeting without exception.
+
+      TABLES
+      (none)
+
+  - id: neg-07
+    label: negative
+    source: synthetic
+    note: exclusion (z) — a meeting agenda
+    text: |
+      SKELETON sample/agenda-01
+      format: agenda
+      words: 300
+
+      OUTLINE
+      H1: Working Session Agenda — March 9
+      PARA: 36w | The session runs ninety minutes in the board room.
+      H2: Agenda
+      LIST: 4 items
+        - Review the four-building model
+        - Discuss the sibling-preservation rule
+        - Set the listening session dates
+        - Assign the staffing analysis
+      PARA: 31w | Denise will take notes and circulate them Friday.
+
+      FIRST PARAGRAPH
+      The session runs ninety minutes in the board room. Attendance is cabinet plus the two analysts working the model.
+
+      LAST PARAGRAPH
+      Denise will take notes and circulate them Friday. Anything not reached moves to the March 16 session.
+
+      TABLES
+      (none)
+
+  - id: neg-08
+    label: negative
+    source: synthetic
+    note: criterion (c) fails — the last item breaks the gerund pattern
+    text: |
+      SKELETON sample/memo-03
+      format: memo
+      words: 470
+
+      OUTLINE
+      H1: Priorities and One Constraint
+      PARA: 55w | The working group settled on four items for the year.
+      LIST: 4 items
+        - Improving intake speed
+        - Reducing manual entry
+        - Strengthening data quality
+        - The budget will not grow
+      PARA: 43w | The fourth is a constraint rather than a priority.
+
+      FIRST PARAGRAPH
+      The working group settled on four items for the year. The last of them is not a priority at all and was added by the finance office.
+
+      LAST PARAGRAPH
+      The fourth is a constraint rather than a priority. It is listed here because it governs how far the first three can go.
+
+      TABLES
+      (none)
+
+  - id: neg-09
+    label: negative
+    source: synthetic
+    note: criterion (b) fails — three items, three different grammatical forms
+    text: |
+      SKELETON sample/brief-03
+      format: brief
+      words: 430
+
+      OUTLINE
+      H1: Where the Migration Stands
+      PARA: 51w | Three things are worth flagging this week.
+      LIST: 3 items
+        - Extract is finished
+        - Reviewing the transformation layer
+        - A decision on the identifier
+      PARA: 39w | The third is blocking the other two.
+
+      FIRST PARAGRAPH
+      Three things are worth flagging this week. They are listed in the order they came up, not in order of importance.
+
+      LAST PARAGRAPH
+      The third is blocking the other two. Priya has the decision and has asked for another week.
+
+      TABLES
+      (none)
+
+  - id: neg-10
+    label: negative
+    source: synthetic
+    note: no lists at all — criterion (a) cannot hold
+    text: |
+      SKELETON sample/email-01
+      format: email
+      words: 390
+
+      OUTLINE
+      H1: Modeling window
+      PARA: 88w | Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27.
+      PARA: 74w | The board's last actionable meeting is April 20.
+      PARA: 66w | That gives us seven weeks to build something defensible.
+
+      FIRST PARAGRAPH
+      Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27, and enrollment has now fallen 14 percent over six years with no sign of leveling off.
+
+      LAST PARAGRAPH
+      That gives us seven weeks to build something defensible. I would rather bring the board three packages than one recommendation nobody can question.
+
+      TABLES
+      (none)

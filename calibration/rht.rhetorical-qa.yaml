@@ -1,0 +1,203 @@
+# Calibration set for rht.rhetorical-qa (rubric_version 1).
+#
+# Ten positives and ten negatives. Every positive contains at least one span
+# where the writer poses a question in their own voice and answers it
+# immediately. Every negative contains none — several of them contain something
+# that *looks* like one and is caught by an exclusion, which is the point: a
+# judge that fires on any question mark would pass a set of clean negatives and
+# fail this one.
+#
+# `source: registry` marks a snippet built around the registry's own example.
+tell: rht.rhetorical-qa
+rubric_version: 1
+view: chunk
+snippets:
+  - id: pos-01
+    label: positive
+    source: registry
+    note: registry example, in its natural setting
+    text: |
+      The October count came back 212 students lower than the September file.
+      So why did the count change? The rule changed in November. Districts that
+      filed after the fifteenth were rolled into the following month, and three
+      of ours filed on the sixteenth.
+
+  - id: pos-02
+    label: positive
+    source: registry
+    note: registry example, in its natural setting
+    text: |
+      Beginning July 1 the state accepts a single consolidated attendance
+      upload. What does this mean for schools? Two fewer forms each month, and
+      one fewer signature on each. Nothing else about the process changes.
+
+  - id: pos-03
+    label: positive
+    source: synthetic
+    text: |
+      We missed the submission window by four days and the state applied the
+      late penalty. Why did we miss it? The vendor's file arrived on the ninth,
+      four days after the cutoff we agreed to in March. We have asked for a
+      written commitment to the date.
+
+  - id: pos-04
+    label: positive
+    source: synthetic
+    note: question posed as a heading, answered in the paragraph under it
+    text: |
+      ## Is the pilot worth extending?
+
+      Yes. Retention held at 68 percent through the twelve-month mark, against
+      a 45 percent target, and the per-participant cost fell in the second half
+      of the year as the caseload filled.
+
+  - id: pos-05
+    label: positive
+    source: synthetic
+    text: |
+      Twelve schools reported the same discrepancy in April that they reported
+      in October. So what changed? Nothing in the policy. What changed was who
+      was doing the reading, and the new clerks were never trained on the
+      exception codes.
+
+  - id: pos-06
+    label: positive
+    source: synthetic
+    text: |
+      The board asked for a number before it votes. How much will this cost?
+      Roughly $180,000 in the first year and $95,000 in each year after, with
+      the first-year premium going almost entirely to the data migration.
+
+  - id: pos-07
+    label: positive
+    source: synthetic
+    text: |
+      Two departments have been pointing at each other since February. Who owns
+      this? Facilities owns the building work and IT owns the network cutover.
+      Neither owns the schedule, which is the actual problem.
+
+  - id: pos-08
+    label: positive
+    source: synthetic
+    text: |
+      Four hundred and twelve patients enrolled and 268 finished. But is that
+      sample big enough to say anything? It is. At this effect size the interval
+      on the retention rate is about six points wide, which is narrower than the
+      difference the committee is being asked to act on.
+
+  - id: pos-09
+    label: positive
+    source: synthetic
+    text: |
+      The grant lapses in June and the replacement application is not open yet.
+      Where does that leave the board? With one decision and six weeks to make
+      it. Waiting past the May meeting removes the renewal option entirely.
+
+  - id: pos-10
+    label: positive
+    source: synthetic
+    text: |
+      Contracting has signed off and legal has no remaining objections. And the
+      timeline? Twelve weeks from approval to launch, assuming the contract is
+      countersigned by June 1. Every week of slippage past that pushes go-live
+      into the first week of school.
+
+  - id: neg-01
+    label: negative
+    source: synthetic
+    note: exclusion (x) — question posed to the reader, left open
+    text: |
+      The committee has to decide whether the program is renewed at current
+      staffing, expanded, or wound down. What would you cut to pay for the
+      expansion? Bring an answer to the March meeting; I do not have a
+      recommendation to offer yet.
+
+  - id: neg-02
+    label: negative
+    source: synthetic
+    note: exclusion (y) — quoted dialogue, another speaker answers
+    text: |
+      Ruiz put it to the panel directly. "Why did the count change?" she asked.
+      The vendor's representative said the rule had changed in November and
+      that the district had been notified by email in October.
+
+  - id: neg-03
+    label: negative
+    source: synthetic
+    note: exclusion (y) — a document whose stated format is question-and-answer
+    text: |
+      ## Frequently asked questions about the new intake form
+
+      Q: Who signs the form? A: The building secretary signs it.
+
+      Q: Where does it go after that? A: To the central office, within two days.
+
+  - id: neg-04
+    label: negative
+    source: synthetic
+    note: exclusion (z) — the writer explicitly defers the question
+    text: |
+      The district-level model fits well, but the school-level residuals are
+      larger than we expected. Does the model hold up at the school level? We
+      take that up in the next section, after the sample description.
+
+  - id: neg-05
+    label: negative
+    source: synthetic
+    note: plain prose, no question at all
+    text: |
+      The general fund gap is $8.4 million for 2026-27. Enrollment has fallen 14
+      percent over six years with no sign of leveling off, and the four buildings
+      under 60 percent utilization account for most of the excess capacity.
+      Supply budgets and attrition cannot close a gap of that size.
+
+  - id: neg-06
+    label: negative
+    source: synthetic
+    note: exclusion (y) — a survey item, quoted
+    text: |
+      Item 4 on the staff survey read: "How often do you use the dashboard?"
+      Sixty-one percent of respondents answered weekly or more, and the share
+      was highest among assistant principals.
+
+  - id: neg-07
+    label: negative
+    source: synthetic
+    note: exclusion (x) — a real question to a named person, awaiting a real answer
+    text: |
+      Grant, can you have the modeling ready by March 9? Let me know either way
+      by Friday so Hana can schedule the listening sessions around it. If the
+      four-building version is too much for that window, say so now.
+
+  - id: neg-08
+    label: negative
+    source: synthetic
+    note: enumerated prose, no question
+    text: |
+      Three things changed this year: the filing deadline moved from the
+      fifteenth to the first, the signature rule now allows a designee, and the
+      vendor replaced its upload portal. The third change caused all of the
+      problems and none of the savings.
+
+  - id: neg-09
+    label: negative
+    source: synthetic
+    note: exclusion (y) — interview transcript
+    text: |
+      INTERVIEWER: How long have you been running the intake desk?
+
+      CLERK: Six years this fall.
+
+      INTERVIEWER: And when did the backlog start?
+
+      CLERK: Right after the portal changed, so late September.
+
+  - id: neg-10
+    label: negative
+    source: synthetic
+    note: exclusion (x) — closing question left open for the committee
+    text: |
+      Both packages hold the elementary boundaries steady and neither closes a
+      building east of the river. That leaves one question for the committee:
+      how much service reduction is acceptable in the transportation budget?
+      Please come to Thursday's meeting ready to answer it.

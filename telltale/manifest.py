@@ -63,6 +63,7 @@ def build_manifest(
     bootstrap: dict[str, Any] | None = None,
     now: datetime.datetime | None = None,
     run_id: str | None = None,
+    judge: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Assemble the manifest for one scoring run."""
     sha = corpus_hash(list(docs))
@@ -112,6 +113,9 @@ def build_manifest(
             "method": (bootstrap or {}).get("method"),
             "n_prompts": (bootstrap or {}).get("n_prompts"),
         },
+        # Tier-2. `enabled: false` is the M5 shape and stays the default, so a
+        # deterministic run's manifest is unchanged by this section existing.
+        "judge": dict(judge or {"enabled": False}),
         "environment": {
             "python": platform.python_version(),
             "pandas": _version("pandas"),
@@ -212,6 +216,7 @@ def verify(run_dir: Path) -> VerifyResult:
     result.checked.append(f"registry_hash {registry.content_hash[:12]}")
 
     bootstrap = manifest.get("bootstrap") or {}
+    judge = manifest.get("judge") or {}
     with tempfile.TemporaryDirectory(prefix="telltale-verify-") as tmp:
         replay = Path(tmp) / "replay"
         score_run(
@@ -225,6 +230,15 @@ def verify(run_dir: Path) -> VerifyResult:
             # rendered with a different budget is a different scorecard.
             bootstrap_n=int(bootstrap.get("n") or 1000),
             seed=int(bootstrap.get("seed") or 7),
+            # A judge run replays off the cache and never calls the model: the
+            # answers are inputs to the run, exactly like the corpus, and
+            # re-asking would be measuring the sampler rather than verifying the
+            # arithmetic. A cleared cache therefore fails verification loudly,
+            # which is the honest outcome — the inputs really are gone.
+            judge=bool(judge.get("enabled")),
+            judge_model=judge.get("model"),
+            judge_tells=judge.get("tells_scored"),
+            judge_cache_only=True,
         )
         for name in REPRODUCIBLE_OUTPUTS:
             original = run_dir / name

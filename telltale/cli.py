@@ -250,16 +250,30 @@ def cmd_score(args: argparse.Namespace) -> int:
         cli_args=sys.argv[1:],
         bootstrap_n=args.bootstrap,
         seed=args.seed,
+        judge=args.judge,
+        judge_model=args.judge_model,
+        runs_root=args.out,
     )
     manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
     corpus = manifest["corpus"]
     registry_info = manifest["registry"]
+    judge_info = manifest.get("judge") or {}
     if corpus["n_docs"] == 0:
         print(f"no documents under {args.corpus}", file=sys.stderr)
-    print(
-        f"scored {corpus['n_docs']} docs x {registry_info['n_scored']} tells "
-        f"({registry_info['judge_skipped']} judge tells skipped, M6)"
-    )
+    if judge_info.get("enabled"):
+        skipped = judge_info.get("tells_skipped") or {}
+        print(
+            f"scored {corpus['n_docs']} docs x {registry_info['n_scored']} tells "
+            f"({len(judge_info.get('tells_scored') or [])} judge tells via "
+            f"{judge_info.get('model')}, {len(skipped)} uncalibrated and skipped)"
+        )
+        for tell_id, why in sorted(skipped.items()):
+            print(f"  SKIPPED {tell_id}: {why}", file=sys.stderr)
+    else:
+        print(
+            f"scored {corpus['n_docs']} docs x {registry_info['n_scored']} tells "
+            f"({registry_info['judge_skipped']} judge tells skipped, M6)"
+        )
     print(run_dir)
     return 0
 
@@ -295,6 +309,16 @@ def _add_score_parser(subparsers: argparse._SubParsersAction) -> None:
     )
     parser.add_argument("--bootstrap", type=int, default=1000, help="bootstrap replicates")
     parser.add_argument("--seed", type=int, default=7)
+    parser.add_argument(
+        "--judge",
+        action="store_true",
+        help="also score Tier-2 judge tells (calibrated ones only)",
+    )
+    parser.add_argument(
+        "--judge-model",
+        default=None,
+        help="judge model id; default resolves the allowlist in order",
+    )
     parser.set_defaults(func=cmd_score)
 
 
@@ -314,6 +338,134 @@ def _add_report_parser(subparsers: argparse._SubParsersAction) -> None:
         help="re-render scorecard.md from an existing run directory",
     )
     parser.set_defaults(func=cmd_report)
+
+
+# --- judge subcommands -------------------------------------------------------
+
+
+def _resolved_judge(args: argparse.Namespace) -> str:
+    from telltale.judge.transport import resolve_judge
+
+    if getattr(args, "model", None):
+        return str(args.model)
+    model = resolve_judge()
+    print(f"judge resolved to {model}")
+    return model
+
+
+def cmd_judge_probe(args: argparse.Namespace) -> int:
+    from telltale.judge.transport import JUDGE_MODEL_ORDER, probe_judge
+
+    order = [args.model] if args.model else list(JUDGE_MODEL_ORDER)
+    ok = False
+    for model in order:
+        available = probe_judge(model)
+        print(f"  {'OK  ' if available else 'DOWN'}  {model}")
+        ok = ok or available
+    return 0 if ok else 1
+
+
+def cmd_judge_calibrate(args: argparse.Namespace) -> int:
+    from telltale.judge import build_backend
+    from telltale.judge import calibrate as calibration
+    from telltale.registry import Registry
+
+    registry = Registry(args.registry)
+    tells = calibration.judge_tells(registry)
+    if args.tell:
+        tells = [t for t in tells if t.id == args.tell]
+        if not tells:
+            print(f"no judge tell with id {args.tell}", file=sys.stderr)
+            return 1
+
+    model = _resolved_judge(args)
+    backend = build_backend(model=model, force=args.force)
+
+    failed = 0
+    for tell in tells:
+        try:
+            snippets = calibration.load_snippets(tell.id)
+        except KeyError as exc:
+            print(str(exc), file=sys.stderr)
+            failed += 1
+            continue
+        problems = calibration.lint_snippets(tell, snippets)
+        for problem in problems:
+            print(f"  lint: {problem}", file=sys.stderr)
+        report = calibration.calibrate(tell, backend, snippets=snippets)
+        print(report.summary())
+        path = calibration.write_report(report, args.runs)
+        print(f"    report: {path}")
+        if not report.passed:
+            failed += 1
+    return 1 if failed else 0
+
+
+def cmd_judge_audit(args: argparse.Namespace) -> int:
+    import json as _json
+
+    from telltale.corpus import load_corpus
+    from telltale.judge import audit as audit_mod
+    from telltale.judge import build_backend
+    from telltale.registry import Registry
+
+    registry = Registry(args.registry)
+    tells = [t for t in registry.active_tells() if t.method == "judge"]
+    if args.tell:
+        tells = [t for t in tells if t.id == args.tell]
+        if not tells:
+            print(f"no judge tell with id {args.tell}", file=sys.stderr)
+            return 1
+
+    docs = load_corpus(args.corpus)
+    model = _resolved_judge(args)
+    backend = build_backend(model=model)
+    report = audit_mod.audit(docs, tells, backend.client, pct=args.pct, seed=args.seed)
+    print(report.summary())
+    for item in report.items:
+        if item.agreement < 1.0:
+            print(
+                f"  {item.tell_id} {item.doc_id}#{item.chunk_index}: "
+                f"{item.agreement:.2f} (cached {item.cached_spans}, "
+                f"live {item.live_spans}, shared {item.shared})"
+            )
+    if args.out:
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(_json.dumps(report.as_dict(), indent=2) + "\n", encoding="utf-8")
+        print(f"report: {out}")
+    return 0
+
+
+def _add_judge_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser("judge", help="Tier-2 judge: probe, calibrate, audit")
+    actions = parser.add_subparsers(dest="action", required=True)
+
+    probe = actions.add_parser("probe", help="check which allowlisted judges answer")
+    probe.add_argument("--model", default=None)
+    probe.set_defaults(func=cmd_judge_probe)
+
+    calibrate = actions.add_parser(
+        "calibrate", help="run the labelled snippet sets and write the gate report"
+    )
+    calibrate.add_argument("--tell", default=None, help="one tell id (default: all seven)")
+    calibrate.add_argument("--model", default=None, help="judge model id")
+    calibrate.add_argument(
+        "--force", action="store_true", help="ignore cached judge answers"
+    )
+    calibrate.add_argument("--runs", type=Path, default=DEFAULT_RUNS)
+    calibrate.set_defaults(func=cmd_judge_calibrate)
+
+    audit = actions.add_parser(
+        "audit", help="re-ask a sample of cached extractions live and compare span sets"
+    )
+    audit.add_argument("--pct", type=float, default=5.0)
+    audit.add_argument("--seed", type=int, default=11)
+    audit.add_argument("--tell", default=None)
+    audit.add_argument("--model", default=None)
+    audit.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
+    audit.add_argument("--out", type=Path, default=None)
+    audit.set_defaults(func=cmd_judge_audit)
 
 
 # --- parser ------------------------------------------------------------------
@@ -338,6 +490,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_verify_isolation_parser(subparsers)
     _add_score_parser(subparsers)
     _add_report_parser(subparsers)
+    _add_judge_parser(subparsers)
     # Later milestones register their own groups here the same way:
     # _add_discover_parser(subparsers)   # M7
 

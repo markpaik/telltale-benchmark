@@ -3,8 +3,10 @@
     from telltale.detectors import build
     detection = build(tell).detect(doc)
 
-`build` dispatches on `detection.method`. Judge tells raise NotImplementedError
-until M6 supplies a judge backend.
+`build` dispatches on `detection.method`. Judge tells need a backend passed in —
+`build(tell, judge=JudgeBackend(client))`, see `telltale.judge` — and raise
+NotImplementedError without one, so a Tier-1 run has to skip them deliberately
+rather than scoring them zero.
 """
 
 from telltale.detectors.base import (

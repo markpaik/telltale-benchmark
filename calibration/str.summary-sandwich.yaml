@@ -1,0 +1,597 @@
+# Calibration set for str.summary-sandwich (rubric_version 1).
+#
+# Doc-level tell, so the snippets are mini-skeletons in exactly the shape
+# `protocol.skeleton_view` renders: outline, first paragraph, last paragraph,
+# tables. The judge extracts three quotes and the decision runs in code —
+# present iff preview AND recap AND NOT new information in the close — so what
+# these snippets have to be unambiguous about is which of the three quotes
+# exist. Four of the negatives have both a preview and a recap and are negative
+# only because the close carries something new; that is exclusion (x), and it is
+# the row of the truth table most likely to be got wrong.
+tell: str.summary-sandwich
+rubric_version: 1
+view: skeleton
+snippets:
+  - id: pos-01
+    label: positive
+    source: registry
+    note: registry examples as the preview and the recap
+    text: |
+      SKELETON sample/memo-01
+      format: memo
+      words: 612
+
+      OUTLINE
+      H1: Elementary Consolidation — Options for the Board
+      PARA: 58w | This memo will cover three topics: cost, timeline, and staffing.
+      H2: Cost
+      PARA: 96w | Closing four buildings saves $4.1 million a year at current staffing.
+      H2: Timeline
+      PARA: 74w | The board's last actionable meeting is April 20.
+      H2: Staffing
+      PARA: 88w | Forty-one positions are affected, thirty of them through attrition.
+      H2: Summary
+      PARA: 44w | In summary, we covered cost, timeline, and staffing.
+
+      FIRST PARAGRAPH
+      This memo will cover three topics: cost, timeline, and staffing. Each section gives the range, the assumptions behind it, and the office that owns the number.
+
+      LAST PARAGRAPH
+      In summary, we covered cost, timeline, and staffing. The savings are real, the timeline is tight, and the staffing effect is manageable at the levels described above.
+
+      TABLES
+      (none)
+
+  - id: pos-02
+    label: positive
+    source: synthetic
+    text: |
+      SKELETON sample/report-01
+      format: report
+      words: 1840
+
+      OUTLINE
+      H1: Diabetes Management Program — Year One Report
+      PARA: 71w | The following report examines enrollment, retention, and clinical outcomes for the program's first year.
+      H2: Enrollment
+      PARA: 142w | Four hundred twelve patients enrolled between January and October.
+      H2: Retention
+      PARA: 165w | Two hundred sixty-eight patients reached the twelve-month mark.
+      H2: Clinical outcomes
+      PARA: 158w | Average HbA1c among completers fell from 9.1 to 7.8.
+      H2: Conclusion
+      PARA: 63w | To recap, this report examined enrollment, retention, and clinical outcomes.
+
+      FIRST PARAGRAPH
+      The following report examines enrollment, retention, and clinical outcomes for the program's first year. Each section presents the raw counts first and the comparison to target second.
+
+      LAST PARAGRAPH
+      To recap, this report examined enrollment, retention, and clinical outcomes. Enrollment exceeded target, retention landed above the benchmark, and the clinical results were consistent with the published literature.
+
+      TABLES
+      (none)
+
+  - id: pos-03
+    label: positive
+    source: synthetic
+    text: |
+      SKELETON sample/brief-01
+      format: brief
+      words: 940
+
+      OUTLINE
+      H1: Attendance Recovery — Mid-Year Brief
+      PARA: 49w | This brief walks through what we tried, what it cost, and what happened.
+      H2: What we tried
+      PARA: 133w | Three schools ran the two-call protocol from September.
+      H2: What it cost
+      PARA: 97w | The protocol added roughly six clerk hours a week per building.
+      H2: What happened
+      PARA: 121w | Chronic absenteeism fell 4.2 points in the pilot schools.
+      H2: Wrapping up
+      PARA: 52w | To summarize, we walked through what we tried, what it cost, and what happened.
+
+      FIRST PARAGRAPH
+      This brief walks through what we tried, what it cost, and what happened. It is intended as background for the February cabinet discussion.
+
+      LAST PARAGRAPH
+      To summarize, we walked through what we tried, what it cost, and what happened. The intervention was cheap, the effect was measurable, and the pattern held in all three buildings.
+
+      TABLES
+      (none)
+
+  - id: pos-04
+    label: positive
+    source: synthetic
+    text: |
+      SKELETON sample/proposal-01
+      format: proposal
+      words: 1310
+
+      OUTLINE
+      H1: Proposal — Consolidated Attendance Upload
+      PARA: 66w | The purpose of this proposal is to describe the problem, the proposed change, and the expected savings.
+      H2: The problem
+      PARA: 149w | Schools file three separate monthly uploads today.
+      H2: The proposed change
+      PARA: 178w | A single consolidated upload replaces all three.
+      H2: Expected savings
+      PARA: 131w | The change removes about 1,100 clerk hours a year district-wide.
+      H2: Closing
+      PARA: 58w | As described above, this proposal covered the problem, the proposed change, and the expected savings.
+
+      FIRST PARAGRAPH
+      The purpose of this proposal is to describe the problem, the proposed change, and the expected savings. No decision is requested in this document.
+
+      LAST PARAGRAPH
+      As described above, this proposal covered the problem, the proposed change, and the expected savings. The problem is well documented, the change is straightforward, and the savings are conservative.
+
+      TABLES
+      (none)
+
+  - id: pos-05
+    label: positive
+    source: synthetic
+    text: |
+      SKELETON sample/update-01
+      format: update
+      words: 730
+
+      OUTLINE
+      H1: Quarterly Update — Data Warehouse Migration
+      PARA: 54w | This update restates the charge and then reports progress against each of the four workstreams.
+      H2: Workstream 1 — Extract
+      PARA: 88w | All twelve source extracts now run nightly.
+      H2: Workstream 2 — Transform
+      PARA: 94w | The transformation layer is complete for nine of twelve sources.
+      H2: Workstream 3 — Load
+      PARA: 79w | Loading is blocked on the identifier decision.
+      H2: Workstream 4 — Reporting
+      PARA: 86w | Three reports have been rebuilt against the new model.
+      H2: Recap
+      PARA: 47w | In review, this update restated the charge and reported progress against each of the four workstreams.
+
+      FIRST PARAGRAPH
+      This update restates the charge and then reports progress against each of the four workstreams. The charge has not changed since the January memo.
+
+      LAST PARAGRAPH
+      In review, this update restated the charge and reported progress against each of the four workstreams. Three are on schedule and one is blocked, as described in the sections above.
+
+      TABLES
+      (none)
+
+  - id: pos-06
+    label: positive
+    source: synthetic
+    text: |
+      SKELETON sample/white-paper-01
+      format: white-paper
+      words: 2450
+
+      OUTLINE
+      H1: Identifier Integrity in District Systems
+      PARA: 77w | This paper is organized in three parts: the history of the identifier, the failure modes it produces, and the options for repair.
+      H2: History
+      PARA: 268w | The identifier was introduced in 2004 as a payroll convenience.
+      H2: Failure modes
+      PARA: 312w | Leading zeros are the single largest source of reconciliation error.
+      H2: Options
+      PARA: 289w | Three repair paths are available, and none of them is cheap.
+      H2: Conclusion
+      PARA: 84w | This paper was organized in three parts: the history of the identifier, the failure modes it produces, and the options for repair.
+
+      FIRST PARAGRAPH
+      This paper is organized in three parts: the history of the identifier, the failure modes it produces, and the options for repair. Readers who only need the recommendation should skip to the third part.
+
+      LAST PARAGRAPH
+      This paper was organized in three parts: the history of the identifier, the failure modes it produces, and the options for repair. The history explains the constraint, the failure modes quantify the cost, and the options are all variations on the same trade.
+
+      TABLES
+      (none)
+
+  - id: pos-07
+    label: positive
+    source: synthetic
+    text: |
+      SKELETON sample/case-study-01
+      format: case-study
+      words: 1120
+
+      OUTLINE
+      H1: Riverbend Community Health Center — A Case Study
+      PARA: 62w | We will look at the setting, the intervention, and the results.
+      H2: Setting
+      PARA: 154w | Riverbend serves roughly 8,000 patients across two sites.
+      H2: Intervention
+      PARA: 188w | Two nurse educators ran a twelve-month management program.
+      H2: Results
+      PARA: 171w | Completers' average HbA1c fell 1.3 points.
+      H2: In closing
+      PARA: 55w | We looked at the setting, the intervention, and the results.
+
+      FIRST PARAGRAPH
+      We will look at the setting, the intervention, and the results. The case is drawn from publicly reported program data and the director's year-end memo.
+
+      LAST PARAGRAPH
+      We looked at the setting, the intervention, and the results. The setting was constrained, the intervention was modest, and the results were consistent with what similar programs report.
+
+      TABLES
+      (none)
+
+  - id: pos-08
+    label: positive
+    source: synthetic
+    text: |
+      SKELETON sample/plan-01
+      format: plan
+      words: 1560
+
+      OUTLINE
+      H1: Three-Year Facilities Plan
+      PARA: 69w | This plan sets out what we own, what it costs to keep, and what we recommend closing.
+      H2: What we own
+      PARA: 196w | The district operates nineteen buildings on sixteen campuses.
+      H2: What it costs
+      PARA: 221w | Deferred maintenance stands at $61 million.
+      H2: What we recommend
+      PARA: 204w | Four buildings are recommended for closure over three years.
+      H2: Summary
+      PARA: 61w | This plan set out what we own, what it costs to keep, and what we recommend closing.
+
+      FIRST PARAGRAPH
+      This plan sets out what we own, what it costs to keep, and what we recommend closing. It does not address the bond question, which is handled separately.
+
+      LAST PARAGRAPH
+      This plan set out what we own, what it costs to keep, and what we recommend closing. The portfolio is oversized, the maintenance backlog is unaffordable, and the closure list follows from those two facts.
+
+      TABLES
+      (none)
+
+  - id: pos-09
+    label: positive
+    source: synthetic
+    text: |
+      SKELETON sample/review-01
+      format: review
+      words: 880
+
+      OUTLINE
+      H1: Vendor Performance Review — Intake Portal
+      PARA: 51w | Below we review uptime, support responsiveness, and contract compliance.
+      H2: Uptime
+      PARA: 118w | The portal met its 99.5 percent target in eight of twelve months.
+      H2: Support responsiveness
+      PARA: 133w | Median first response was 31 hours against a 24-hour commitment.
+      H2: Contract compliance
+      PARA: 109w | Two of the six deliverables were late.
+      H2: Overall
+      PARA: 49w | We reviewed uptime, support responsiveness, and contract compliance.
+
+      FIRST PARAGRAPH
+      Below we review uptime, support responsiveness, and contract compliance. Each is assessed against the commitments in the 2024 master agreement.
+
+      LAST PARAGRAPH
+      We reviewed uptime, support responsiveness, and contract compliance. Uptime was acceptable, responsiveness was not, and compliance was mixed across the six deliverables.
+
+      TABLES
+      (none)
+
+  - id: pos-10
+    label: positive
+    source: synthetic
+    text: |
+      SKELETON sample/memo-02
+      format: memo
+      words: 690
+
+      OUTLINE
+      H1: Transportation Cost Drivers
+      PARA: 57w | What follows is a walk through the four drivers, in order of size.
+      H2: Driver 1 — Route length
+      PARA: 104w | Average route length grew 11 percent after the 2023 boundary change.
+      H2: Driver 2 — Driver wages
+      PARA: 97w | The wage settlement added $1.8 million annualized.
+      H2: Driver 3 — Fuel
+      PARA: 88w | Fuel is the smallest of the four and the most volatile.
+      H2: Driver 4 — Special transportation
+      PARA: 112w | Special transportation grew faster than any other line.
+      H2: To close
+      PARA: 45w | The above walked through the four drivers, in order of size.
+
+      FIRST PARAGRAPH
+      What follows is a walk through the four drivers, in order of size. Each driver is stated in annualized dollars against the 2022 baseline.
+
+      LAST PARAGRAPH
+      The above walked through the four drivers, in order of size. Route length is the largest, wages the most durable, fuel the most volatile, and special transportation the fastest growing.
+
+      TABLES
+      (none)
+
+  - id: neg-01
+    label: negative
+    source: synthetic
+    note: recap present, no opening preview — (a) fails
+    text: |
+      SKELETON sample/memo-03
+      format: memo
+      words: 540
+
+      OUTLINE
+      H1: October Count Discrepancy
+      PARA: 62w | The October count came back 212 students lower than the September file.
+      H2: What happened
+      PARA: 118w | Three schools filed on the sixteenth, one day after the cutoff.
+      H2: What it means
+      PARA: 96w | The state allocation is calculated on the certified October figure.
+      H2: Summary
+      PARA: 44w | In summary, three schools filed late and the certified figure is 212 students low.
+
+      FIRST PARAGRAPH
+      The October count came back 212 students lower than the September file. The gap is concentrated in three buildings and it is not a data-entry error.
+
+      LAST PARAGRAPH
+      In summary, three schools filed late and the certified figure is 212 students low. The allocation effect is roughly $1.6 million.
+
+      TABLES
+      (none)
+
+  - id: neg-02
+    label: negative
+    source: synthetic
+    note: preview present, no closing recap — (b) fails
+    text: |
+      SKELETON sample/report-02
+      format: report
+      words: 1210
+
+      OUTLINE
+      H1: Chronic Absenteeism, Mid-Year
+      PARA: 58w | This report covers three questions: who is absent, when, and what changed.
+      H2: Who
+      PARA: 186w | Chronic absenteeism is concentrated in ninth grade and kindergarten.
+      H2: When
+      PARA: 164w | Absences cluster in the two weeks after each break.
+      H2: What changed
+      PARA: 173w | The two-call protocol moved the ninth-grade number and nothing else.
+
+      FIRST PARAGRAPH
+      This report covers three questions: who is absent, when, and what changed. The analysis uses the certified daily attendance file through January 31.
+
+      LAST PARAGRAPH
+      The two-call protocol moved the ninth-grade number and nothing else. Kindergarten was unchanged in all three pilot buildings, which is consistent with the transportation explanation.
+
+      TABLES
+      (none)
+
+  - id: neg-03
+    label: negative
+    source: synthetic
+    note: exclusion (x) — the close carries a new decision and a new owner
+    text: |
+      SKELETON sample/memo-04
+      format: memo
+      words: 610
+
+      OUTLINE
+      H1: Consolidation Modeling — Status
+      PARA: 55w | This memo covers the modeling status, the assumptions, and the open questions.
+      H2: Status
+      PARA: 121w | Two of the four building models are complete.
+      H2: Assumptions
+      PARA: 138w | Every model assumes the walk-zone policy is unchanged.
+      H2: Open questions
+      PARA: 96w | Nobody has decided how sibling groups are handled.
+      H2: Next
+      PARA: 71w | The cabinet needs to decide the sibling-preservation rule by March 16, and Roberta will own that decision.
+
+      FIRST PARAGRAPH
+      This memo covers the modeling status, the assumptions, and the open questions. It does not recommend a package.
+
+      LAST PARAGRAPH
+      The cabinet needs to decide the sibling-preservation rule by March 16, and Roberta will own that decision. Without it the two remaining building models cannot be built.
+
+      TABLES
+      (none)
+
+  - id: neg-04
+    label: negative
+    source: synthetic
+    note: exclusion (x) — the close introduces a new deadline
+    text: |
+      SKELETON sample/brief-02
+      format: brief
+      words: 820
+
+      OUTLINE
+      H1: Intake Portal — Findings
+      PARA: 61w | This brief will cover uptime, support, and compliance.
+      H2: Uptime
+      PARA: 129w | The portal met its target in eight of twelve months.
+      H2: Support
+      PARA: 141w | Median first response was 31 hours.
+      H2: Compliance
+      PARA: 118w | Two of six deliverables were late.
+      H2: Next step
+      PARA: 66w | The cure-notice window closes on May 9, and a decision on renewal has to be filed before then.
+
+      FIRST PARAGRAPH
+      This brief will cover uptime, support, and compliance. Each is assessed against the 2024 master agreement.
+
+      LAST PARAGRAPH
+      The cure-notice window closes on May 9, and a decision on renewal has to be filed before then. Procurement has asked for the recommendation two weeks ahead of that date.
+
+      TABLES
+      (none)
+
+  - id: neg-05
+    label: negative
+    source: synthetic
+    note: neither a preview nor a recap — straight narrative
+    text: |
+      SKELETON sample/email-01
+      format: email
+      words: 470
+
+      OUTLINE
+      H1: Elementary consolidation — need to start working this now
+      PARA: 94w | I want to get ahead of the budget conversation before it gets ahead of us.
+      PARA: 87w | Grant, please put together modeling on the four buildings that keep coming up.
+      PARA: 76w | Hana, I would like community listening sessions running in parallel, not after.
+      PARA: 61w | Let us plan a working session the week of March 9.
+
+      FIRST PARAGRAPH
+      I want to get ahead of the budget conversation before it gets ahead of us. Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27.
+
+      LAST PARAGRAPH
+      Let us plan a working session the week of March 9. Denise will send the invitation once Grant confirms the modeling window.
+
+      TABLES
+      (none)
+
+  - id: neg-06
+    label: negative
+    source: synthetic
+    note: exclusion (x) — the close raises a new open question
+    text: |
+      SKELETON sample/report-03
+      format: report
+      words: 1390
+
+      OUTLINE
+      H1: Transportation Cost Drivers
+      PARA: 60w | This report examines route length, wages, fuel, and special transportation.
+      H2: Route length
+      PARA: 178w | Average route length grew 11 percent after the boundary change.
+      H2: Wages
+      PARA: 161w | The wage settlement added $1.8 million annualized.
+      H2: Fuel
+      PARA: 143w | Fuel is the most volatile line and the smallest.
+      H2: Special transportation
+      PARA: 189w | Special transportation grew faster than any other line.
+      H2: Open question
+      PARA: 74w | Nobody has established whether the special transportation growth is enrollment-driven or eligibility-driven, and the answer changes the remedy.
+
+      FIRST PARAGRAPH
+      This report examines route length, wages, fuel, and special transportation. Each is stated in annualized dollars against the 2022 baseline.
+
+      LAST PARAGRAPH
+      Nobody has established whether the special transportation growth is enrollment-driven or eligibility-driven, and the answer changes the remedy. That analysis has not been scoped.
+
+      TABLES
+      (none)
+
+  - id: neg-07
+    label: negative
+    source: synthetic
+    note: no preview, no recap — findings document that opens on its finding
+    text: |
+      SKELETON sample/brief-03
+      format: brief
+      words: 760
+
+      OUTLINE
+      H1: Identifier Reconciliation Failures
+      PARA: 71w | Leading zeros are the single largest source of reconciliation error in district systems.
+      H2: Where it happens
+      PARA: 132w | Payroll accepts leading zeros, procurement strips them, and the warehouse stores both.
+      H2: What it costs
+      PARA: 118w | Manual reconciliation takes about two staff days a month.
+      H2: What would fix it
+      PARA: 141w | A single canonical format enforced at write time removes the class of error.
+
+      FIRST PARAGRAPH
+      Leading zeros are the single largest source of reconciliation error in district systems. The pattern is consistent across all four years of logs.
+
+      LAST PARAGRAPH
+      A single canonical format enforced at write time removes the class of error. The migration is two weeks of work and one weekend of downtime.
+
+      TABLES
+      (none)
+
+  - id: neg-08
+    label: negative
+    source: synthetic
+    note: exclusion (x) — the close assigns new owners and a new date
+    text: |
+      SKELETON sample/plan-02
+      format: plan
+      words: 1180
+
+      OUTLINE
+      H1: Data Warehouse Migration Plan
+      PARA: 64w | This plan describes the four workstreams, their sequence, and their dependencies.
+      H2: Extract
+      PARA: 158w | All twelve source extracts run nightly today.
+      H2: Transform
+      PARA: 171w | Nine of twelve transformations are complete.
+      H2: Load
+      PARA: 149w | Loading is blocked on the identifier decision.
+      H2: Reporting
+      PARA: 162w | Three reports have been rebuilt against the new model.
+      H2: Assignments
+      PARA: 88w | Priya owns the identifier decision and will bring a recommendation on April 3; Dave owns the downtime window and will confirm it by April 10.
+
+      FIRST PARAGRAPH
+      This plan describes the four workstreams, their sequence, and their dependencies. It does not cover the reporting backlog, which is tracked separately.
+
+      LAST PARAGRAPH
+      Priya owns the identifier decision and will bring a recommendation on April 3; Dave owns the downtime window and will confirm it by April 10. Neither date has slack in it.
+
+      TABLES
+      (none)
+
+  - id: neg-09
+    label: negative
+    source: synthetic
+    note: preview present, document simply ends — no closing section at all
+    text: |
+      SKELETON sample/white-paper-02
+      format: white-paper
+      words: 1980
+
+      OUTLINE
+      H1: Attendance Policy and Chronic Absence
+      PARA: 68w | This paper takes up two questions: what the policy requires, and what it achieves.
+      H2: What the policy requires
+      PARA: 342w | The policy requires a call on the first day and a letter on the fifth.
+      H2: What it achieves
+      PARA: 388w | Neither step has a measurable association with return-to-school in our data.
+
+      FIRST PARAGRAPH
+      This paper takes up two questions: what the policy requires, and what it achieves. Both are answered from the district's own records rather than from the literature.
+
+      LAST PARAGRAPH
+      Neither step has a measurable association with return-to-school in our data. The letter in particular arrives after the median return date, which makes any effect it has hard to attribute.
+
+      TABLES
+      (none)
+
+  - id: neg-10
+    label: negative
+    source: synthetic
+    note: exclusion (x) — the close recaps and then adds a new decision
+    text: |
+      SKELETON sample/update-02
+      format: update
+      words: 700
+
+      OUTLINE
+      H1: Consolidation — Weekly Update
+      PARA: 53w | This update covers modeling, engagement, and staffing.
+      H2: Modeling
+      PARA: 116w | Two of the four building models are complete.
+      H2: Engagement
+      PARA: 108w | Four of six listening sessions have been held.
+      H2: Staffing
+      PARA: 121w | The staffing analysis is waiting on the modeling.
+      H2: Close
+      PARA: 79w | We covered modeling, engagement, and staffing; separately, the board has moved its April meeting to the 20th and the recommendation is now due a week earlier.
+
+      FIRST PARAGRAPH
+      This update covers modeling, engagement, and staffing. It is the fourth in the weekly series and the last before the working session.
+
+      LAST PARAGRAPH
+      We covered modeling, engagement, and staffing; separately, the board has moved its April meeting to the 20th and the recommendation is now due a week earlier. Grant will confirm whether the modeling still lands in time.
+
+      TABLES
+      (none)

@@ -1,0 +1,188 @@
+# Calibration set for rht.rule-of-three (rubric_version 1).
+#
+# The whole difficulty of this tell is the difference between a triple that
+# carries three facts and a triple that carries two facts and a beat. Every
+# positive here has a third item whose deletion costs the reader nothing; every
+# negative has a triple whose members the reader needs, or a triple the rubric
+# puts out of scope. A judge that counts commas will score 0.50 on this set.
+tell: rht.rule-of-three
+rubric_version: 1
+view: chunk
+snippets:
+  - id: pos-01
+    label: positive
+    source: registry
+    text: |
+      We looked at three vendors before settling on the current design. The plan
+      is faster, cleaner, and cheaper. Implementation starts in August either
+      way.
+
+  - id: pos-02
+    label: positive
+    source: registry
+    text: |
+      None of this is a technology problem. We need better data, better tools,
+      and better habits. The last one is the only one money cannot buy.
+
+  - id: pos-03
+    label: positive
+    source: synthetic
+    text: |
+      Nobody wants a second round of building closures in the same decade. The
+      rollout has to be quick, quiet, and cheap. Anything that drags into the
+      spring will land in the middle of the levy campaign.
+
+  - id: pos-04
+    label: positive
+    source: synthetic
+    text: |
+      Families have heard three different numbers from three different offices
+      this month. This is a matter of trust, of clarity, and of follow-through.
+      Until one office owns the answer, the number will keep moving.
+
+  - id: pos-05
+    label: positive
+    source: synthetic
+    text: |
+      The survey came back worse than last year in every building. Staff are
+      tired, stretched, and frustrated. The open responses say the same thing
+      the numbers do.
+
+  - id: pos-06
+    label: positive
+    source: synthetic
+    note: three parallel clauses rather than three nouns
+    text: |
+      The listening sessions will not change the arithmetic, and we should not
+      pretend otherwise. We will listen, we will adjust, and we will keep going.
+      The recommendation goes to the board on April 20 regardless.
+
+  - id: pos-07
+    label: positive
+    source: synthetic
+    text: |
+      The rebuild took four months and one contractor. The dashboard is faster
+      to load, easier to read, and simpler to maintain. Usage has roughly
+      doubled since March.
+
+  - id: pos-08
+    label: positive
+    source: synthetic
+    text: |
+      A report nobody opens is not worth the hours it costs. It needs to be
+      accurate, timely, and useful. Two out of three is how we ended up with the
+      current one.
+
+  - id: pos-09
+    label: positive
+    source: synthetic
+    text: |
+      I would rather bring the board something they can actually adopt. The
+      approach is practical, affordable, and durable. It also fits inside the
+      existing contract, which the alternative does not.
+
+  - id: pos-10
+    label: positive
+    source: synthetic
+    text: |
+      The question is not whether the model works; it worked in the pilot. We
+      can build it, we can staff it, and we can pay for it. What we cannot do is
+      all three before September.
+
+  - id: neg-01
+    label: negative
+    source: synthetic
+    note: exclusion (x) — three named schools, each a fact the reader needs
+    text: |
+      Three buildings keep coming up in every version of the model: Ponderosa,
+      Juniper Flat, and Sawyer Creek. All three are under 55 percent utilization
+      and all three need roof work inside five years.
+
+  - id: neg-02
+    label: negative
+    source: synthetic
+    note: exclusion (x) — three budget lines
+    text: |
+      The savings come from three places: $2.1 million in building operations,
+      $1.4 million in transportation, and $600,000 in central administration.
+      The transportation figure assumes no change to the walk-zone policy.
+
+  - id: neg-03
+    label: negative
+    source: synthetic
+    note: exclusion (x) — three dated milestones
+    text: |
+      The schedule has three fixed points: the modeling is due March 9, the
+      community sessions close April 6, and the board votes April 20. Nothing
+      between those dates can slip without moving the vote.
+
+  - id: neg-04
+    label: negative
+    source: synthetic
+    note: exclusion (x) — three people with distinct assignments
+    text: |
+      Grant is building the financial model, Hana is running the community
+      sessions, and Roberta is handling the staffing analysis. Each of them
+      reports into the working session on the ninth.
+
+  - id: neg-05
+    label: negative
+    source: synthetic
+    note: exclusion (y) — the triple is a bulleted list, out of scope here
+    text: |
+      The working group settled on three priorities for the year:
+
+      - Improving intake speed
+      - Reducing manual entry
+      - Strengthening data quality
+
+      Each has an owner and a first checkpoint in October.
+
+  - id: neg-06
+    label: negative
+    source: synthetic
+    note: exclusion (z) — the triple is quoted from another speaker
+    text: |
+      Hobbes was blunt with the finance committee. "It is late, it is expensive,
+      and it is not going to work," he told them, and then walked through the
+      cash-flow schedule line by line.
+
+  - id: neg-07
+    label: negative
+    source: synthetic
+    note: no triple at all — pairs only
+    text: |
+      The gap is large and the timeline is short. We can model two packages or
+      three; either way the board needs the assumptions in writing before it
+      sees a recommendation. Nothing here is settled.
+
+  - id: neg-08
+    label: negative
+    source: synthetic
+    note: four coordinate items, not three
+    text: |
+      The new form asks for the student's identifier, the enrollment date, the
+      exit code, and the receiving district. All four fields are required and
+      three of them were optional last year.
+
+  - id: neg-09
+    label: negative
+    source: synthetic
+    note: exclusion (x) — three grade bands the reader must use
+    text: |
+      The program serves three grade bands: kindergarten through second, third
+      through fifth, and sixth through eighth. The middle band is the only one
+      that grew this year.
+
+  - id: neg-10
+    label: negative
+    source: synthetic
+    note: exclusion (y) — numbered list
+    text: |
+      Before the March meeting, three things have to happen.
+
+      1. Grant finalizes the four-building model.
+      2. Hana confirms the session dates with the PTA presidents.
+      3. Legal reviews the notice language.
+
+      None of them depends on the others.

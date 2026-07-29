@@ -9,9 +9,10 @@ be answerable with the quotes that produced it.
 
 Three methods exist in the registry. Two of them are deterministic and land
 here (`regex`, `statistic`); the third (`judge`) needs a model in the loop and
-arrives in M6. Until then `build` refuses judge tells loudly rather than
-returning a detector that silently scores zero — a zero is indistinguishable
-from "clean" downstream, and that would quietly understate every model.
+lives in `telltale.judge`, reaching this module through the `judge=` argument to
+`build`. Without one `build` refuses judge tells loudly rather than returning a
+detector that silently scores zero — a zero is indistinguishable from "clean"
+downstream, and that would quietly understate every model.
 """
 
 from __future__ import annotations

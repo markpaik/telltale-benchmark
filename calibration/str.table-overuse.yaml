@@ -1,0 +1,582 @@
+# Calibration set for str.table-overuse (rubric_version 1).
+#
+# Mini-skeletons in the shape `protocol.skeleton_view` renders — including the
+# TABLES appendix, which is why that appendix exists: `textstats.doc_skeleton`
+# drops tables, and this tell has no evidence without them.
+#
+# This is the one judge tell whose rubric is disjunctive: ANY of (a) a two-column
+# Aspect/Description table whose second column holds prose, (b) a single-data-row
+# table, or (c) a table whose cells are running prose. The negatives are real
+# data tables, schedules, rosters, budgets, crosswalks, a required compliance
+# appendix, and a document with no tables at all.
+tell: str.table-overuse
+rubric_version: 1
+view: skeleton
+snippets:
+  - id: pos-01
+    label: positive
+    source: registry
+    note: registry example — criterion (a), Aspect/Description with prose
+    text: |
+      SKELETON sample/report-01
+      format: report
+      words: 640
+
+      OUTLINE
+      H1: Pilot Summary
+      PARA: 58w | The pilot closed in June and came in under budget.
+      H2: Findings
+
+      FIRST PARAGRAPH
+      The pilot closed in June and came in under budget. Nothing in the design changed after the second month.
+
+      LAST PARAGRAPH
+      The findings are summarized in the table above. A fuller treatment is in the appendix.
+
+      TABLES
+      [table 1: 4 lines]
+      | Aspect | Description |
+      |---|---|
+      | Cost | The pilot ran under budget. |
+      | Timeline | The work finished two weeks early. |
+
+  - id: pos-02
+    label: positive
+    source: registry
+    note: registry example — criterion (b), a single data row
+    text: |
+      SKELETON sample/brief-01
+      format: brief
+      words: 480
+
+      OUTLINE
+      H1: Implementation Brief
+      PARA: 52w | Implementation runs twelve weeks from board approval.
+      H2: Schedule at a glance
+
+      FIRST PARAGRAPH
+      Implementation runs twelve weeks from board approval. The contract has to be countersigned before the clock starts.
+
+      LAST PARAGRAPH
+      The schedule assumes no slippage in procurement. Every week of delay pushes go-live into the first week of school.
+
+      TABLES
+      [table 1: 3 lines]
+      | Item | Detail |
+      |---|---|
+      | Timeline | Twelve weeks from approval to launch. |
+
+  - id: pos-03
+    label: positive
+    source: synthetic
+    note: criterion (a) — Factor/Explanation with sentences in the second column
+    text: |
+      SKELETON sample/memo-01
+      format: memo
+      words: 590
+
+      OUTLINE
+      H1: Why the October Count Moved
+      PARA: 61w | The certified October figure came in 212 students below the September file.
+      H2: Contributing factors
+
+      FIRST PARAGRAPH
+      The certified October figure came in 212 students below the September file. The gap is concentrated in three buildings.
+
+      LAST PARAGRAPH
+      None of the three factors is new this year. What is new is that all three landed in the same month.
+
+      TABLES
+      [table 1: 5 lines]
+      | Factor | Explanation |
+      |---|---|
+      | Filing date | Three schools filed on the sixteenth, one day after the cutoff. |
+      | Exception codes | New clerks were never trained on codes 12 and 14. |
+      | Portal change | The vendor replaced the upload portal in August. |
+
+  - id: pos-04
+    label: positive
+    source: synthetic
+    note: criterion (c) — cells hold running prose that would read as paragraphs
+    text: |
+      SKELETON sample/report-02
+      format: report
+      words: 910
+
+      OUTLINE
+      H1: Engagement Findings
+      PARA: 74w | Six listening sessions were held between January and March.
+      H2: What we heard
+
+      FIRST PARAGRAPH
+      Six listening sessions were held between January and March, four of them in buildings under review.
+
+      LAST PARAGRAPH
+      The themes were consistent across all six sessions. Nothing in the March sessions contradicted what we heard in January.
+
+      TABLES
+      [table 1: 5 lines]
+      | Theme | What families said |
+      |---|---|
+      | Bus rides | Families in the north attendance area were most concerned about ride time, and several said a ride over forty minutes would change their enrollment decision. |
+      | Principals | Parents asked repeatedly whether the receiving building would keep its principal, which came up in every session. |
+      | Timing | Several families said a mid-year move would be worse than a longer ride, and asked that any change take effect in the fall. |
+
+  - id: pos-05
+    label: positive
+    source: synthetic
+    note: criterion (b) — one data row, no comparison possible
+    text: |
+      SKELETON sample/update-01
+      format: update
+      words: 420
+
+      OUTLINE
+      H1: Migration Status
+      PARA: 47w | The extract workstream finished this week.
+      H2: Status
+
+      FIRST PARAGRAPH
+      The extract workstream finished this week. Transform and load are unchanged since the last update.
+
+      LAST PARAGRAPH
+      The identifier decision is still the binding constraint. Priya has asked for another week.
+
+      TABLES
+      [table 1: 3 lines]
+      | Workstream | Status |
+      |---|---|
+      | Extract | Complete for all twelve sources as of April 11. |
+
+  - id: pos-06
+    label: positive
+    source: synthetic
+    note: criterion (a) — Item/Detail with prose in the second column
+    text: |
+      SKELETON sample/proposal-01
+      format: proposal
+      words: 780
+
+      OUTLINE
+      H1: Consolidated Upload — Proposal
+      PARA: 66w | A single consolidated upload replaces the three monthly filings.
+      H2: Summary of the change
+
+      FIRST PARAGRAPH
+      A single consolidated upload replaces the three monthly filings. Nothing else about the process changes.
+
+      LAST PARAGRAPH
+      The change removes about 1,100 clerk hours a year district-wide. The estimate uses the 2025 filing counts.
+
+      TABLES
+      [table 1: 5 lines]
+      | Item | Detail |
+      |---|---|
+      | Scope | All nineteen buildings file through the consolidated form. |
+      | Effort | Roughly two weeks of configuration work in the attendance module. |
+      | Risk | The state has not confirmed the file layout for next year. |
+
+  - id: pos-07
+    label: positive
+    source: synthetic
+    note: criterion (c) — a two-column table carrying argument, not data
+    text: |
+      SKELETON sample/white-paper-01
+      format: white-paper
+      words: 1180
+
+      OUTLINE
+      H1: Identifier Integrity
+      PARA: 82w | Three repair paths are available and none of them is cheap.
+      H2: Options
+
+      FIRST PARAGRAPH
+      Three repair paths are available and none of them is cheap. They differ mainly in who absorbs the disruption.
+
+      LAST PARAGRAPH
+      All three options end in the same place. The question is only how much downtime the district is willing to take at once.
+
+      TABLES
+      [table 1: 5 lines]
+      | Option | Discussion |
+      |---|---|
+      | Normalize on write | This is the cleanest option and the most disruptive, because every system that writes the identifier has to change in the same release window. |
+      | Normalize on read | Cheaper to deploy but it leaves the bad data in place, which means every future consumer inherits the problem. |
+      | Do nothing | Reconciliation continues to cost about two staff days a month and the error rate grows with each new integration. |
+
+  - id: pos-08
+    label: positive
+    source: synthetic
+    note: criterion (b) — a single-row table used as a callout
+    text: |
+      SKELETON sample/memo-02
+      format: memo
+      words: 500
+
+      OUTLINE
+      H1: Grant Expiration
+      PARA: 54w | The state grant of $185,000 expires in June.
+      H2: The number
+
+      FIRST PARAGRAPH
+      The state grant of $185,000 expires in June. There is no replacement application open at this time.
+
+      LAST PARAGRAPH
+      The committee has one decision and six weeks to make it. Waiting past the May meeting removes the renewal option.
+
+      TABLES
+      [table 1: 3 lines]
+      | Grant | Amount |
+      |---|---|
+      | State diabetes management grant | $185,000, expiring June 30 |
+
+  - id: pos-09
+    label: positive
+    source: synthetic
+    note: criterion (a) — Aspect/Description restating the prose above it
+    text: |
+      SKELETON sample/case-study-01
+      format: case-study
+      words: 860
+
+      OUTLINE
+      H1: Riverbend — Program Overview
+      PARA: 78w | Riverbend serves roughly 8,000 patients across two sites.
+      H2: Program at a glance
+
+      FIRST PARAGRAPH
+      Riverbend serves roughly 8,000 patients across two sites. The management program is staffed by two nurse educators and one part-time dietitian.
+
+      LAST PARAGRAPH
+      The program's results were consistent with what similar programs report. Nothing in the design was unusual.
+
+      TABLES
+      [table 1: 5 lines]
+      | Aspect | Description |
+      |---|---|
+      | Staffing | Two nurse educators and one part-time dietitian run the program. |
+      | Funding | A state grant of $185,000 covers salaries and supplies. |
+      | Duration | Patients are enrolled for twelve months from intake. |
+
+  - id: pos-10
+    label: positive
+    source: synthetic
+    note: criterion (c) — prose cells that would read as bullets with no loss
+    text: |
+      SKELETON sample/plan-01
+      format: plan
+      words: 1020
+
+      OUTLINE
+      H1: Facilities Plan — Risks
+      PARA: 71w | Four risks could move the savings estimate materially.
+      H2: Risk register
+
+      FIRST PARAGRAPH
+      Four risks could move the savings estimate materially. None of them is fully within the district's control.
+
+      LAST PARAGRAPH
+      The transportation risk is the largest of the four. Routing has not been re-run against the proposed boundaries.
+
+      TABLES
+      [table 1: 6 lines]
+      | Risk | Notes |
+      |---|---|
+      | Transportation | Routing has not been re-run against the proposed boundaries, so the savings figure carries 2023 route lengths and could move by several hundred thousand dollars. |
+      | Staffing | The attrition assumption depends on retirement behavior that has been unusually volatile since 2023. |
+      | Community | A sustained organized objection could delay board action past the notice deadline. |
+      | Condition | Two of the receiving buildings have roof work that has not been scoped. |
+
+  - id: neg-01
+    label: negative
+    source: synthetic
+    note: exclusion (x) — a genuine data table, one row per entity
+    text: |
+      SKELETON sample/report-03
+      format: report
+      words: 720
+
+      OUTLINE
+      H1: Utilization by Building
+      PARA: 64w | Utilization is calculated against program capacity, not building capacity.
+      H2: October count
+
+      FIRST PARAGRAPH
+      Utilization is calculated against program capacity, not building capacity. Figures are from the certified October count.
+
+      LAST PARAGRAPH
+      No building under review has cleared the 65 percent policy threshold in any of the last four years.
+
+      TABLES
+      [table 1: 7 lines]
+      | Building | Capacity | Enrolled | Utilization |
+      |---|---|---|---|
+      | Ponderosa | 480 | 262 | 55% |
+      | Juniper Flat | 400 | 214 | 54% |
+      | Sawyer Creek | 520 | 301 | 58% |
+      | Deschutes View | 460 | 281 | 61% |
+      | Lakeview | 500 | 402 | 80% |
+
+  - id: neg-02
+    label: negative
+    source: synthetic
+    note: exclusion (y) — a schedule read across its columns
+    text: |
+      SKELETON sample/plan-02
+      format: plan
+      words: 660
+
+      OUTLINE
+      H1: Consolidation Timeline
+      PARA: 58w | The schedule has four fixed points between March and the board vote.
+      H2: Schedule
+
+      FIRST PARAGRAPH
+      The schedule has four fixed points between March and the board vote. Two are contractual and two are board calendar dates.
+
+      LAST PARAGRAPH
+      The May 15 notice deadline is the binding constraint behind all four dates.
+
+      TABLES
+      [table 1: 6 lines]
+      | Milestone | Owner | Start | Due |
+      |---|---|---|---|
+      | Four-building model | Grant | Mar 2 | Mar 9 |
+      | Listening sessions | Hana | Mar 10 | Apr 6 |
+      | Staffing analysis | Roberta | Mar 16 | Apr 3 |
+      | Board recommendation | Marisol | Apr 6 | Apr 20 |
+
+  - id: neg-03
+    label: negative
+    source: synthetic
+    note: exclusion (y) — a budget read across its columns
+    text: |
+      SKELETON sample/memo-03
+      format: memo
+      words: 690
+
+      OUTLINE
+      H1: Savings by Category
+      PARA: 62w | Savings come from three categories and one of them is uncertain.
+      H2: Detail
+
+      FIRST PARAGRAPH
+      Savings come from three categories and one of them is uncertain. Transportation assumes no change to the walk-zone policy.
+
+      LAST PARAGRAPH
+      The three-year total is $12.3 million against a first-year cost of $2.1 million.
+
+      TABLES
+      [table 1: 6 lines]
+      | Category | Year 1 | Year 2 | Year 3 |
+      |---|---|---|---|
+      | Building operations | 2,100,000 | 2,163,000 | 2,228,000 |
+      | Transportation | 1,400,000 | 1,442,000 | 1,485,000 |
+      | Central administration | 600,000 | 618,000 | 637,000 |
+      | Total | 4,100,000 | 4,223,000 | 4,350,000 |
+
+  - id: neg-04
+    label: negative
+    source: synthetic
+    note: exclusion (y) — a roster
+    text: |
+      SKELETON sample/update-02
+      format: update
+      words: 540
+
+      OUTLINE
+      H1: Working Group Membership
+      PARA: 49w | The working group has seven members drawn from four departments.
+      H2: Membership
+
+      FIRST PARAGRAPH
+      The working group has seven members drawn from four departments. Two seats are still vacant.
+
+      LAST PARAGRAPH
+      The group meets weekly through April and then monthly. Denise staffs the meetings.
+
+      TABLES
+      [table 1: 7 lines]
+      | Name | Department | Role | Since |
+      |---|---|---|---|
+      | Grant Hobbes | Finance | Chair | 2021 |
+      | Hana Sugiyama | Communications | Member | 2023 |
+      | Roberta Kim | Human Resources | Member | 2019 |
+      | Dave Osei | Operations | Member | 2024 |
+      | Priya Natarajan | Technology | Member | 2022 |
+
+  - id: neg-05
+    label: negative
+    source: synthetic
+    note: exclusion (y) — a crosswalk
+    text: |
+      SKELETON sample/white-paper-02
+      format: white-paper
+      words: 980
+
+      OUTLINE
+      H1: Exception Code Crosswalk
+      PARA: 71w | The state codes and the district codes have never been aligned.
+      H2: Crosswalk
+
+      FIRST PARAGRAPH
+      The state codes and the district codes have never been aligned. The mapping below is the one the reconciliation script applies.
+
+      LAST PARAGRAPH
+      Two district codes have no state equivalent and are dropped at submission. That is the source of most of the exception volume.
+
+      TABLES
+      [table 1: 7 lines]
+      | District code | State code | Meaning | Counts toward ADA |
+      |---|---|---|---|
+      | 10 | A1 | Excused illness | Yes |
+      | 12 | A3 | Excused family | Yes |
+      | 14 | — | Transportation failure | No |
+      | 16 | B2 | Unexcused | No |
+      | 18 | — | Administrative hold | No |
+
+  - id: neg-06
+    label: negative
+    source: synthetic
+    note: exclusion (z) — a table the document's format requires
+    text: |
+      SKELETON sample/compliance-01
+      format: report
+      words: 830
+
+      OUTLINE
+      H1: Title I Compliance Appendix
+      PARA: 66w | Appendix C is required by the state monitoring protocol.
+      H2: Appendix C — Required assurances
+
+      FIRST PARAGRAPH
+      Appendix C is required by the state monitoring protocol and must be filed in the prescribed format. The wording of the assurances is fixed by the state.
+
+      LAST PARAGRAPH
+      All six assurances are met for the current program year. Supporting documentation is retained in the grants office.
+
+      TABLES
+      [table 1: 8 lines]
+      | Assurance | Citation | Status |
+      |---|---|---|
+      | Comparability of services | Sec. 1118(c) | Met |
+      | Parent and family engagement | Sec. 1116 | Met |
+      | Schoolwide plan on file | Sec. 1114(b) | Met |
+      | Supplement not supplant | Sec. 1118(b) | Met |
+      | Equitable services | Sec. 1117 | Met |
+      | Annual evaluation | Sec. 1114(b)(3) | Met |
+
+  - id: neg-07
+    label: negative
+    source: synthetic
+    note: no tables at all
+    text: |
+      SKELETON sample/email-02
+      format: email
+      words: 410
+
+      OUTLINE
+      H1: Modeling window
+      PARA: 92w | Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27.
+      PARA: 78w | The board's last actionable meeting is April 20.
+      PARA: 64w | That gives us seven weeks to build something defensible.
+
+      FIRST PARAGRAPH
+      Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27, and enrollment has fallen 14 percent over six years.
+
+      LAST PARAGRAPH
+      That gives us seven weeks to build something defensible. I would rather bring the board three packages than one recommendation nobody can question.
+
+      TABLES
+      (none)
+
+  - id: neg-08
+    label: negative
+    source: synthetic
+    note: exclusion (x) — a numeric results table with many rows
+    text: |
+      SKELETON sample/report-04
+      format: report
+      words: 1140
+
+      OUTLINE
+      H1: Chronic Absenteeism by Grade
+      PARA: 74w | Chronic absenteeism is concentrated in ninth grade and kindergarten.
+      H2: Rates by grade
+
+      FIRST PARAGRAPH
+      Chronic absenteeism is concentrated in ninth grade and kindergarten. The analysis uses the certified daily attendance file through January 31.
+
+      LAST PARAGRAPH
+      The two-call protocol moved the ninth-grade number and nothing else. Kindergarten was unchanged in all three pilot buildings.
+
+      TABLES
+      [table 1: 8 lines]
+      | Grade | 2023 | 2024 | 2025 | Change |
+      |---|---|---|---|---|
+      | K | 24.1 | 25.8 | 25.6 | -0.2 |
+      | 1 | 15.3 | 16.0 | 15.1 | -0.9 |
+      | 2 | 13.8 | 14.2 | 13.4 | -0.8 |
+      | 6 | 17.9 | 18.6 | 18.1 | -0.5 |
+      | 9 | 31.2 | 32.4 | 28.2 | -4.2 |
+      | 12 | 29.7 | 30.1 | 29.4 | -0.7 |
+
+  - id: neg-09
+    label: negative
+    source: synthetic
+    note: exclusion (x) — categorical values, one row per entity
+    text: |
+      SKELETON sample/brief-04
+      format: brief
+      words: 620
+
+      OUTLINE
+      H1: Source System Inventory
+      PARA: 58w | Twelve source systems feed the warehouse and four of them write the identifier.
+      H2: Inventory
+
+      FIRST PARAGRAPH
+      Twelve source systems feed the warehouse and four of them write the identifier. Only the first three normalize it.
+
+      LAST PARAGRAPH
+      The two systems that neither normalize nor reject are the ones that generate the reconciliation work.
+
+      TABLES
+      [table 1: 7 lines]
+      | System | Owner | Writes identifier | Normalizes |
+      |---|---|---|---|
+      | Payroll | Finance | Yes | Yes |
+      | Procurement | Finance | Yes | No |
+      | Attendance | Academics | Yes | Yes |
+      | Transportation | Operations | No | — |
+      | Food service | Operations | Yes | No |
+
+  - id: neg-10
+    label: negative
+    source: synthetic
+    note: exclusion (y) — a schedule of routes read across columns
+    text: |
+      SKELETON sample/plan-03
+      format: plan
+      words: 700
+
+      OUTLINE
+      H1: Route Changes Under Package A
+      PARA: 63w | Eleven routes are redrawn under Package A.
+      H2: Affected routes
+
+      FIRST PARAGRAPH
+      Eleven routes are redrawn under Package A. Five of them lengthen by more than ten minutes.
+
+      LAST PARAGRAPH
+      No route in the redrawn set exceeds the forty-five minute policy maximum. Two come within three minutes of it.
+
+      TABLES
+      [table 1: 7 lines]
+      | Route | Current minutes | Proposed minutes | Change | Buildings served |
+      |---|---|---|---|---|
+      | 14 | 28 | 41 | +13 | Ponderosa, Lakeview |
+      | 17 | 33 | 42 | +9 | Juniper Flat, Lakeview |
+      | 22 | 25 | 30 | +5 | Sawyer Creek |
+      | 31 | 39 | 44 | +5 | Deschutes View, Riverside |
+      | 36 | 22 | 22 | 0 | Riverside |

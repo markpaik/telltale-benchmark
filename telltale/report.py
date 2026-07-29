@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import json
 import math
+import warnings
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -563,6 +564,7 @@ def _run_stats(
 ) -> list[str]:
     corpus = manifest.get("corpus") or {}
     registry = manifest.get("registry") or {}
+    judge = manifest.get("judge") or {}
     rows = [
         ["Documents", str(corpus.get("n_docs", 0))],
         ["Words", f"{int(corpus.get('n_words', 0)):,}"],
@@ -574,10 +576,17 @@ def _run_stats(
         ["Corpus hash", f"`{str(corpus.get('corpus_hash', ''))[:16]}`"],
         ["Registry", f"v{registry.get('version')} `{str(registry.get('content_hash',''))[:16]}`"],
         ["Tells scored", str(registry.get("n_scored", 0))],
-        [
-            "Judge tells skipped",
-            f"{registry.get('judge_skipped', 0)} (Tier-2, arrives in M6)",
-        ],
+    ]
+    if judge.get("enabled"):
+        rows += _judge_rows(judge, df)
+    else:
+        rows.append(
+            [
+                "Judge tells skipped",
+                f"{registry.get('judge_skipped', 0)} (Tier-2, arrives in M6)",
+            ]
+        )
+    rows += [
         ["Bootstrap", _bootstrap_line(boot)],
         [
             "Weights",
@@ -586,16 +595,183 @@ def _run_stats(
     ]
     lines = ["## 6. Run", ""]
     lines += _table(["Field", "Value"], rows)
-    lines += [
-        "",
-        "Only the deterministic tells ran: regex and statistic. Judge tells are "
-        "counted above and scored in M6; until then the index is a floor, not a "
-        "total.",
-    ]
+    if judge.get("enabled"):
+        lines += [
+            "",
+            "Tier-2 judge tells were scored. The judge never rated anything: it "
+            "extracted verbatim quotes, every quote was checked against the "
+            "document it came from, and the rubric's criteria were applied in "
+            "code. A judge tell is only included when its latest calibration "
+            "report clears "
+            f"{float(judge.get('gate') or 0.9):.2f} agreement on its 20 labelled "
+            "snippets; any tell that did not is named above, and while one is "
+            "missing the index is a floor, not a total.",
+        ]
+    else:
+        lines += [
+            "",
+            "Only the deterministic tells ran: regex and statistic. Judge tells are "
+            "counted above and scored in M6; until then the index is a floor, not a "
+            "total.",
+        ]
     return lines
 
 
+def _judge_rows(judge: Mapping[str, Any], df: pd.DataFrame) -> list[list[str]]:
+    """The judge block of the run table.
+
+    Everything here is a property of the evidence, not of the session that
+    produced it. Call counts and cache hit rates are deliberately *not* in the
+    scorecard, only in the manifest: a cold first run and a warm replay do the
+    same arithmetic over the same answers but pay for them differently, and a
+    scorecard that recorded the difference would stop being byte-reproducible —
+    which is the one thing `report --verify` exists to check.
+    """
+    scored = judge.get("tells_scored") or []
+    skipped = judge.get("tells_skipped") or {}
+    hallucination = judge_hallucination_rate(df)
+    rate = hallucination.get("rate")
+
+    return [
+        ["Judge model", f"`{judge.get('model', EM_DASH)}`"],
+        ["Judge protocol", f"v{judge.get('protocol_version', EM_DASH)}"],
+        [
+            "Judge tells scored",
+            f"{len(scored)}: " + (", ".join(f"`{t}`" for t in scored) or EM_DASH),
+        ],
+        [
+            "Judge tells skipped",
+            f"{len(skipped)}: "
+            + (
+                _cell("; ".join(f"`{t}` ({why})" for t, why in sorted(skipped.items())))
+                or "none"
+            ),
+        ],
+        [
+            "Hallucinated quotes",
+            f"{hallucination.get('hallucinated', 0)} of "
+            f"{hallucination.get('extracted', 0)} extracted"
+            + (f" ({100.0 * float(rate):.1f}%)" if rate is not None else ""),
+        ],
+    ]
+
+
 # --- orchestration -----------------------------------------------------------
+
+
+def _default_runs_root(out_root: Path | None, run_dir: Path | None) -> Path:
+    """Where calibration reports are looked for when the caller did not say."""
+    if out_root is not None:
+        return Path(out_root)
+    if run_dir is not None:
+        return Path(run_dir).parent
+    return Path(__file__).resolve().parent.parent / "runs"
+
+
+def _judge_setup(
+    judge: bool,
+    judge_model: str | None,
+    judge_tells: Sequence[str] | None,
+    judge_cache_only: bool,
+    tells: Sequence[Any],
+    runs_root: Path,
+) -> tuple[Any, list[Any], dict[str, Any]]:
+    """Resolve the judge, apply the calibration gate, and report what it cost.
+
+    Returns (backend, tells-to-score, manifest section). Without `judge` the
+    tells come back untouched and the section says so, which is what keeps a
+    Tier-1 run byte-identical to the way M5 wrote it.
+    """
+    tells = list(tells)
+    if not judge:
+        return None, tells, {"enabled": False}
+
+    from telltale.judge import build_backend
+    from telltale.judge import calibrate as calibration
+    from telltale.judge import protocol as judge_protocol
+    from telltale.judge.transport import JUDGE_SYSTEM_PROMPT_SHA256, resolve_judge
+
+    model = judge_model or resolve_judge()
+
+    if judge_tells is not None:
+        # A replay. The set is fixed by the run being reproduced, not by whatever
+        # has been calibrated since, or `verify` would fail whenever a tell was
+        # calibrated between the original run and the check.
+        wanted = set(judge_tells)
+        skipped = {
+            t.id: "not in the run's judge tell list"
+            for t in tells
+            if t.method == "judge" and t.id not in wanted
+        }
+        kept = [t for t in tells if t.method != "judge" or t.id in wanted]
+    else:
+        kept, skipped = calibration.gate_tells(tells, runs_root, judge_model=model)
+        if skipped:
+            names = ", ".join(sorted(skipped))
+            warnings.warn(
+                f"judge tells excluded for want of calibration: {names}. "
+                "Run `telltale judge calibrate --tell <id>` to admit them; until "
+                "then the index is a floor, not a total.",
+                stacklevel=2,
+            )
+
+    backend = build_backend(model=model, cache_only=judge_cache_only)
+    scored_ids = sorted(t.id for t in kept if t.method == "judge")
+    section = {
+        "enabled": True,
+        "model": model,
+        "protocol_version": judge_protocol.PROTOCOL_VERSION,
+        "system_prompt_sha256": JUDGE_SYSTEM_PROMPT_SHA256,
+        "cache_only": bool(judge_cache_only),
+        "tells_scored": scored_ids,
+        "tells_skipped": dict(sorted(skipped.items())),
+        "calibration": calibration.calibration_scores(
+            scored_ids, runs_root, judge_model=model
+        ),
+        "gate": calibration.GATE,
+        "consistency_audit": None,
+    }
+    return backend, kept, section
+
+
+def _judge_run_stats(backend: Any) -> dict[str, Any]:
+    """What this run spent: live calls, parse retries, and cache traffic.
+
+    Manifest only. These numbers describe the session, not the measurement, and
+    they differ between a cold run and a warm replay of the same evidence — see
+    `_judge_rows` for why that keeps them out of the scorecard.
+    """
+    client = backend.client
+    cache_stats = dict(client.cache.stats.as_dict())
+    transport_stats = dict(client.transport.stats.as_dict())
+    return {
+        "calls": transport_stats,
+        "cache": cache_stats,
+        "live_calls": int(client.stats.get("live_calls", 0)),
+    }
+
+
+def judge_hallucination_rate(df: pd.DataFrame) -> dict[str, Any]:
+    """Quotes the judge produced that were not in the text it was shown.
+
+    Reported as a rate rather than a count because the denominator matters: two
+    bad quotes out of four is a broken instrument, two out of four hundred is
+    noise, and the count alone cannot tell them apart.
+    """
+    if df.empty or "detail" not in df.columns:
+        return {"extracted": 0, "hallucinated": 0, "rate": None}
+    extracted = 0
+    hallucinated = 0
+    for detail in df.loc[df["method"] == "judge", "detail"]:
+        if not isinstance(detail, dict):
+            continue
+        extracted += int(detail.get("extracted") or 0)
+        hallucinated += int(detail.get("hallucinated") or 0)
+    return {
+        "extracted": extracted,
+        "hallucinated": hallucinated,
+        "rate": (hallucinated / extracted) if extracted else None,
+    }
 
 
 def score_run(
@@ -608,22 +784,46 @@ def score_run(
     bootstrap_n: int = 1000,
     seed: int = 7,
     run_id: str | None = None,
+    judge: bool = False,
+    judge_model: str | None = None,
+    judge_tells: Sequence[str] | None = None,
+    judge_cache_only: bool = False,
+    runs_root: Path | None = None,
 ) -> Path:
     """Score a corpus and write the four outputs plus the manifest.
 
     Returns the run directory. Either `out_root` (a `<run_id>` directory is
     created inside it) or `run_dir` (written to directly, which is what verify
     uses) must be given.
+
+    With `judge=True` the Tier-2 tells are scored as well, but only the ones
+    whose latest calibration report clears the gate; the rest are skipped loudly
+    and named in the manifest. `judge_tells` overrides the gate with an explicit
+    list, which is how `manifest.verify` replays exactly the set the original
+    run scored rather than whatever has been calibrated since.
     """
     corpus_root = Path(corpus_root)
     registry = Registry(Path(registry_path))
     docs = load_corpus(corpus_root)
     tells = registry.active_tells(include_candidates=include_candidates)
 
-    df = scoring.detect_all(docs, tells)
+    backend, tells, judge_section = _judge_setup(
+        judge=judge,
+        judge_model=judge_model,
+        judge_tells=judge_tells,
+        judge_cache_only=judge_cache_only,
+        tells=tells,
+        runs_root=Path(runs_root) if runs_root is not None else _default_runs_root(out_root, run_dir),
+    )
+
+    df = scoring.detect_all(docs, tells, judge=backend)
     df = scoring.normalize(df, tells)
-    judge_skipped = scoring.judge_tell_ids(tells)
-    scored = [t for t in tells if t.method != "judge"]
+    judge_skipped = scoring.judge_tell_ids(tells) if backend is None else []
+    scored = [t for t in tells if t.method != "judge" or backend is not None]
+
+    if backend is not None:
+        judge_section.update(_judge_run_stats(backend))
+        judge_section["hallucination"] = judge_hallucination_rate(df)
 
     pairing = scoring.pairing_summary(df)
     manifest = build_manifest(
@@ -641,6 +841,7 @@ def score_run(
             "n_prompts": pairing["n_prompts"],
         },
         run_id=run_id,
+        judge=judge_section,
     )
 
     if run_dir is None:

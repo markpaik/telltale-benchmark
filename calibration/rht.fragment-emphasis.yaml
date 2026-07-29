@@ -1,0 +1,202 @@
+# Calibration set for rht.fragment-emphasis (rubric_version 1).
+#
+# Business markdown is full of verbless lines that are not fragments for
+# emphasis: headings, bullets, table cells, sign-offs, captions, callout tags.
+# The rubric excludes all of them, so seven of the ten negatives are exactly
+# those shapes. A judge that flags "any sentence without a verb" fails here,
+# which is the reason the set is built this way.
+tell: rht.fragment-emphasis
+rubric_version: 1
+view: chunk
+snippets:
+  - id: pos-01
+    label: positive
+    source: registry
+    text: |
+      The reconciliation script had been writing to the wrong column since the
+      February release. Nobody caught the error for six weeks. Six weeks.
+
+  - id: pos-02
+    label: positive
+    source: registry
+    text: |
+      Once we knew which column it was, the repair was trivial. The fix took one
+      afternoon. One afternoon.
+
+  - id: pos-03
+    label: positive
+    source: synthetic
+    text: |
+      We asked the vendor for the raw extract in March, then again in April, and
+      once more at the end of May. Still nothing.
+
+  - id: pos-04
+    label: positive
+    source: synthetic
+    text: |
+      The upload window closed at five o'clock on the ninth and the dashboard
+      shows every building red. Every single one.
+
+  - id: pos-05
+    label: positive
+    source: synthetic
+    text: |
+      The vendor's written answer was that the data had been complete and
+      accurate at the time of transfer. Not true. Their own log shows the
+      truncation happening on their side.
+
+  - id: pos-06
+    label: positive
+    source: synthetic
+    text: |
+      Enrollment fell in every elementary building for the sixth consecutive
+      year. Again. The projections we built in 2021 have been wrong in the same
+      direction every year since.
+
+  - id: pos-07
+    label: positive
+    source: synthetic
+    text: |
+      A $4 million recommendation with forty-one affected positions went from
+      first reading to adoption in a single meeting. Twenty minutes.
+
+  - id: pos-08
+    label: positive
+    source: synthetic
+    text: |
+      Close two buildings, move the sixth grade, and hold the boundaries where
+      they are. That is the whole plan. All of it.
+
+  - id: pos-09
+    label: positive
+    source: synthetic
+    text: |
+      The report went to the board with a number that had never been checked
+      against the source file. Three people read it before it went out. Three.
+
+  - id: pos-10
+    label: positive
+    source: synthetic
+    text: |
+      We can absorb one more year at this staffing level without cutting
+      programs. Barely. The year after that is not survivable on the current
+      revenue.
+
+  - id: neg-01
+    label: negative
+    source: synthetic
+    note: exclusion (x) — the verbless line is a heading
+    text: |
+      ### One afternoon
+
+      The fix itself took a single afternoon and cost nothing beyond the
+      analyst's time. Finding the cause is what took six weeks, and that is the
+      part worth changing.
+
+  - id: neg-02
+    label: negative
+    source: synthetic
+    note: exclusion (y) — verbless lines are list items
+    text: |
+      The working session covered four items:
+
+      - Building utilization
+      - Transportation cost
+      - Staffing effects
+      - Community engagement
+
+      Grant will circulate the packet on Friday.
+
+  - id: neg-03
+    label: negative
+    source: synthetic
+    note: exclusion (y) — verbless text is in table cells
+    text: |
+      Utilization by building, October count:
+
+      | Building | Capacity | Enrolled | Utilization |
+      |---|---|---|---|
+      | Ponderosa | 480 | 262 | 55% |
+      | Juniper Flat | 400 | 214 | 54% |
+      | Sawyer Creek | 520 | 301 | 58% |
+
+      All three sit below the 65 percent threshold in board policy.
+
+  - id: neg-04
+    label: negative
+    source: synthetic
+    note: exclusion (z) — salutation and sign-off
+    text: |
+      Team,
+
+      The modeling is due Friday and the packet goes out Monday. Please send
+      Grant anything you want reflected in the assumptions before Thursday noon.
+
+      Marisol
+
+      Dr. Marisol Quintanilla
+      Superintendent, Cascade Ridge School District
+
+  - id: neg-05
+    label: negative
+    source: synthetic
+    note: exclusion (z) — callout tag
+    text: |
+      Note: the board's last actionable meeting moved from April 27 to April 20.
+
+      Action: Grant to confirm that the RIF notice window still clears the May
+      15 contractual deadline under the earlier date.
+
+  - id: neg-06
+    label: negative
+    source: synthetic
+    note: exclusion (w) — the fragment sits inside quoted speech by another speaker
+    text: |
+      Hobbes was blunt when the committee asked whether the timeline held.
+      "Not a chance," he said, and then walked through the contractor's schedule
+      to show why.
+
+  - id: neg-07
+    label: negative
+    source: synthetic
+    note: complete sentences throughout
+    text: |
+      The reconciliation script wrote to the wrong column for six weeks before
+      anyone noticed, and the repair took one afternoon once the cause was
+      known. We have added a column check to the nightly run so the same failure
+      surfaces the next morning instead of the next quarter.
+
+  - id: neg-08
+    label: negative
+    source: synthetic
+    note: exclusion (z) — dateline and addressee block
+    text: |
+      March 2, 2026
+
+      To: Finance Committee
+      From: Amara Osei, Program Director
+
+      The diabetes management program enrolled 412 patients in 2024 and retained
+      268 of them through the twelve-month mark.
+
+  - id: neg-09
+    label: negative
+    source: synthetic
+    note: exclusion (z) — figure caption
+    text: |
+      Figure 2. Enrollment by building, 2019 through 2025.
+
+      The decline is steepest in the three buildings east of the river, which
+      together account for roughly two-thirds of the district's lost enrollment
+      over the period.
+
+  - id: neg-10
+    label: negative
+    source: synthetic
+    note: exclusion (x) — bolded run-in heading
+    text: |
+      **Timeline.** Twelve weeks from approval to launch, assuming the contract
+      is countersigned by June 1.
+
+      **Cost.** One hundred eighty thousand dollars in year one, most of it the
+      data migration.

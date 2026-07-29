@@ -11,3 +11,8 @@ local-markers.txt
 # so there is nothing to gain from versioning them. runs/isolation/ is not
 # derived and stays tracked.
 runs/2[0-9][0-9][0-9][0-9][0-9][0-9][0-9]T*/
+
+# Judge answer cache (cache/judge/<key[:2]>/<key>.json). Derived: every entry
+# is reproducible by re-asking the judge, and the key carries the whole recipe,
+# so there is nothing to gain from versioning it — and a lot of noise to lose.
+cache/
