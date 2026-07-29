@@ -9,6 +9,14 @@
 # items, dates, numbers, a runbook, a checklist, an agenda, and two lists whose
 # uniformity breaks on the last item. A judge that reads "the bullets look
 # tidy" rather than the rubric fails most of them.
+#
+# Representational parity (added after the first two live rounds): these
+# mini-skeletons are stored exactly as `protocol.skeleton_view` renders a real
+# document, closing-paragraph labels included. They were not, before — which
+# means every score recorded prior to this change was measured against a
+# strictly harder representation than production uses, with the labels that help
+# a judge tell a reprinted closing paragraph from a genuine recap withheld. Those
+# 1.00s therefore stand as conservative rather than flattered.
 tell: str.parallel-bullet-grammar
 rubric_version: 1
 view: skeleton
@@ -29,12 +37,12 @@ snippets:
         - Improving intake speed
         - Reducing manual entry
         - Strengthening data quality
-      PARA: 38w | Each has an owner and a first checkpoint in October.
+      PARA: 38w | Each has an owner and a first checkpoint in October.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The working group settled on three priorities for the year. None of them requires new money and all three require attention from the same two people.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       Each has an owner and a first checkpoint in October. Progress will be reported in the quarterly update rather than in a separate memo.
 
       TABLES
@@ -57,12 +65,12 @@ snippets:
         - Confirm the roster
         - Reconcile the counts
         - Publish the summary
-      PARA: 41w | None of the three adds staff time beyond the first month.
+      PARA: 41w | None of the three adds staff time beyond the first month.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Three actions would prevent a repeat of the October discrepancy. They are listed in the order they would be performed, though none depends on the others.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       None of the three adds staff time beyond the first month. The reconciliation step is already performed informally in six of the nineteen buildings.
 
       TABLES
@@ -86,12 +94,12 @@ snippets:
         - Timeline: eighteen months from board action
         - Staffing: forty-one positions affected
         - Transportation: eleven routes redrawn
-      PARA: 58w | The transportation figure is the least certain of the four.
+      PARA: 58w | The transportation figure is the least certain of the four.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Package A holds four buildings and moves two grade configurations. It is the largest of the three packages and the only one that reaches the full savings target.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The transportation figure is the least certain of the four. Routing has not been re-run against the proposed boundaries, so the estimate carries the 2023 route lengths.
 
       TABLES
@@ -114,12 +122,12 @@ snippets:
         - Extract validation runs nightly at two
         - Extract failures page the on-call analyst
         - Extract logs are retained for ninety days
-      PARA: 44w | Transform and load are covered in the next section.
+      PARA: 44w | Transform and load are covered in the next section.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Progress against the four workstreams is summarized below. The extract workstream is the only one that is finished.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       Transform and load are covered in the next section. Neither has moved since the last update, for the reason described there.
 
       TABLES
@@ -144,12 +152,12 @@ snippets:
         - Briefing the PTA presidents monthly
         - Convening a staff advisory group
         - Reporting attendance at each board meeting
-      PARA: 49w | Hana owns all five and reports weekly.
+      PARA: 49w | Hana owns all five and reports weekly.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The engagement strategy has five components running in parallel. Running them in sequence would push the last one past the April board meeting.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       Hana owns all five and reports weekly. The advisory group is the only component that requires a formal appointment.
 
       TABLES
@@ -172,12 +180,12 @@ snippets:
         - Leading zeros stripped on write
         - Trailing spaces preserved on read
         - Mixed case accepted without normalization
-      PARA: 66w | The first accounts for roughly two-thirds of the observed failures.
+      PARA: 66w | The first accounts for roughly two-thirds of the observed failures.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Three failure modes account for nearly all reconciliation error. Each is a property of a different system and none is difficult to fix in isolation.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The first accounts for roughly two-thirds of the observed failures. The other two are individually rare and jointly responsible for the hardest cases to diagnose.
 
       TABLES
@@ -201,12 +209,12 @@ snippets:
         - To remove the duplicate signature requirement
         - To standardize the exception codes across buildings
         - To shorten the reconciliation window to five days
-      PARA: 52w | The first objective carries most of the savings.
+      PARA: 52w | The first objective carries most of the savings.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The proposal is designed to meet four objectives. They are stated in priority order and the fourth is contingent on the third.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The first objective carries most of the savings. The others are largely quality improvements that happen to be cheap once the filing change is made.
 
       TABLES
@@ -234,12 +242,12 @@ snippets:
         - Patient enrollment closed in October
         - Education sessions delivered monthly per cohort
         - Retention measured at the twelve-month mark
-      PARA: 63w | Retention was the metric the board cared about.
+      PARA: 63w | Retention was the metric the board cared about.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The program's first year had three phases. They overlapped by design, since enrollment stayed open through the tenth month.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       Retention was the metric the board cared about. It came in eighteen points above the target set in the grant application.
 
       TABLES
@@ -263,12 +271,12 @@ snippets:
         - What changed in the April release?
         - What is the current escalation path?
         - What does the renewal price include?
-      PARA: 47w | None has been answered in writing.
+      PARA: 47w | None has been answered in writing.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Four questions remain unanswered by the vendor. All four were sent on March 30 and repeated on April 14.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       None has been answered in writing. The account manager has answered two of them verbally, which is not sufficient for the cure notice.
 
       TABLES
@@ -294,12 +302,12 @@ snippets:
         - Logging every contact attempt in the student record
         - Reporting building totals weekly
         - Reviewing chronic cases at the monthly meeting
-      PARA: 61w | The second call is the only change with a measurable effect.
+      PARA: 61w | The second call is the only change with a measurable effect.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Six changes were made to the attendance protocol in September. Three of them were procedural and three added work for building clerks.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The second call is the only change with a measurable effect. The others may still be worth keeping, but this analysis cannot say so.
 
       TABLES
@@ -320,12 +328,12 @@ snippets:
       LIST: 2 items
         - Closing four buildings over three years
         - Closing two buildings and redrawing boundaries
-      PARA: 46w | Both hold the elementary boundaries east of the river.
+      PARA: 46w | Both hold the elementary boundaries east of the river.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The board will be asked to choose between two packages. Neither reaches the full savings target on its own.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       Both hold the elementary boundaries east of the river. That constraint came out of the December listening sessions and has not been revisited.
 
       TABLES
@@ -348,12 +356,12 @@ snippets:
         - Juniper Flat
         - Sawyer Creek
         - Deschutes View
-      PARA: 51w | All four sit below 60 percent utilization.
+      PARA: 51w | All four sit below 60 percent utilization.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Four buildings appear in every version of the model. They were selected on utilization alone, before any consideration of condition or program.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       All four sit below 60 percent utilization. Deschutes View is the only one that also carries a major roof liability inside five years.
 
       TABLES
@@ -376,12 +384,12 @@ snippets:
         - March 16
         - April 6
         - April 20
-      PARA: 39w | Nothing between those dates can slip without moving the vote.
+      PARA: 39w | Nothing between those dates can slip without moving the vote.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The schedule has four fixed points between now and the vote. Two of them are contractual and two are board calendar dates.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       Nothing between those dates can slip without moving the vote. The May 15 notice deadline is the binding constraint behind all four.
 
       TABLES
@@ -404,12 +412,12 @@ snippets:
         - 54 percent
         - 58 percent
         - 61 percent
-      PARA: 42w | The board policy threshold is 65 percent.
+      PARA: 42w | The board policy threshold is 65 percent.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Utilization across the four buildings under review is as follows. Figures are from the certified October count and use program capacity, not building capacity.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The board policy threshold is 65 percent. No building under review has cleared it in any of the last four years.
 
       TABLES
@@ -434,12 +442,12 @@ snippets:
         - Run the reconciliation script against the staging copy
         - Review the exception report for codes 12 and 14
         - Submit the upload and record the confirmation number
-      PARA: 38w | Escalate to the data team if the exception count exceeds twenty.
+      PARA: 38w | Escalate to the data team if the exception count exceeds twenty.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Perform these steps in order on the first business day of the month. Do not begin before the prior month is closed in the attendance module.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       Escalate to the data team if the exception count exceeds twenty. Do not resubmit an upload that has already returned a confirmation number.
 
       TABLES
@@ -463,12 +471,12 @@ snippets:
         - Verify the fiscal note against the budget office figure
         - Attach the modeling appendix in final form
         - Circulate the draft to cabinet for review
-      PARA: 35w | The packet releases seventy-two hours before the meeting.
+      PARA: 35w | The packet releases seventy-two hours before the meeting.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Complete every item before the packet is released. Items may be completed in any order but all four are required.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The packet releases seventy-two hours before the meeting. Late items go to the following meeting without exception.
 
       TABLES
@@ -492,12 +500,12 @@ snippets:
         - Discuss the sibling-preservation rule
         - Set the listening session dates
         - Assign the staffing analysis
-      PARA: 31w | Denise will take notes and circulate them Friday.
+      PARA: 31w | Denise will take notes and circulate them Friday.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The session runs ninety minutes in the board room. Attendance is cabinet plus the two analysts working the model.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       Denise will take notes and circulate them Friday. Anything not reached moves to the March 16 session.
 
       TABLES
@@ -520,12 +528,12 @@ snippets:
         - Reducing manual entry
         - Strengthening data quality
         - The budget will not grow
-      PARA: 43w | The fourth is a constraint rather than a priority.
+      PARA: 43w | The fourth is a constraint rather than a priority.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The working group settled on four items for the year. The last of them is not a priority at all and was added by the finance office.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The fourth is a constraint rather than a priority. It is listed here because it governs how far the first three can go.
 
       TABLES
@@ -547,12 +555,12 @@ snippets:
         - Extract is finished
         - Reviewing the transformation layer
         - A decision on the identifier
-      PARA: 39w | The third is blocking the other two.
+      PARA: 39w | The third is blocking the other two.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Three things are worth flagging this week. They are listed in the order they came up, not in order of importance.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The third is blocking the other two. Priya has the decision and has asked for another week.
 
       TABLES
@@ -571,12 +579,12 @@ snippets:
       H1: Modeling window
       PARA: 88w | Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27.
       PARA: 74w | The board's last actionable meeting is April 20.
-      PARA: 66w | That gives us seven weeks to build something defensible.
+      PARA: 66w | That gives us seven weeks to build something defensible.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27, and enrollment has now fallen 14 percent over six years with no sign of leveling off.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       That gives us seven weeks to build something defensible. I would rather bring the board three packages than one recommendation nobody can question.
 
       TABLES

@@ -1044,6 +1044,33 @@ def test_structural_calibration_snippets_are_skeletons(tell_id: str) -> None:
         assert "TABLES" in snippet.text
 
 
+@pytest.mark.parametrize("tell_id", ["str.summary-sandwich", "str.parallel-bullet-grammar",
+                                     "str.table-overuse"])
+def test_structural_snippets_match_what_production_renders(tell_id: str) -> None:
+    """Calibration must test the representation the corpus is actually judged in.
+
+    These snippets are hand-written rather than rendered from a Doc, so nothing
+    but this test keeps them in the shape `skeleton_view` produces. They drifted
+    once already: the closing-paragraph labels shipped in protocol v2 and the
+    snippets did not carry them, so a whole calibration round scored a fix that
+    was never in the text it was scoring.
+    """
+    for snippet in calibration.load_snippets(tell_id):
+        assert protocol.LAST_PARAGRAPH_NOTE in snippet.text, snippet.id
+        assert snippet.text.count(protocol.CLOSING_PARA_NOTE) == 1, snippet.id
+        assert protocol._label_closing_paragraph(snippet.text) == snippet.text, (
+            f"{snippet.id} is not what skeleton_view would render"
+        )
+
+
+def test_the_closing_paragraph_labeller_is_idempotent() -> None:
+    """Applied twice it must not double-label; the snippets are stored labelled."""
+    once = protocol.skeleton_view(doc_from("# T\n\nOpening.\n\n## S\n\nClosing line.\n"))
+    assert protocol._label_closing_paragraph(once) == once
+    assert once.count(protocol.CLOSING_PARA_NOTE) == 1
+    assert once.count(protocol.LAST_PARAGRAPH_NOTE) == 1
+
+
 def test_calibration_scores_agreement_and_applies_the_gate(
     tmp_path: Path, qa_tell: Tell
 ) -> None:

@@ -8,6 +8,14 @@
 # exist. Four of the negatives have both a preview and a recap and are negative
 # only because the close carries something new; that is exclusion (x), and it is
 # the row of the truth table most likely to be got wrong.
+#
+# Representational parity (added after the first two live rounds): these
+# mini-skeletons are stored exactly as `protocol.skeleton_view` renders a real
+# document, closing-paragraph labels included. They were not, before — which
+# means every score recorded prior to this change was measured against a
+# strictly harder representation than production uses, with the labels that help
+# a judge tell a reprinted closing paragraph from a genuine recap withheld. Those
+# 1.00s therefore stand as conservative rather than flattered.
 tell: str.summary-sandwich
 rubric_version: 1
 view: skeleton
@@ -31,12 +39,12 @@ snippets:
       H2: Staffing
       PARA: 88w | Forty-one positions are affected, thirty of them through attrition.
       H2: Summary
-      PARA: 44w | In summary, we covered cost, timeline, and staffing.
+      PARA: 44w | In summary, we covered cost, timeline, and staffing.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       This memo will cover three topics: cost, timeline, and staffing. Each section gives the range, the assumptions behind it, and the office that owns the number.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       In summary, we covered cost, timeline, and staffing. The savings are real, the timeline is tight, and the staffing effect is manageable at the levels described above.
 
       TABLES
@@ -60,12 +68,12 @@ snippets:
       H2: Clinical outcomes
       PARA: 158w | Average HbA1c among completers fell from 9.1 to 7.8.
       H2: Conclusion
-      PARA: 63w | To recap, this report examined enrollment, retention, and clinical outcomes.
+      PARA: 63w | To recap, this report examined enrollment, retention, and clinical outcomes.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The following report examines enrollment, retention, and clinical outcomes for the program's first year. Each section presents the raw counts first and the comparison to target second.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       To recap, this report examined enrollment, retention, and clinical outcomes. Enrollment exceeded target, retention landed above the benchmark, and the clinical results were consistent with the published literature.
 
       TABLES
@@ -89,12 +97,12 @@ snippets:
       H2: What happened
       PARA: 121w | Chronic absenteeism fell 4.2 points in the pilot schools.
       H2: Wrapping up
-      PARA: 52w | To summarize, we walked through what we tried, what it cost, and what happened.
+      PARA: 52w | To summarize, we walked through what we tried, what it cost, and what happened.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       This brief walks through what we tried, what it cost, and what happened. It is intended as background for the February cabinet discussion.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       To summarize, we walked through what we tried, what it cost, and what happened. The intervention was cheap, the effect was measurable, and the pattern held in all three buildings.
 
       TABLES
@@ -118,12 +126,12 @@ snippets:
       H2: Expected savings
       PARA: 131w | The change removes about 1,100 clerk hours a year district-wide.
       H2: Closing
-      PARA: 58w | As described above, this proposal covered the problem, the proposed change, and the expected savings.
+      PARA: 58w | As described above, this proposal covered the problem, the proposed change, and the expected savings.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The purpose of this proposal is to describe the problem, the proposed change, and the expected savings. No decision is requested in this document.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       As described above, this proposal covered the problem, the proposed change, and the expected savings. The problem is well documented, the change is straightforward, and the savings are conservative.
 
       TABLES
@@ -149,12 +157,12 @@ snippets:
       H2: Workstream 4 — Reporting
       PARA: 86w | Three reports have been rebuilt against the new model.
       H2: Recap
-      PARA: 47w | In review, this update restated the charge and reported progress against each of the four workstreams.
+      PARA: 47w | In review, this update restated the charge and reported progress against each of the four workstreams.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       This update restates the charge and then reports progress against each of the four workstreams. The charge has not changed since the January memo.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       In review, this update restated the charge and reported progress against each of the four workstreams. Three are on schedule and one is blocked, as described in the sections above.
 
       TABLES
@@ -178,12 +186,12 @@ snippets:
       H2: Options
       PARA: 289w | Three repair paths are available, and none of them is cheap.
       H2: Conclusion
-      PARA: 84w | This paper was organized in three parts: the history of the identifier, the failure modes it produces, and the options for repair.
+      PARA: 84w | This paper was organized in three parts: the history of the identifier, the failure modes it produces, and the options for repair.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       This paper is organized in three parts: the history of the identifier, the failure modes it produces, and the options for repair. Readers who only need the recommendation should skip to the third part.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       This paper was organized in three parts: the history of the identifier, the failure modes it produces, and the options for repair. The history explains the constraint, the failure modes quantify the cost, and the options are all variations on the same trade.
 
       TABLES
@@ -207,12 +215,12 @@ snippets:
       H2: Results
       PARA: 171w | Completers' average HbA1c fell 1.3 points.
       H2: In closing
-      PARA: 55w | We looked at the setting, the intervention, and the results.
+      PARA: 55w | We looked at the setting, the intervention, and the results.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       We will look at the setting, the intervention, and the results. The case is drawn from publicly reported program data and the director's year-end memo.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       We looked at the setting, the intervention, and the results. The setting was constrained, the intervention was modest, and the results were consistent with what similar programs report.
 
       TABLES
@@ -236,12 +244,12 @@ snippets:
       H2: What we recommend
       PARA: 204w | Four buildings are recommended for closure over three years.
       H2: Summary
-      PARA: 61w | This plan set out what we own, what it costs to keep, and what we recommend closing.
+      PARA: 61w | This plan set out what we own, what it costs to keep, and what we recommend closing.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       This plan sets out what we own, what it costs to keep, and what we recommend closing. It does not address the bond question, which is handled separately.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       This plan set out what we own, what it costs to keep, and what we recommend closing. The portfolio is oversized, the maintenance backlog is unaffordable, and the closure list follows from those two facts.
 
       TABLES
@@ -265,12 +273,12 @@ snippets:
       H2: Contract compliance
       PARA: 109w | Two of the six deliverables were late.
       H2: Overall
-      PARA: 49w | We reviewed uptime, support responsiveness, and contract compliance.
+      PARA: 49w | We reviewed uptime, support responsiveness, and contract compliance.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Below we review uptime, support responsiveness, and contract compliance. Each is assessed against the commitments in the 2024 master agreement.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       We reviewed uptime, support responsiveness, and contract compliance. Uptime was acceptable, responsiveness was not, and compliance was mixed across the six deliverables.
 
       TABLES
@@ -296,12 +304,12 @@ snippets:
       H2: Driver 4 — Special transportation
       PARA: 112w | Special transportation grew faster than any other line.
       H2: To close
-      PARA: 45w | The above walked through the four drivers, in order of size.
+      PARA: 45w | The above walked through the four drivers, in order of size.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       What follows is a walk through the four drivers, in order of size. Each driver is stated in annualized dollars against the 2022 baseline.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The above walked through the four drivers, in order of size. Route length is the largest, wages the most durable, fuel the most volatile, and special transportation the fastest growing.
 
       TABLES
@@ -324,12 +332,12 @@ snippets:
       H2: What it means
       PARA: 96w | The state allocation is calculated on the certified October figure.
       H2: Summary
-      PARA: 44w | In summary, three schools filed late and the certified figure is 212 students low.
+      PARA: 44w | In summary, three schools filed late and the certified figure is 212 students low.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The October count came back 212 students lower than the September file. The gap is concentrated in three buildings and it is not a data-entry error.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       In summary, three schools filed late and the certified figure is 212 students low. The allocation effect is roughly $1.6 million.
 
       TABLES
@@ -352,12 +360,12 @@ snippets:
       H2: When
       PARA: 164w | Absences cluster in the two weeks after each break.
       H2: What changed
-      PARA: 173w | The two-call protocol moved the ninth-grade number and nothing else.
+      PARA: 173w | The two-call protocol moved the ninth-grade number and nothing else.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       This report covers three questions: who is absent, when, and what changed. The analysis uses the certified daily attendance file through January 31.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The two-call protocol moved the ninth-grade number and nothing else. Kindergarten was unchanged in all three pilot buildings, which is consistent with the transportation explanation.
 
       TABLES
@@ -382,12 +390,12 @@ snippets:
       H2: Open questions
       PARA: 96w | Nobody has decided how sibling groups are handled.
       H2: Next
-      PARA: 71w | The cabinet needs to decide the sibling-preservation rule by March 16, and Roberta will own that decision.
+      PARA: 71w | The cabinet needs to decide the sibling-preservation rule by March 16, and Roberta will own that decision.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       This memo covers the modeling status, the assumptions, and the open questions. It does not recommend a package.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The cabinet needs to decide the sibling-preservation rule by March 16, and Roberta will own that decision. Without it the two remaining building models cannot be built.
 
       TABLES
@@ -412,12 +420,12 @@ snippets:
       H2: Compliance
       PARA: 118w | Two of six deliverables were late.
       H2: Next step
-      PARA: 66w | The cure-notice window closes on May 9, and a decision on renewal has to be filed before then.
+      PARA: 66w | The cure-notice window closes on May 9, and a decision on renewal has to be filed before then.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       This brief will cover uptime, support, and compliance. Each is assessed against the 2024 master agreement.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The cure-notice window closes on May 9, and a decision on renewal has to be filed before then. Procurement has asked for the recommendation two weeks ahead of that date.
 
       TABLES
@@ -437,12 +445,12 @@ snippets:
       PARA: 94w | I want to get ahead of the budget conversation before it gets ahead of us.
       PARA: 87w | Grant, please put together modeling on the four buildings that keep coming up.
       PARA: 76w | Hana, I would like community listening sessions running in parallel, not after.
-      PARA: 61w | Let us plan a working session the week of March 9.
+      PARA: 61w | Let us plan a working session the week of March 9.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       I want to get ahead of the budget conversation before it gets ahead of us. Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       Let us plan a working session the week of March 9. Denise will send the invitation once Grant confirms the modeling window.
 
       TABLES
@@ -469,12 +477,12 @@ snippets:
       H2: Special transportation
       PARA: 189w | Special transportation grew faster than any other line.
       H2: Open question
-      PARA: 74w | Nobody has established whether the special transportation growth is enrollment-driven or eligibility-driven, and the answer changes the remedy.
+      PARA: 74w | Nobody has established whether the special transportation growth is enrollment-driven or eligibility-driven, and the answer changes the remedy.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       This report examines route length, wages, fuel, and special transportation. Each is stated in annualized dollars against the 2022 baseline.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       Nobody has established whether the special transportation growth is enrollment-driven or eligibility-driven, and the answer changes the remedy. That analysis has not been scoped.
 
       TABLES
@@ -497,12 +505,12 @@ snippets:
       H2: What it costs
       PARA: 118w | Manual reconciliation takes about two staff days a month.
       H2: What would fix it
-      PARA: 141w | A single canonical format enforced at write time removes the class of error.
+      PARA: 141w | A single canonical format enforced at write time removes the class of error.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Leading zeros are the single largest source of reconciliation error in district systems. The pattern is consistent across all four years of logs.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       A single canonical format enforced at write time removes the class of error. The migration is two weeks of work and one weekend of downtime.
 
       TABLES
@@ -529,12 +537,12 @@ snippets:
       H2: Reporting
       PARA: 162w | Three reports have been rebuilt against the new model.
       H2: Assignments
-      PARA: 88w | Priya owns the identifier decision and will bring a recommendation on April 3; Dave owns the downtime window and will confirm it by April 10.
+      PARA: 88w | Priya owns the identifier decision and will bring a recommendation on April 3; Dave owns the downtime window and will confirm it by April 10.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       This plan describes the four workstreams, their sequence, and their dependencies. It does not cover the reporting backlog, which is tracked separately.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       Priya owns the identifier decision and will bring a recommendation on April 3; Dave owns the downtime window and will confirm it by April 10. Neither date has slack in it.
 
       TABLES
@@ -555,12 +563,12 @@ snippets:
       H2: What the policy requires
       PARA: 342w | The policy requires a call on the first day and a letter on the fifth.
       H2: What it achieves
-      PARA: 388w | Neither step has a measurable association with return-to-school in our data.
+      PARA: 388w | Neither step has a measurable association with return-to-school in our data.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       This paper takes up two questions: what the policy requires, and what it achieves. Both are answered from the district's own records rather than from the literature.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       Neither step has a measurable association with return-to-school in our data. The letter in particular arrives after the median return date, which makes any effect it has hard to attribute.
 
       TABLES
@@ -585,12 +593,12 @@ snippets:
       H2: Staffing
       PARA: 121w | The staffing analysis is waiting on the modeling.
       H2: Close
-      PARA: 79w | We covered modeling, engagement, and staffing; separately, the board has moved its April meeting to the 20th and the recommendation is now due a week earlier.
+      PARA: 79w | We covered modeling, engagement, and staffing; separately, the board has moved its April meeting to the 20th and the recommendation is now due a week earlier.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       This update covers modeling, engagement, and staffing. It is the fourth in the weekly series and the last before the working session.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       We covered modeling, engagement, and staffing; separately, the board has moved its April meeting to the 20th and the recommendation is now due a week earlier. Grant will confirm whether the modeling still lands in time.
 
       TABLES

@@ -608,18 +608,25 @@ def _label_closing_paragraph(skeleton: str) -> str:
     end. The repetition is a rendering artifact, so it is labelled here rather
     than worked around in the rubric; teaching a rubric to compensate for the
     shape of its input would couple the two forever.
+
+    Idempotent: applying it to an already-labelled skeleton returns it
+    unchanged. Production calls it exactly once, but the calibration snippets
+    are stored pre-labelled so that they match what a real document renders to,
+    and a labeller that double-appended on a second pass would quietly corrupt
+    the anchor set the gate depends on.
     """
     lines = skeleton.split("\n")
     last_para = max(
         (i for i, line in enumerate(lines) if line.startswith("PARA:")), default=None
     )
-    if last_para is not None:
+    if last_para is not None and CLOSING_PARA_NOTE not in lines[last_para]:
         lines[last_para] += CLOSING_PARA_NOTE
-    try:
-        header = lines.index(LAST_PARAGRAPH_HEADER)
-    except ValueError:  # pragma: no cover - doc_skeleton always emits it
-        return "\n".join(lines)
-    lines[header] = LAST_PARAGRAPH_HEADER + LAST_PARAGRAPH_NOTE
+    for index, line in enumerate(lines):
+        if line == LAST_PARAGRAPH_HEADER:
+            lines[index] = LAST_PARAGRAPH_HEADER + LAST_PARAGRAPH_NOTE
+            break
+        if line.startswith(LAST_PARAGRAPH_HEADER) and LAST_PARAGRAPH_NOTE in line:
+            break  # already labelled
     return "\n".join(lines)
 
 

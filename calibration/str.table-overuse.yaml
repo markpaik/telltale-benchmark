@@ -9,6 +9,14 @@
 # table, or (c) a table whose cells are running prose. The negatives are real
 # data tables, schedules, rosters, budgets, crosswalks, a required compliance
 # appendix, and a document with no tables at all.
+#
+# Representational parity (added after the first two live rounds): these
+# mini-skeletons are stored exactly as `protocol.skeleton_view` renders a real
+# document, closing-paragraph labels included. They were not, before — which
+# means every score recorded prior to this change was measured against a
+# strictly harder representation than production uses, with the labels that help
+# a judge tell a reprinted closing paragraph from a genuine recap withheld. Those
+# 1.00s therefore stand as conservative rather than flattered.
 tell: str.table-overuse
 rubric_version: 1
 view: skeleton
@@ -24,13 +32,13 @@ snippets:
 
       OUTLINE
       H1: Pilot Summary
-      PARA: 58w | The pilot closed in June and came in under budget.
+      PARA: 58w | The pilot closed in June and came in under budget.   [this is the closing paragraph; it is printed in full below]
       H2: Findings
 
       FIRST PARAGRAPH
       The pilot closed in June and came in under budget. Nothing in the design changed after the second month.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The findings are summarized in the table above. A fuller treatment is in the appendix.
 
       TABLES
@@ -51,13 +59,13 @@ snippets:
 
       OUTLINE
       H1: Implementation Brief
-      PARA: 52w | Implementation runs twelve weeks from board approval.
+      PARA: 52w | Implementation runs twelve weeks from board approval.   [this is the closing paragraph; it is printed in full below]
       H2: Schedule at a glance
 
       FIRST PARAGRAPH
       Implementation runs twelve weeks from board approval. The contract has to be countersigned before the clock starts.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The schedule assumes no slippage in procurement. Every week of delay pushes go-live into the first week of school.
 
       TABLES
@@ -77,13 +85,13 @@ snippets:
 
       OUTLINE
       H1: Why the October Count Moved
-      PARA: 61w | The certified October figure came in 212 students below the September file.
+      PARA: 61w | The certified October figure came in 212 students below the September file.   [this is the closing paragraph; it is printed in full below]
       H2: Contributing factors
 
       FIRST PARAGRAPH
       The certified October figure came in 212 students below the September file. The gap is concentrated in three buildings.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       None of the three factors is new this year. What is new is that all three landed in the same month.
 
       TABLES
@@ -105,13 +113,13 @@ snippets:
 
       OUTLINE
       H1: Engagement Findings
-      PARA: 74w | Six listening sessions were held between January and March.
+      PARA: 74w | Six listening sessions were held between January and March.   [this is the closing paragraph; it is printed in full below]
       H2: What we heard
 
       FIRST PARAGRAPH
       Six listening sessions were held between January and March, four of them in buildings under review.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The themes were consistent across all six sessions. Nothing in the March sessions contradicted what we heard in January.
 
       TABLES
@@ -133,13 +141,13 @@ snippets:
 
       OUTLINE
       H1: Migration Status
-      PARA: 47w | The extract workstream finished this week.
+      PARA: 47w | The extract workstream finished this week.   [this is the closing paragraph; it is printed in full below]
       H2: Status
 
       FIRST PARAGRAPH
       The extract workstream finished this week. Transform and load are unchanged since the last update.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The identifier decision is still the binding constraint. Priya has asked for another week.
 
       TABLES
@@ -159,13 +167,13 @@ snippets:
 
       OUTLINE
       H1: Consolidated Upload — Proposal
-      PARA: 66w | A single consolidated upload replaces the three monthly filings.
+      PARA: 66w | A single consolidated upload replaces the three monthly filings.   [this is the closing paragraph; it is printed in full below]
       H2: Summary of the change
 
       FIRST PARAGRAPH
       A single consolidated upload replaces the three monthly filings. Nothing else about the process changes.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The change removes about 1,100 clerk hours a year district-wide. The estimate uses the 2025 filing counts.
 
       TABLES
@@ -187,13 +195,13 @@ snippets:
 
       OUTLINE
       H1: Identifier Integrity
-      PARA: 82w | Three repair paths are available and none of them is cheap.
+      PARA: 82w | Three repair paths are available and none of them is cheap.   [this is the closing paragraph; it is printed in full below]
       H2: Options
 
       FIRST PARAGRAPH
       Three repair paths are available and none of them is cheap. They differ mainly in who absorbs the disruption.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       All three options end in the same place. The question is only how much downtime the district is willing to take at once.
 
       TABLES
@@ -215,13 +223,13 @@ snippets:
 
       OUTLINE
       H1: Grant Expiration
-      PARA: 54w | The state grant of $185,000 expires in June.
+      PARA: 54w | The state grant of $185,000 expires in June.   [this is the closing paragraph; it is printed in full below]
       H2: The number
 
       FIRST PARAGRAPH
       The state grant of $185,000 expires in June. There is no replacement application open at this time.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The committee has one decision and six weeks to make it. Waiting past the May meeting removes the renewal option.
 
       TABLES
@@ -241,13 +249,13 @@ snippets:
 
       OUTLINE
       H1: Riverbend — Program Overview
-      PARA: 78w | Riverbend serves roughly 8,000 patients across two sites.
+      PARA: 78w | Riverbend serves roughly 8,000 patients across two sites.   [this is the closing paragraph; it is printed in full below]
       H2: Program at a glance
 
       FIRST PARAGRAPH
       Riverbend serves roughly 8,000 patients across two sites. The management program is staffed by two nurse educators and one part-time dietitian.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The program's results were consistent with what similar programs report. Nothing in the design was unusual.
 
       TABLES
@@ -269,13 +277,13 @@ snippets:
 
       OUTLINE
       H1: Facilities Plan — Risks
-      PARA: 71w | Four risks could move the savings estimate materially.
+      PARA: 71w | Four risks could move the savings estimate materially.   [this is the closing paragraph; it is printed in full below]
       H2: Risk register
 
       FIRST PARAGRAPH
       Four risks could move the savings estimate materially. None of them is fully within the district's control.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The transportation risk is the largest of the four. Routing has not been re-run against the proposed boundaries.
 
       TABLES
@@ -298,13 +306,13 @@ snippets:
 
       OUTLINE
       H1: Utilization by Building
-      PARA: 64w | Utilization is calculated against program capacity, not building capacity.
+      PARA: 64w | Utilization is calculated against program capacity, not building capacity.   [this is the closing paragraph; it is printed in full below]
       H2: October count
 
       FIRST PARAGRAPH
       Utilization is calculated against program capacity, not building capacity. Figures are from the certified October count.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       No building under review has cleared the 65 percent policy threshold in any of the last four years.
 
       TABLES
@@ -328,13 +336,13 @@ snippets:
 
       OUTLINE
       H1: Consolidation Timeline
-      PARA: 58w | The schedule has four fixed points between March and the board vote.
+      PARA: 58w | The schedule has four fixed points between March and the board vote.   [this is the closing paragraph; it is printed in full below]
       H2: Schedule
 
       FIRST PARAGRAPH
       The schedule has four fixed points between March and the board vote. Two are contractual and two are board calendar dates.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The May 15 notice deadline is the binding constraint behind all four dates.
 
       TABLES
@@ -357,13 +365,13 @@ snippets:
 
       OUTLINE
       H1: Savings by Category
-      PARA: 62w | Savings come from three categories and one of them is uncertain.
+      PARA: 62w | Savings come from three categories and one of them is uncertain.   [this is the closing paragraph; it is printed in full below]
       H2: Detail
 
       FIRST PARAGRAPH
       Savings come from three categories and one of them is uncertain. Transportation assumes no change to the walk-zone policy.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The three-year total is $12.3 million against a first-year cost of $2.1 million.
 
       TABLES
@@ -386,13 +394,13 @@ snippets:
 
       OUTLINE
       H1: Working Group Membership
-      PARA: 49w | The working group has seven members drawn from four departments.
+      PARA: 49w | The working group has seven members drawn from four departments.   [this is the closing paragraph; it is printed in full below]
       H2: Membership
 
       FIRST PARAGRAPH
       The working group has seven members drawn from four departments. Two seats are still vacant.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The group meets weekly through April and then monthly. Denise staffs the meetings.
 
       TABLES
@@ -416,13 +424,13 @@ snippets:
 
       OUTLINE
       H1: Exception Code Crosswalk
-      PARA: 71w | The state codes and the district codes have never been aligned.
+      PARA: 71w | The state codes and the district codes have never been aligned.   [this is the closing paragraph; it is printed in full below]
       H2: Crosswalk
 
       FIRST PARAGRAPH
       The state codes and the district codes have never been aligned. The mapping below is the one the reconciliation script applies.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       Two district codes have no state equivalent and are dropped at submission. That is the source of most of the exception volume.
 
       TABLES
@@ -446,13 +454,13 @@ snippets:
 
       OUTLINE
       H1: Title I Compliance Appendix
-      PARA: 66w | Appendix C is required by the state monitoring protocol.
+      PARA: 66w | Appendix C is required by the state monitoring protocol.   [this is the closing paragraph; it is printed in full below]
       H2: Appendix C — Required assurances
 
       FIRST PARAGRAPH
       Appendix C is required by the state monitoring protocol and must be filed in the prescribed format. The wording of the assurances is fixed by the state.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       All six assurances are met for the current program year. Supporting documentation is retained in the grants office.
 
       TABLES
@@ -479,12 +487,12 @@ snippets:
       H1: Modeling window
       PARA: 92w | Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27.
       PARA: 78w | The board's last actionable meeting is April 20.
-      PARA: 64w | That gives us seven weeks to build something defensible.
+      PARA: 64w | That gives us seven weeks to build something defensible.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27, and enrollment has fallen 14 percent over six years.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       That gives us seven weeks to build something defensible. I would rather bring the board three packages than one recommendation nobody can question.
 
       TABLES
@@ -501,13 +509,13 @@ snippets:
 
       OUTLINE
       H1: Chronic Absenteeism by Grade
-      PARA: 74w | Chronic absenteeism is concentrated in ninth grade and kindergarten.
+      PARA: 74w | Chronic absenteeism is concentrated in ninth grade and kindergarten.   [this is the closing paragraph; it is printed in full below]
       H2: Rates by grade
 
       FIRST PARAGRAPH
       Chronic absenteeism is concentrated in ninth grade and kindergarten. The analysis uses the certified daily attendance file through January 31.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The two-call protocol moved the ninth-grade number and nothing else. Kindergarten was unchanged in all three pilot buildings.
 
       TABLES
@@ -532,13 +540,13 @@ snippets:
 
       OUTLINE
       H1: Source System Inventory
-      PARA: 58w | Twelve source systems feed the warehouse and four of them write the identifier.
+      PARA: 58w | Twelve source systems feed the warehouse and four of them write the identifier.   [this is the closing paragraph; it is printed in full below]
       H2: Inventory
 
       FIRST PARAGRAPH
       Twelve source systems feed the warehouse and four of them write the identifier. Only the first three normalize it.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       The two systems that neither normalize nor reject are the ones that generate the reconciliation work.
 
       TABLES
@@ -562,13 +570,13 @@ snippets:
 
       OUTLINE
       H1: Route Changes Under Package A
-      PARA: 63w | Eleven routes are redrawn under Package A.
+      PARA: 63w | Eleven routes are redrawn under Package A.   [this is the closing paragraph; it is printed in full below]
       H2: Affected routes
 
       FIRST PARAGRAPH
       Eleven routes are redrawn under Package A. Five of them lengthen by more than ten minutes.
 
-      LAST PARAGRAPH
+      LAST PARAGRAPH [the same closing paragraph already listed in the outline above, reprinted in full — its appearance here is not a second occurrence in the document]
       No route in the redrawn set exceeds the forty-five minute policy maximum. Two come within three minutes of it.
 
       TABLES
