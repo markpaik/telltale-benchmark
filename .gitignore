@@ -5,3 +5,9 @@ __pycache__/
 
 # Local contamination markers (machine-specific, never committed).
 local-markers.txt
+
+# Scoring run outputs (runs/<UTC-stamp>-<corpus8>-<registry8>/). Derived, and
+# reproducible from the corpus plus the registry — `report --verify` proves it —
+# so there is nothing to gain from versioning them. runs/isolation/ is not
+# derived and stays tracked.
+runs/2[0-9][0-9][0-9][0-9][0-9][0-9][0-9]T*/

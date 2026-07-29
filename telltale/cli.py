@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import subprocess
 import sys
 from pathlib import Path
@@ -235,6 +236,86 @@ def cmd_prompts_show(args: argparse.Namespace) -> int:
     return 1
 
 
+# --- scoring and reporting ---------------------------------------------------
+
+
+def cmd_score(args: argparse.Namespace) -> int:
+    from telltale import report
+
+    run_dir = report.score_run(
+        corpus_root=args.corpus,
+        registry_path=args.registry,
+        out_root=args.out,
+        include_candidates=args.include_candidates,
+        cli_args=sys.argv[1:],
+        bootstrap_n=args.bootstrap,
+        seed=args.seed,
+    )
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    corpus = manifest["corpus"]
+    registry_info = manifest["registry"]
+    if corpus["n_docs"] == 0:
+        print(f"no documents under {args.corpus}", file=sys.stderr)
+    print(
+        f"scored {corpus['n_docs']} docs x {registry_info['n_scored']} tells "
+        f"({registry_info['judge_skipped']} judge tells skipped, M6)"
+    )
+    print(run_dir)
+    return 0
+
+
+def cmd_report(args: argparse.Namespace) -> int:
+    from telltale import manifest as manifest_mod
+
+    if args.verify:
+        result = manifest_mod.verify(args.verify)
+        print(result.summary())
+        return 0 if result.ok else 1
+
+    from telltale import report
+
+    path = report.render_scorecard(args.render)
+    print(path)
+    return 0
+
+
+def _add_score_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser("score", help="score a corpus and write a run directory")
+    parser.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=DEFAULT_RUNS,
+        help="runs root; a <run_id> directory is created inside it",
+    )
+    parser.add_argument(
+        "--include-candidates",
+        action="store_true",
+        help="also detect candidate tells (they are reported but stay out of the index)",
+    )
+    parser.add_argument("--bootstrap", type=int, default=1000, help="bootstrap replicates")
+    parser.add_argument("--seed", type=int, default=7)
+    parser.set_defaults(func=cmd_score)
+
+
+def _add_report_parser(subparsers: argparse._SubParsersAction) -> None:
+    parser = subparsers.add_parser("report", help="re-render or verify a run directory")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument(
+        "--verify",
+        type=Path,
+        metavar="RUN_DIR",
+        help="recompute the run from its manifest and require byte-identical outputs",
+    )
+    group.add_argument(
+        "--render",
+        type=Path,
+        metavar="RUN_DIR",
+        help="re-render scorecard.md from an existing run directory",
+    )
+    parser.set_defaults(func=cmd_report)
+
+
 # --- parser ------------------------------------------------------------------
 
 
@@ -255,10 +336,10 @@ def build_parser() -> argparse.ArgumentParser:
     _add_prompts_parser(subparsers)
     _add_generate_parser(subparsers)
     _add_verify_isolation_parser(subparsers)
+    _add_score_parser(subparsers)
+    _add_report_parser(subparsers)
     # Later milestones register their own groups here the same way:
-    # _add_score_parser(subparsers)      # M2
-    # _add_discover_parser(subparsers)   # M4
-    # _add_report_parser(subparsers)     # M5
+    # _add_discover_parser(subparsers)   # M7
 
     return parser
 
