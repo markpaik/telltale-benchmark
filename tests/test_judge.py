@@ -9,6 +9,7 @@ runs/calibration/.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -340,6 +341,35 @@ def test_the_skeleton_view_says_so_when_there_are_no_tables() -> None:
     assert view.endswith("TABLES\n(none)")
 
 
+def test_the_skeleton_labels_the_paragraph_it_prints_twice() -> None:
+    """Protocol v2. Without the labels a document that simply ends reads as a recap.
+
+    Also the guard on the string coupling between this module and textstats: if
+    `doc_skeleton` ever stops emitting `PARA:` lines or the `LAST PARAGRAPH`
+    header, the labels silently stop being applied and this fails loudly.
+    """
+    doc = doc_from(
+        "# Paper\n\nThis paper takes up two questions.\n\n"
+        "## What it requires\n\nThe policy requires a call on day one.\n\n"
+        "## What it achieves\n\nNeither step has a measurable association.\n"
+    )
+    view = protocol.skeleton_view(doc)
+    outline = view.split("FIRST PARAGRAPH")[0]
+
+    labelled = [ln for ln in outline.splitlines() if protocol.CLOSING_PARA_NOTE in ln]
+    assert len(labelled) == 1, "exactly the last PARA line carries the note"
+    assert "Neither step has a measurable association." in labelled[0]
+    assert protocol.LAST_PARAGRAPH_HEADER + protocol.LAST_PARAGRAPH_NOTE in view
+    assert "not a second occurrence" in view
+    assert protocol.skeleton_view(doc) == view  # still deterministic
+
+
+def test_a_document_with_no_paragraphs_is_labelled_without_crashing() -> None:
+    view = protocol.skeleton_view(doc_from("# Heading only\n\n## And another\n"))
+    assert protocol.CLOSING_PARA_NOTE not in view
+    assert protocol.LAST_PARAGRAPH_HEADER in view
+
+
 # --- quote verification ------------------------------------------------------
 
 SOURCE = "The count changed in March.\nSo why did the count change?  The rule\nchanged in November."
@@ -544,6 +574,39 @@ def test_the_summary_sandwich_truth_table(
         }
     )
     assert present is expected
+
+
+@pytest.mark.parametrize("separate,expected", [(True, True), (False, False)])
+def test_a_recap_must_sit_in_its_own_section(separate: bool, expected: bool) -> None:
+    """Rubric v2: a document that ends on its last finding is not a sandwich."""
+    present, why = protocol.decide_summary_sandwich(
+        {
+            "opening_preview_quote": "This paper takes up two questions.",
+            "closing_recap_quote": "Neither step has a measurable association.",
+            "closing_recap_is_separate_section": separate,
+            "closing_new_info_quote": None,
+        }
+    )
+    assert present is expected
+    if not expected:
+        assert "last substantive section" in why
+
+
+def test_an_answer_without_the_separateness_field_still_decides() -> None:
+    """Older cached answers predate the field; absence must not mean 'not separate'.
+
+    A missing key is no evidence either way, and treating it as False would
+    silently reinterpret every v1 answer as a negative rather than leaving it to
+    the rubric_version bump to invalidate them honestly.
+    """
+    present, _ = protocol.decide_summary_sandwich(
+        {
+            "opening_preview_quote": "p",
+            "closing_recap_quote": "r",
+            "closing_new_info_quote": None,
+        }
+    )
+    assert present is True
 
 
 def test_an_empty_string_quote_is_not_evidence() -> None:
@@ -869,16 +932,68 @@ def test_the_build_seam_takes_the_backend(tmp_path: Path, qa_tell: Tell) -> None
 # --- prompts -----------------------------------------------------------------
 
 
-def test_the_extraction_prompt_carries_the_rubric_and_asks_for_over_extraction(
+def test_the_extraction_prompt_carries_the_inclusion_criteria_only(
     qa_tell: Tell,
 ) -> None:
+    """Protocol v2: stage 1 must not be able to apply exclusions it cannot see."""
+    inclusion, exclusions, evidence = protocol.split_rubric(qa_tell.rubric)
     prompt = protocol.build_extraction_prompt(qa_tell, "a passage")
-    assert qa_tell.rubric.strip() in prompt
+
+    assert inclusion.strip() in prompt
+    assert evidence.strip() in prompt
+    assert "EXCLUSIONS:" not in prompt
+    assert exclusions.strip() not in prompt
+    # Every labelled exclusion clause, by its own distinctive opening.
+    for line in exclusions.splitlines():
+        if re.match(r"^\([xyzw]\)", line):
+            assert line.strip() not in prompt, f"exclusion leaked into stage 1: {line!r}"
+
+    assert "You must NOT apply\nexclusions" in prompt
     assert "OVER-EXTRACT" in prompt
     assert "a passage" in prompt
     for example in qa_tell.examples:
         assert protocol.normalize_ws(example) in prompt
-    assert "score" not in prompt.split("PASSAGE")[0].lower().replace("do not rate, score", "")
+
+
+@pytest.mark.parametrize("tell_id", sorted(protocol.RULES))
+def test_no_rubric_exclusion_ever_reaches_stage_one(
+    tell_id: str, registry: Registry
+) -> None:
+    tell = registry.get(tell_id)
+    if protocol.rule_for(tell).kind == "structural":
+        pytest.skip("doc-level tells ask once; their exclusions are the evidence")
+    prompt = protocol.build_extraction_prompt(tell, "passage")
+    _, exclusions, _ = protocol.split_rubric(tell.rubric)
+    assert exclusions.strip()
+    assert "EXCLUSIONS" not in prompt
+
+
+def test_split_rubric_cuts_every_registry_rubric_cleanly(registry: Registry) -> None:
+    for tell in registry.active_tells():
+        if tell.method != "judge":
+            continue
+        inclusion, exclusions, evidence = protocol.split_rubric(tell.rubric)
+        assert inclusion.strip() and exclusions.strip() and evidence.strip(), tell.id
+        assert inclusion + exclusions + evidence == tell.rubric, tell.id
+        assert not any(
+            line.startswith(("(x)", "(y)", "(z)", "(w)"))
+            for line in inclusion.splitlines()
+        ), tell.id
+
+
+def test_a_rubric_without_exclusions_degrades_rather_than_losing_text() -> None:
+    inclusion, exclusions, evidence = protocol.split_rubric("A span exhibits X when...")
+    assert inclusion == "A span exhibits X when..."
+    assert (exclusions, evidence) == ("", "")
+
+
+def test_the_structural_prompt_keeps_its_exclusions(registry: Registry) -> None:
+    """The carve-out: exclusion facts ARE the evidence fields the code decides on."""
+    for tell_id in protocol.STRUCTURAL_DECISIONS:
+        tell = registry.get(tell_id)
+        prompt = protocol.build_structural_prompt(tell, "outline")
+        assert "EXCLUSIONS:" in prompt, tell_id
+        assert tell.rubric.strip() in prompt, tell_id
 
 
 def test_the_adjudication_prompt_names_the_rubrics_own_letters(qa_tell: Tell) -> None:

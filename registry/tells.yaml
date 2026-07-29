@@ -2275,9 +2275,12 @@ tells:
           question-and-answer do not qualify.
       (z) a question the writer explicitly defers ("we take this up in the next section") does not
           qualify.
+      (w) a question addressed to a named person or directly to the recipient as genuine
+          correspondence ("Marisol, did you see the revision?") does not qualify — excluded even if
+          the writer immediately supplies the information.
       Evidence to extract: quote the question verbatim; quote the first sentence of the answer; note
       whether the question appears as a heading or in running prose.
-    rubric_version: 1
+    rubric_version: 2
     judge_view: chunk
   examples:
   - So why did the count change? The rule changed in November.
@@ -2572,13 +2575,18 @@ tells:
       A document exhibits SUMMARY SANDWICH when BOTH criteria hold:
       (a) the opening section previews the document's structure or restates the ask ("this document will
           cover X, Y, Z"), AND
-      (b) a closing section re-summarizes points already made, adding no new information.
+      (b) a closing section, DISTINCT from the document's last substantive section, re-summarizes
+          points already made, adding no new information. A sentence appearing for the first time
+          inside the final substantive section is that section's own content, not a recap of it: a
+          document that simply ends on its last finding does not satisfy (b), however conclusive
+          that finding sounds.
       EXCLUSIONS:
       (x) a closing section that adds a NEW decision, deadline, owner, or open question does not
           satisfy (b).
-      Evidence to extract: quote the opening preview sentence(s); quote the closing recap sentence(s);
+      Evidence to extract: quote the opening preview sentence(s); quote the closing recap
+      sentence(s) and say whether they sit in a section separate from the last substantive one;
       quote any new-information sentence in the closing if present.
-    rubric_version: 1
+    rubric_version: 2
     judge_view: skeleton
   examples:
   - 'This memo will cover three topics: cost, timeline, and staffing.'
@@ -2846,8 +2854,19 @@ tells:
     rubric: |
       A document exhibits PARALLEL BULLET GRAMMAR when ALL criteria hold:
       (a) a list contains three or more bullets or numbered items, AND
-      (b) every item in that list opens with the same grammatical form — all imperative verbs, all
-          gerunds ("-ing"), all "Noun:" lead-ins, or all the same opening word, AND
+      (b) every item in that list opens with one of exactly these five forms, and every item uses
+          the same one:
+            (1) an imperative verb ("Confirm the roster"),
+            (2) a gerund, "-ing" ("Improving intake speed"),
+            (3) a "Noun:" lead-in ("Cost: $4.1 million") — bolded or not, since the outline
+                strips emphasis,
+            (4) the same opening word in every item ("Extract is complete", "Extract logs are
+                retained"),
+            (5) a truncated passive or participial construction, noun + past participle
+                (+ modifier) ("Leading zeros stripped on write").
+          This enumeration is EXHAUSTIVE. Any other resemblance between the items — that they are
+          all noun phrases, all questions, all past-tense clauses, all about one topic, all of a
+          similar length — does not qualify, AND
       (c) the uniformity runs to the end of the list: not one item breaks the pattern.
       EXCLUSIONS:
       (x) lists of two items do not qualify.
@@ -2856,8 +2875,9 @@ tells:
       (z) a list of steps in a procedure where the imperative form is required by the format (a runbook,
           a checklist, an agenda) does not qualify.
       Evidence to extract: for each qualifying list, quote the first three to five words of every item,
-      in order; name the shared opening form; note the list's location by its heading.
-    rubric_version: 1
+      in order; name which of the five forms (1)-(5) they share, or none; note the list's location
+      by its heading.
+    rubric_version: 2
     judge_view: skeleton
   examples:
   - |-

@@ -5,6 +5,15 @@
 # positive here has a third item whose deletion costs the reader nothing; every
 # negative has a triple whose members the reader needs, or a triple the rubric
 # puts out of scope. A judge that counts commas will score 0.50 on this set.
+#
+# Corrected after the first live round. The original pos-10 was mislabelled: its
+# closing sentence ("What we cannot do is all three before September") turns the
+# tricolon into an enumeration the reader has to carry, which is exactly what
+# exclusion (x) covers. The judge caught it and was right, so the snippet moved
+# to neg-09 — where it is now the hardest negative in the set, a real cadence
+# triple defeated only by what follows it. The three grade bands that used to be
+# neg-09 were retired to make room: they duplicated the (x) catch-all that the
+# relabelled snippet tests far better, and nothing about them was borderline.
 tell: rht.rule-of-three
 rubric_version: 1
 view: chunk
@@ -84,10 +93,15 @@ snippets:
   - id: pos-10
     label: positive
     source: synthetic
+    note: >-
+      Replaces the original pos-10, which the v1 live round showed was
+      mislabelled (it now sits at neg-09). Written to avoid the same trap: the
+      sentence after the triple changes subject entirely instead of referring
+      back to the three items.
     text: |
-      The question is not whether the model works; it worked in the pilot. We
-      can build it, we can staff it, and we can pay for it. What we cannot do is
-      all three before September.
+      The report has been rewritten twice and it still reads like a compliance
+      document. It needs to be shorter, plainer, and warmer. The next draft is
+      on Priya's desk until Friday.
 
   - id: neg-01
     label: negative
@@ -168,11 +182,20 @@ snippets:
   - id: neg-09
     label: negative
     source: synthetic
-    note: exclusion (x) — three grade bands the reader must use
+    note: >-
+      exclusion (x) — a cadence-shaped tricolon defeated by its own follow-on
+      sentence. This was pos-10 until the v1 live round, where the judge found
+      (a) and (b) and then fired (x): "Three parallel clauses share grammatical
+      form, but 'pay for it' adds a distinct factual claim about financial
+      feasibility, confirmed by the next sentence referencing 'all three' as
+      separate capabilities." That reading is right — "What we cannot do is all
+      three" turns the members into facts the reader has to carry — so the label
+      was wrong, not the rubric. It replaces a duller (x) case (three grade
+      bands) that no judge would have mistaken for cadence.
     text: |
-      The program serves three grade bands: kindergarten through second, third
-      through fifth, and sixth through eighth. The middle band is the only one
-      that grew this year.
+      The question is not whether the model works; it worked in the pilot. We
+      can build it, we can staff it, and we can pay for it. What we cannot do is
+      all three before September.
 
   - id: neg-10
     label: negative

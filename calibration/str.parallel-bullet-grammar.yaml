@@ -215,7 +215,12 @@ snippets:
   - id: pos-08
     label: positive
     source: synthetic
-    note: all past-tense clauses
+    note: >-
+      form (5), noun + past participle (+ modifier) — the second anchor for the
+      form added at rubric v2. Rewritten from a past-tense accomplishment list
+      ("Enrolled 412 patients…", "Delivered twelve monthly sessions…"), which the
+      v2 enumeration now excludes by name: that shape is ordinary human style in
+      status reports and resumes, and counting it would saturate the tell.
     text: |
       SKELETON sample/case-study-01
       format: case-study
@@ -226,9 +231,9 @@ snippets:
       PARA: 71w | The program's first year had three phases.
       H2: Phases
       LIST: 3 items
-        - Enrolled 412 patients between January and October
-        - Delivered twelve monthly education sessions per cohort
-        - Retained 268 patients through the twelve-month mark
+        - Patient enrollment closed in October
+        - Education sessions delivered monthly per cohort
+        - Retention measured at the twelve-month mark
       PARA: 63w | Retention was the metric the board cared about.
 
       FIRST PARAGRAPH

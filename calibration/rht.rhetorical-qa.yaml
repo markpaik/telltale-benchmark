@@ -8,8 +8,15 @@
 # fail this one.
 #
 # `source: registry` marks a snippet built around the registry's own example.
+#
+# Changed at rubric v2, which added exclusion (w) for questions put to a named
+# person or to the recipient as genuine correspondence. The two negatives that
+# contained no question at all (plain prose, an enumerated list) were retired to
+# make room: neither exercised any part of the rubric, and both extracted
+# nothing in the v1 live run. neg-05 and neg-08 now carry the (w) cases — one
+# email-style, one memo-style — which are the shapes the tell was over-firing on.
 tell: rht.rhetorical-qa
-rubric_version: 1
+rubric_version: 2
 view: chunk
 snippets:
   - id: pos-01
@@ -144,12 +151,15 @@ snippets:
   - id: neg-05
     label: negative
     source: synthetic
-    note: plain prose, no question at all
+    note: >-
+      exclusion (w) — a question put to a named colleague, answered by the
+      sender in the next sentence. This is the shape the tell over-fired on in
+      the v1 live run against corpus/claude-sonnet-5/email-01.md.
     text: |
-      The general fund gap is $8.4 million for 2026-27. Enrollment has fallen 14
-      percent over six years with no sign of leveling off, and the four buildings
-      under 60 percent utilization account for most of the excess capacity.
-      Supply budgets and attrition cannot close a gap of that size.
+      Marisol, did you see the county cohort revision that came out this week?
+      They bumped incoming kindergarten by forty and moved two grades between the
+      north buildings. It changes the Ponderosa utilization number by about three
+      points, which is enough to matter for the package we are modeling.
 
   - id: neg-06
     label: negative
@@ -172,12 +182,15 @@ snippets:
   - id: neg-08
     label: negative
     source: synthetic
-    note: enumerated prose, no question
+    note: >-
+      exclusion (w) — a question put to the recipients of the memo, answered in
+      the same breath. Direct address plus a self-supplied answer is still
+      correspondence, not the essay cadence the tell is looking for.
     text: |
-      Three things changed this year: the filing deadline moved from the
-      fifteenth to the first, the signature rule now allows a designee, and the
-      vendor replaced its upload portal. The third change caused all of the
-      problems and none of the savings.
+      Committee members, do you have the revised fiscal note in your packet? It
+      is behind tab four, and the transportation line was updated on Tuesday
+      after the routing rerun. Please read it before Thursday so we are not
+      reconciling numbers in the room.
 
   - id: neg-09
     label: negative

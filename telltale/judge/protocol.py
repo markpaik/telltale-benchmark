@@ -42,7 +42,24 @@ from telltale.registry import Tell
 #: Bumped when a prompt, a decision rule, or the chunking changes. It is part of
 #: every cache key: an answer produced under a different protocol is a different
 #: answer, and reusing it would be a silent change of instrument.
-PROTOCOL_VERSION = 1
+#:
+#: v2 (2026-07-29) made two changes, both found by the first live calibration
+#: round:
+#:
+#:  1. Stage 1 no longer sees the rubric's exclusions — only its inclusion
+#:     criteria, plus a standing instruction not to apply exclusions at all.
+#:     Under v1 the extractor sometimes applied them itself and sometimes did
+#:     not: one direct-address negative never surfaced a candidate while another
+#:     reached stage 2 and was correctly excluded there. That made exclusion
+#:     coverage a property of the extractor's mood, and left adjudication
+#:     unexercised on exactly the cases the calibration gate exists to test.
+#:     Span tells only — see `build_structural_prompt` for why the doc-level
+#:     tells keep the whole rubric.
+#:  2. `skeleton_view` labels the closing paragraph. The skeleton renders the
+#:     last paragraph twice — once as a `PARA:` line, once in full — which made
+#:     any final sentence look like it recurred at the end, and pulled
+#:     `str.summary-sandwich` toward finding a closing recap that was not there.
+PROTOCOL_VERSION = 2
 
 TARGET_WORDS = 2500
 OVERLAP_WORDS = 150
@@ -57,6 +74,28 @@ CONTEXT_CHARS = 400
 
 _LABEL_LINE = re.compile(r"^\(([a-z])\)", re.MULTILINE)
 _EXCLUSION_HEAD = re.compile(r"^EXCLUSIONS:", re.MULTILINE)
+_EVIDENCE_HEAD = re.compile(r"^Evidence to extract:", re.MULTILINE)
+
+
+def split_rubric(rubric: str) -> tuple[str, str, str]:
+    """A rubric cut into (inclusion criteria, exclusions, evidence-to-extract).
+
+    Every rubric in the registry is written in the same three parts, and the two
+    headings that separate them are load-bearing rather than decorative: stage 1
+    is shown the first and third parts only, so that it proposes candidates on
+    the inclusion shape alone and leaves every exclusion to the adjudicator.
+    A rubric with no EXCLUSIONS heading comes back whole in the first slot,
+    which degrades to v1 behaviour rather than silently dropping its text.
+    """
+    text = rubric or ""
+    head = _EXCLUSION_HEAD.search(text)
+    if not head:
+        return text, "", ""
+    inclusion = text[: head.start()]
+    evidence_at = _EVIDENCE_HEAD.search(text, head.end())
+    if evidence_at:
+        return inclusion, text[head.start() : evidence_at.start()], text[evidence_at.start() :]
+    return inclusion, text[head.start() :], ""
 
 
 def parse_rubric_labels(rubric: str) -> tuple[tuple[str, ...], tuple[str, ...]]:
@@ -120,7 +159,13 @@ RULES: dict[str, TellRule] = {
         kind="span",
         mode="all",
         required=("a", "b"),
-        exclusions=("x", "y", "z"),
+        # (w) was added at rubric v2. The tell targets the essay cadence — a
+        # writer asking themselves a question to set up their own answer. A
+        # question put to a named colleague in an email is correspondence, and
+        # counting it because the sender went on to answer it would make the
+        # tell fire on ordinary human writing, which is the one thing a
+        # benchmark of AI tells cannot afford to do.
+        exclusions=("x", "y", "z", "w"),
     ),
     "rht.fragment-emphasis": TellRule(
         tell_id="rht.fragment-emphasis",
@@ -235,7 +280,16 @@ def _quote(value: Any) -> str:
 
 
 def decide_summary_sandwich(evidence: dict[str, Any]) -> tuple[bool, str]:
-    """(a) preview AND (b) recap AND NOT (x) new information in the close."""
+    """(a) preview AND (b) recap in a separate section AND NOT (x) new information.
+
+    The separateness test arrived with rubric v2. Twice in live calibration a
+    document that simply ended on its last finding was read as having a closing
+    recap, because a final sentence that sounds conclusive reads like a summary
+    of the section it is the end of. Labelling the skeleton's own repetition
+    (protocol v2) was not enough on its own, so the distinction is now asked for
+    as evidence and applied here: the judge reports which section the recap sits
+    in, and the code decides whether that makes it a recap at all.
+    """
     preview = _quote(evidence.get("opening_preview_quote"))
     recap = _quote(evidence.get("closing_recap_quote"))
     new_info = _quote(evidence.get("closing_new_info_quote"))
@@ -243,9 +297,13 @@ def decide_summary_sandwich(evidence: dict[str, Any]) -> tuple[bool, str]:
         return False, "no opening preview (a)"
     if not recap:
         return False, "no closing recap (b)"
+    if "closing_recap_is_separate_section" in evidence and not bool(
+        evidence.get("closing_recap_is_separate_section")
+    ):
+        return False, "the recap is the last substantive section's own content (b)"
     if new_info:
         return False, "closing adds new information (x)"
-    return True, "preview (a) + recap (b), nothing new in the close"
+    return True, "preview (a) + recap (b) in its own section, nothing new in the close"
 
 
 def _flag(entry: dict[str, Any], *names: str) -> bool:
@@ -500,6 +558,15 @@ def chunk_doc(
 TABLES_HEADER = "TABLES"
 MAX_TABLE_LINES = 200
 
+#: Labels that stop the skeleton's own repetition reading as a closing recap.
+LAST_PARAGRAPH_HEADER = "LAST PARAGRAPH"
+CLOSING_PARA_NOTE = "   [this is the closing paragraph; it is printed in full below]"
+LAST_PARAGRAPH_NOTE = (
+    " [the same closing paragraph already listed in the outline above, "
+    "reprinted in full — its appearance here is not a second occurrence in the "
+    "document]"
+)
+
 
 def _table_blocks(text: str) -> list[list[str]]:
     """Markdown table blocks, verbatim, in document order.
@@ -530,13 +597,39 @@ def _table_blocks(text: str) -> list[list[str]]:
     return blocks
 
 
+def _label_closing_paragraph(skeleton: str) -> str:
+    """Say plainly that the closing paragraph is shown twice (protocol v2).
+
+    `doc_skeleton` lists every paragraph's first sentence in the outline and
+    then prints the first and last paragraphs in full. So the closing paragraph
+    always appears twice, and in the first live round that cost a false positive:
+    a document that simply ended — no closing section at all — read as a summary
+    sandwich, because its final finding looked like it was being restated at the
+    end. The repetition is a rendering artifact, so it is labelled here rather
+    than worked around in the rubric; teaching a rubric to compensate for the
+    shape of its input would couple the two forever.
+    """
+    lines = skeleton.split("\n")
+    last_para = max(
+        (i for i, line in enumerate(lines) if line.startswith("PARA:")), default=None
+    )
+    if last_para is not None:
+        lines[last_para] += CLOSING_PARA_NOTE
+    try:
+        header = lines.index(LAST_PARAGRAPH_HEADER)
+    except ValueError:  # pragma: no cover - doc_skeleton always emits it
+        return "\n".join(lines)
+    lines[header] = LAST_PARAGRAPH_HEADER + LAST_PARAGRAPH_NOTE
+    return "\n".join(lines)
+
+
 def skeleton_view(doc: Doc) -> str:
-    """`textstats.doc_skeleton` plus the document's tables, verbatim.
+    """`textstats.doc_skeleton`, the closing-paragraph labels, and the tables.
 
     Deterministic and free of timestamps, like the skeleton it extends: the same
     document renders the same string, which is what makes the cache key sound.
     """
-    parts = [textstats.doc_skeleton(doc), "", TABLES_HEADER]
+    parts = [_label_closing_paragraph(textstats.doc_skeleton(doc)), "", TABLES_HEADER]
     blocks = _table_blocks(doc.text)
     if not blocks:
         parts.append("(none)")
@@ -664,7 +757,11 @@ _EXTRACTION_HEAD = """\
 TASK: EXTRACTION ONLY. Find candidate passages. Do not rate, score, rank, or
 judge anything. A separate stage decides which candidates count.
 
-RUBRIC (verbatim, tell {tell_id} "{name}", rubric_version {rubric_version}):
+INCLUSION CRITERIA (verbatim, tell {tell_id} "{name}", rubric_version
+{rubric_version}). This is a PARTIAL rubric: the full rubric also carries
+exclusions, and they are deliberately withheld from you. You must NOT apply
+exclusions, and you must not try to guess what they are. A later step handles
+them. Your job is recall against the shape described here.
 ---
 {rubric}---
 """
@@ -677,8 +774,12 @@ RULES
 2. Quote the full sentence containing the candidate, so it can be located.
 3. OVER-EXTRACT. Include every borderline candidate, including ones you think
    probably do not qualify. Recall matters here; precision is decided later.
-4. Do not deduplicate near-identical candidates; quote each occurrence.
-5. If there are no candidates at all, return {{"spans": []}}.
+4. Surface a candidate even when you suspect some exception ought to rule it
+   out — a quotation, a heading, a list, a question meant for a real person,
+   an enumeration of real facts. Those judgements are not yours to make at this
+   stage, and a candidate you withhold can never be reviewed.
+5. Do not deduplicate near-identical candidates; quote each occurrence.
+6. If there are no candidates at all, return {{"spans": []}}.
 
 OUTPUT — reply with this JSON object and nothing else:
 {{"spans": [{{"quote": "<verbatim text from the passage>", "location_hint": "<a few words saying where>"}}]}}
@@ -756,10 +857,16 @@ EVIDENCE TO EXTRACT
   document's structure or restates the ask, or null if there is none.
 - closing_recap_quote: the sentence in the closing section that re-summarizes
   points already made, or null if there is none.
+- closing_recap_is_separate_section: true only if that recap sits in a section
+  DISTINCT from the document's last substantive section. If the document simply
+  ends on the last finding of its final content section, this is false — the
+  outline labels which paragraph is the closing one, and a sentence that first
+  appears inside the final substantive section is that section's own content.
 - closing_new_info_quote: a sentence in the closing section that introduces a
   NEW decision, deadline, owner, or open question, or null if there is none.""",
         '{"opening_preview_quote": "<verbatim or null>", '
         '"closing_recap_quote": "<verbatim or null>", '
+        '"closing_recap_is_separate_section": <true|false>, '
         '"closing_new_info_quote": "<verbatim or null>"}',
     ),
     "str.parallel-bullet-grammar": (
@@ -768,8 +875,11 @@ EVIDENCE TO EXTRACT — one entry per list in the outline that has 3 or more ite
 - heading: the nearest heading above the list, verbatim, or "" if none.
 - item_count: how many items the list has.
 - item_openings: the first three to five words of EVERY item, verbatim, in order.
-- shared_opening_form: what the openings share ("imperative verb", "gerund",
-  "Noun: lead-in", "same opening word"), or null if they share nothing.
+- shared_opening_form: which ONE of the rubric's five named forms every item
+  opens with — "imperative", "gerund", "Noun: lead-in", "same opening word", or
+  "noun + past participle". The five are exhaustive: if the items share some
+  other resemblance (all noun phrases, all questions, all past-tense clauses),
+  that is not one of the five and this must be null.
 - all_items_match: true only if NOT ONE item breaks that pattern.
 - single_word_items: true if the items are single words, proper nouns, dates, or
   numbers.
@@ -823,12 +933,23 @@ def _rubric_text(tell: Tell) -> str:
 
 
 def build_extraction_prompt(tell: Tell, passage: str) -> str:
-    """Stage 1: rubric verbatim, few-shots from the registry, recall-first rules."""
+    """Stage 1: inclusion criteria only, few-shots, recall-first rules.
+
+    The exclusions are withheld on purpose (protocol v2). An extractor that can
+    see them applies some of them and not others, which decides the outcome
+    before any adjudication is recorded — and an instance rejected silently at
+    extraction leaves nothing for a reader to check, which is the one thing this
+    whole pipeline is built to prevent.
+    """
+    inclusion, _, evidence = split_rubric(tell.rubric or "")
+    partial = inclusion.rstrip("\n") + "\n"
+    if evidence.strip():
+        partial += evidence.rstrip("\n") + "\n"
     head = _EXTRACTION_HEAD.format(
         tell_id=tell.id,
         name=tell.name,
         rubric_version=tell.rubric_version,
-        rubric=_rubric_text(tell),
+        rubric=partial,
     )
     examples = _examples_block(tell)
     tail = _EXTRACTION_TAIL.format(passage=passage)
@@ -851,7 +972,18 @@ def build_adjudication_prompt(tell: Tell, span_quote: str, context: str) -> str:
 
 
 def build_structural_prompt(tell: Tell, skeleton_text: str) -> str:
-    """Doc-level tells: evidence fields only. The decision rule stays in code."""
+    """Doc-level tells: evidence fields only. The decision rule stays in code.
+
+    These three tells keep the WHOLE rubric, exclusions included, and that is
+    not an oversight — it is the difference between the two shapes of judge
+    call. A span tell asks twice: propose, then adjudicate, so the exclusions
+    can be held back from the first question. A doc-level tell asks once, and
+    what it asks for is evidence: `genuine_data_table`, `procedural_format`,
+    `crosswalk_or_schedule`, `required_by_format` are all *facts about the
+    exclusions*, and the code decides from them. Withholding the exclusions here
+    would leave those fields unfillable and push the exclusion judgement back
+    into the model — the opposite of what the split was for.
+    """
     try:
         fields, schema = _STRUCTURAL_FIELDS[tell.id]
     except KeyError:

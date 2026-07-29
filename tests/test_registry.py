@@ -86,7 +86,11 @@ def test_judge_tells_have_rubrics(registry: Registry) -> None:
     judges = [t for t in registry.active_tells() if t.method == "judge"]
     assert len(judges) == 7
     for tell in judges:
-        assert tell.rubric_version == 1
+        # Not pinned to 1: a rubric that turns out to be wrong is supposed to be
+        # rewritten and its version bumped, which is what invalidates the judge
+        # cache and the tell's calibration report. Pinning the number here would
+        # make the correct move fail the build.
+        assert isinstance(tell.rubric_version, int) and tell.rubric_version >= 1
         assert tell.judge_view in {"chunk", "skeleton"}
         assert "EXCLUSION" in tell.rubric
         assert "Evidence to extract" in tell.rubric
