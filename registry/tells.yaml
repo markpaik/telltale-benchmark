@@ -517,7 +517,7 @@ tells:
     evidence: literature
   status: active
   weight: 1.0
-  notes: null
+  notes: 'Known limitation: also matches literal scenery uses (''painted the mountain landscape''); accepted for v1 — regex cannot disambiguate; expected to be rare in business corpora.'
 - id: lex.realm
   name: realm
   category: lexical
@@ -1206,13 +1206,15 @@ tells:
   detection:
     method: regex
     unit: count
-    pattern: \bsimply put\b|\bput simply\b|\bin other words\b
+    pattern: \bsimply put,|\bput simply,|\bin other words\b
     flags:
     - IGNORECASE
   examples:
   - Simply put, the form asks for data the school does not have.
+  - Simply put, the program works.
   - In other words, the count changed because the rule changed.
-  counter_examples: []
+  counter_examples:
+  - The event was simply put together at the last minute.
   provenance:
     source: seed
     added: 2026-07-28

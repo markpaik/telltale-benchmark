@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from telltale.registry import Registry, Tell
+from telltale.registry import Registry, Tell, is_valid_scope
 
 REGISTRY_PATH = Path(__file__).resolve().parent.parent / "registry" / "tells.yaml"
 
@@ -20,6 +20,26 @@ def registry() -> Registry:
 
 def test_real_registry_is_valid(registry: Registry) -> None:
     assert registry.validate() == []
+
+
+def test_registry_yaml_has_no_duplicate_keys() -> None:
+    """Hand-editing the registry must not silently shadow a key (e.g. two `notes:`)."""
+
+    class StrictLoader(yaml.SafeLoader):
+        pass
+
+    def no_duplicates(loader: yaml.SafeLoader, node: yaml.MappingNode, deep: bool = False) -> dict:
+        seen: list[object] = []
+        for key_node, _ in node.value:
+            key = loader.construct_object(key_node, deep=deep)
+            assert key not in seen, f"duplicate key {key!r} at line {key_node.start_mark.line + 1}"
+            seen.append(key)
+        return yaml.SafeLoader.construct_mapping(loader, node, deep)
+
+    StrictLoader.add_constructor(
+        yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, no_duplicates
+    )
+    yaml.load(REGISTRY_PATH.read_text(encoding="utf-8"), Loader=StrictLoader)
 
 
 def test_header_fields(registry: Registry) -> None:
@@ -70,6 +90,21 @@ def test_judge_tells_have_rubrics(registry: Registry) -> None:
         assert tell.judge_view in {"chunk", "skeleton"}
         assert "EXCLUSION" in tell.rubric
         assert "Evidence to extract" in tell.rubric
+
+
+def test_simply_put_requires_the_idiomatic_comma(registry: Registry) -> None:
+    rx = registry.get("phr.simply-put").compiled()
+    assert rx.search("Simply put, the program works.")
+    assert rx.search("Put simply, the rule changed.")
+    assert rx.search("In other words, the count moved.")
+    assert not rx.search("The event was simply put together at the last minute.")
+    assert not rx.search("The kit was simply put back on the shelf.")
+
+
+def test_landscape_metaphor_documents_its_limitation(registry: Registry) -> None:
+    notes = registry.get("lex.landscape-metaphor").notes or ""
+    assert "Known limitation" in notes
+    assert "accepted for v1" in notes
 
 
 def test_append_and_set_status_roundtrip(tmp_path: Path) -> None:
@@ -138,6 +173,65 @@ def test_set_status_rejects_unknown_tell_and_status(tmp_path: Path) -> None:
         registry.set_status("lex.nope", "deprecated")
     with pytest.raises(ValueError):
         registry.set_status("lex.delve", "retired")
+
+
+# --- scope enum --------------------------------------------------------------
+
+
+def _scoped_registry(tmp_path: Path, scope: str) -> Registry:
+    """A minimal one-tell registry carrying the given scope."""
+    doc = {
+        "registry_version": 1,
+        "schema_version": 1,
+        "updated": "2026-07-28",
+        "tells": [
+            {
+                "id": "lex.scopecheck",
+                "name": "scope check",
+                "category": "lexical",
+                "scope": scope,
+                "formats": None,
+                "detection": {
+                    "method": "regex",
+                    "unit": "count",
+                    "pattern": r"\bscopecheck\b",
+                    "flags": ["IGNORECASE"],
+                },
+                "examples": ["The scopecheck fires here."],
+                "counter_examples": [],
+                "provenance": {"source": "seed", "run_id": None, "evidence": "literature"},
+                "status": "active",
+                "weight": 1.0,
+                "notes": None,
+            }
+        ],
+    }
+    path = tmp_path / f"scope.yaml"
+    path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+    return Registry(path)
+
+
+@pytest.mark.parametrize(
+    "scope",
+    ["general", "model:claude-opus-5", "model:gpt-4.1", "model:llama-3.1-70b"],
+)
+def test_validate_accepts_scope(tmp_path: Path, scope: str) -> None:
+    assert is_valid_scope(scope)
+    assert _scoped_registry(tmp_path, scope).validate() == []
+
+
+@pytest.mark.parametrize(
+    "scope",
+    ["modelclaude", "team:foo", "model:", "model:-leading-dash", "MODEL:Claude", "", "model:CLAUDE"],
+)
+def test_validate_rejects_scope(tmp_path: Path, scope: str) -> None:
+    assert not is_valid_scope(scope)
+    errors = _scoped_registry(tmp_path, scope).validate()
+    assert any("invalid scope" in e for e in errors), errors
+
+
+def test_seed_tells_are_all_general(registry: Registry) -> None:
+    assert {t.scope for t in registry} == {"general"}
 
 
 # --- deliberately broken registry -------------------------------------------

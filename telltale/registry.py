@@ -14,7 +14,10 @@ import yaml
 # --- enums and mappings ------------------------------------------------------
 
 CATEGORIES = {"lexical", "punctuation", "syntactic", "structural", "statistical"}
+# A tell is either general or scoped to one model. Discovery (M7) records the
+# latter as "model:<model-id>", e.g. "model:claude-opus-5".
 SCOPES = {"general"}
+MODEL_SCOPE_PATTERN = re.compile(r"^model:[a-z0-9][a-z0-9.-]*$")
 STATUSES = {"active", "candidate", "deprecated"}
 METHODS = {"regex", "statistic", "judge"}
 UNITS = {"count", "binary", "value"}
@@ -42,6 +45,11 @@ FLAG_MAP = {
     "UNICODE": re.UNICODE,
     "ASCII": re.ASCII,
 }
+
+
+def is_valid_scope(scope: str) -> bool:
+    """True for "general" and for model-specific scopes like "model:claude-opus-5"."""
+    return scope in SCOPES or bool(MODEL_SCOPE_PATTERN.match(scope))
 
 
 class _Dumper(yaml.SafeDumper):
@@ -253,8 +261,11 @@ class Registry:
                     f"(expected {PREFIX_CATEGORY[prefix]!r})"
                 )
 
-            if tell.scope not in SCOPES:
-                errors.append(f"{tid}: invalid scope {tell.scope!r}")
+            if not is_valid_scope(tell.scope):
+                errors.append(
+                    f"{tid}: invalid scope {tell.scope!r} "
+                    f"(expected 'general' or 'model:<model-id>')"
+                )
             if tell.status not in STATUSES:
                 errors.append(f"{tid}: invalid status {tell.status!r}")
             if tell.method not in METHODS:
