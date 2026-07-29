@@ -295,13 +295,21 @@ def test_found_markers_is_case_insensitive_and_deduped():
 # --- battery -----------------------------------------------------------------
 
 
-def _transport_for(responses: dict[str, str]):
+def _transport_for(responses: dict[str, str], model: str = "m"):
     """Fake transport keyed by which probe prompt it is handed."""
 
     def transport(cmd, prompt, timeout):
         for probe, (probe_prompt, _) in isolation.PROBES.items():
             if prompt == probe_prompt:
-                return CliResult(0, _envelope_json(result=responses[probe]), "", 0.1)
+                return CliResult(
+                    0,
+                    _envelope_json(
+                        result=responses[probe],
+                        modelUsage={model: {"outputTokens": 10}},
+                    ),
+                    "",
+                    0.1,
+                )
         raise AssertionError(f"unexpected prompt: {prompt[:60]}")
 
     return transport
@@ -418,3 +426,211 @@ def test_gate_survives_a_corrupt_transcript(tmp_path):
 
 def test_gate_handles_a_missing_runs_directory(tmp_path):
     assert isolation.latest_passing_battery(tmp_path / "nope", "m") is None
+
+
+# --- empty responses are not evidence (DEFECT-2) -----------------------------
+
+
+@pytest.mark.parametrize("blank", ["", "   ", "\n\n", "\t \n"])
+@pytest.mark.parametrize("grader", [isolation.grade_a, isolation.grade_b, isolation.grade_d])
+def test_blank_responses_fail_every_contamination_probe(grader, blank):
+    # A probe that saw nothing must not report that it saw nothing wrong.
+    passed, reason = grader(_env(blank))
+    assert not passed
+    assert "empty response" in reason
+
+
+def test_blank_response_also_fails_the_behaviour_probe():
+    passed, reason = isolation.grade_c(_env("   "))
+    assert not passed
+    assert "0 words" in reason
+
+
+# --- local markers (DEFECT-3) ------------------------------------------------
+
+
+def _fake_config(tmp_path: Path, email: str = "jrivera.qa@example.org") -> Path:
+    path = tmp_path / ".claude.json"
+    path.write_text(
+        json.dumps({"oauthAccount": {"emailAddress": email, "displayName": "QA"}}),
+        encoding="utf-8",
+    )
+    return path
+
+
+def test_account_markers_reads_the_email_and_its_local_part(tmp_path):
+    markers = isolation.account_markers(_fake_config(tmp_path))
+    assert markers == ["jrivera.qa@example.org", "jrivera"] or markers == [
+        "jrivera.qa@example.org"
+    ]
+    assert "jrivera.qa@example.org" in markers
+
+
+def test_account_markers_skips_a_short_or_generic_local_part(tmp_path):
+    markers = isolation.account_markers(_fake_config(tmp_path, "me@example.org"))
+    assert markers == ["me@example.org"]
+
+
+@pytest.mark.parametrize("body", ["{not json", "[]", '{"oauthAccount": 3}', "{}"])
+def test_account_markers_survives_an_unusable_config(tmp_path, body):
+    path = tmp_path / ".claude.json"
+    path.write_text(body, encoding="utf-8")
+    assert isolation.account_markers(path) == []
+
+
+def test_account_markers_on_a_missing_file(tmp_path):
+    assert isolation.account_markers(tmp_path / "nope.json") == []
+
+
+def test_file_markers_reads_a_local_markers_file(tmp_path):
+    (tmp_path / isolation.LOCAL_MARKERS_FILENAME).write_text(
+        "# a comment\nAcme Internal\n\n  secret-codename  \n", encoding="utf-8"
+    )
+    assert isolation.file_markers(tmp_path) == ["Acme Internal", "secret-codename"]
+
+
+def test_file_markers_when_absent(tmp_path):
+    assert isolation.file_markers(tmp_path) == []
+
+
+def test_effective_markers_merges_both_sources_without_duplicates(tmp_path):
+    (tmp_path / isolation.LOCAL_MARKERS_FILENAME).write_text(
+        "DPSCD\nAcme Internal\n", encoding="utf-8"
+    )
+    markers = isolation.effective_markers(_fake_config(tmp_path), tmp_path)
+    assert set(isolation.CONTAMINATION_MARKERS).issubset(set(markers))
+    assert "jrivera.qa@example.org" in markers
+    assert "Acme Internal" in markers
+    # The file repeated a marker that is already committed; it must not be
+    # appended a second time. (The committed list carries both DPSCD and dpscd
+    # on purpose, so the count to beat is the one it already had.)
+    committed = sum(1 for m in isolation.CONTAMINATION_MARKERS if m.lower() == "dpscd")
+    assert sum(1 for m in markers if m.lower() == "dpscd") == committed
+
+
+@pytest.mark.parametrize(
+    "grader", [isolation.grade_a, isolation.grade_b, isolation.grade_c, isolation.grade_d]
+)
+def test_every_grader_fails_on_a_locally_resolved_marker(grader, tmp_path):
+    markers = isolation.effective_markers(_fake_config(tmp_path), tmp_path)
+    leaked = "NONE " + "word " * 60 + "contact jrivera.qa@example.org for the document"
+    passed, reason = grader(_env(leaked), markers)
+    assert not passed
+    assert "contamination markers" in reason
+
+
+def test_local_markers_are_redacted_wherever_they_get_written_down(tmp_path):
+    markers = isolation.effective_markers(_fake_config(tmp_path), tmp_path)
+    redacted = isolation.redact_markers(markers)
+    # Committed markers stay legible; the account email must not appear.
+    assert "DPSCD" in redacted
+    assert not any("jrivera" in entry for entry in redacted)
+    assert any(entry.startswith("<local:") for entry in redacted)
+
+
+def test_a_failing_grader_reason_does_not_leak_the_email(tmp_path):
+    markers = isolation.effective_markers(_fake_config(tmp_path), tmp_path)
+    _, reason = isolation.grade_a(_env("jrivera.qa@example.org"), markers)
+    assert "jrivera" not in reason
+    assert "<local:" in reason
+
+
+def test_transcript_records_redacted_markers(tmp_path, monkeypatch):
+    monkeypatch.setattr(isolation, "cli_version", lambda: "x")
+    markers = isolation.effective_markers(_fake_config(tmp_path), tmp_path)
+    out = tmp_path / "m.json"
+    isolation.run_probe_battery(
+        "m", out, transport=_transport_for(CLEAN), markers=markers
+    )
+    written = out.read_text()
+    assert "jrivera" not in written
+    assert "<local:" in written
+
+
+# --- model attribution (DEFECT-5) --------------------------------------------
+
+
+def test_attribution_matches_the_requested_model_not_the_loudest_one():
+    # The live failure: a bare "NONE" probe answer is fewer output tokens than
+    # the harness's own haiku side-call, so volume named the wrong model.
+    env = isolation.parse_envelope(
+        _envelope_json(
+            result="NONE",
+            modelUsage={
+                "claude-haiku-4-5-20251001": {"outputTokens": 528},
+                "claude-sonnet-5": {"outputTokens": 4},
+            },
+        ),
+        requested_model="claude-sonnet-5",
+    )
+    assert env.model_reported == "claude-sonnet-5"
+    assert env.model_mismatch is False
+
+
+def test_attribution_matches_through_a_date_suffix():
+    env = isolation.parse_envelope(
+        _envelope_json(
+            modelUsage={
+                "claude-haiku-4-5-20251001": {"outputTokens": 900},
+                "claude-opus-5-20260101": {"outputTokens": 3},
+            }
+        ),
+        requested_model="claude-opus-5",
+    )
+    assert env.model_reported == "claude-opus-5-20260101"
+    assert env.model_mismatch is False
+
+
+def test_attribution_flags_a_missing_requested_model():
+    env = isolation.parse_envelope(
+        _envelope_json(modelUsage={"claude-haiku-4-5-20251001": {"outputTokens": 900}}),
+        requested_model="claude-opus-5",
+    )
+    assert env.model_mismatch is True
+    assert env.model_reported == "claude-haiku-4-5-20251001"
+
+
+def test_attribution_flags_an_empty_model_usage():
+    env = isolation.parse_envelope(
+        _envelope_json(modelUsage={}), requested_model="claude-opus-5"
+    )
+    assert env.model_mismatch is True
+    assert env.model_reported == ""
+
+
+def test_attribution_without_a_requested_model_never_claims_a_mismatch():
+    env = isolation.parse_envelope(
+        _envelope_json(modelUsage={"a": {"outputTokens": 1}, "b": {"outputTokens": 9}})
+    )
+    assert env.model_reported == "b"
+    assert env.model_mismatch is False
+
+
+def test_envelope_keeps_the_whole_model_usage_dict():
+    usage = {"claude-sonnet-5": {"outputTokens": 71, "costUSD": 0.04}}
+    env = isolation.parse_envelope(
+        _envelope_json(modelUsage=usage), requested_model="claude-sonnet-5"
+    )
+    assert env.model_usage == usage
+
+
+def test_battery_fails_a_probe_answered_by_the_wrong_model(tmp_path, monkeypatch):
+    monkeypatch.setattr(isolation, "cli_version", lambda: "x")
+    report = isolation.run_probe_battery(
+        "claude-opus-5",
+        tmp_path / "m.json",
+        transport=_transport_for(CLEAN, model="claude-haiku-4-5-20251001"),
+    )
+    assert not report.passed
+    assert all("model mismatch" in p.reason for p in report.probes)
+
+
+def test_battery_transcript_carries_model_usage(tmp_path, monkeypatch):
+    monkeypatch.setattr(isolation, "cli_version", lambda: "x")
+    out = tmp_path / "m.json"
+    isolation.run_probe_battery("m", out, transport=_transport_for(CLEAN))
+    written = json.loads(out.read_text())
+    for probe in written["probes"]:
+        assert probe["model_usage"] == {"m": {"outputTokens": 10}}
+        assert probe["model_reported"] == "m"
+        assert probe["model_mismatch"] is False

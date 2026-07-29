@@ -70,7 +70,7 @@ import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any, Callable, Iterable
 
 from telltale import textstats
 
@@ -226,6 +226,9 @@ class Envelope:
     is_error: bool
     usage: dict[str, Any] = field(default_factory=dict)
     model_reported: str = ""
+    model_usage: dict[str, Any] = field(default_factory=dict)
+    #: True when the model that was asked for is not in modelUsage at all.
+    model_mismatch: bool = False
     raw: dict[str, Any] = field(default_factory=dict)
     parse_error: str = ""
 
@@ -245,8 +248,51 @@ def _output_tokens(entry: Any) -> int:
     return 0
 
 
-def parse_envelope(stdout: str) -> Envelope:
-    """Parse the JSON envelope. Malformed output becomes an error envelope."""
+def _attribute_model(
+    model_usage: dict[str, Any], requested_model: str
+) -> tuple[str, bool]:
+    """Decide which model actually produced this response.
+
+    modelUsage is keyed by model id and routinely holds more than one entry: the
+    harness makes its own small side-calls, so a claude-sonnet-5 run comes back
+    with both claude-sonnet-5 and claude-haiku-4-5-20251001. Picking the entry
+    with the most output tokens looked right on a long document and was wrong on
+    a short one — a bare "NONE" probe answer is fewer tokens than the side-call,
+    so all four of the first committed probe transcripts named haiku.
+
+    Volume is the wrong signal. Identity is the right one: match the model that
+    was asked for. Keys may carry a date suffix (claude-sonnet-5-20260101), so
+    the match is by containment either way. When the requested model is missing
+    from modelUsage altogether the response came from something we did not ask
+    for, which is a fact about the evidence rather than a detail — hence the
+    mismatch flag, which the generator treats as fatal.
+    """
+    if not requested_model:
+        # No claim to check against (probe replays, ad-hoc parsing).
+        if not model_usage:
+            return "", False
+        return max(sorted(model_usage), key=lambda n: _output_tokens(model_usage[n])), False
+
+    matches = [
+        name
+        for name in sorted(model_usage)
+        if requested_model in name or name in requested_model
+    ]
+    if matches:
+        return max(matches, key=lambda n: _output_tokens(model_usage[n])), False
+
+    if not model_usage:
+        return "", True
+    return max(sorted(model_usage), key=lambda n: _output_tokens(model_usage[n])), True
+
+
+def parse_envelope(stdout: str, requested_model: str = "") -> Envelope:
+    """Parse the JSON envelope. Malformed output becomes an error envelope.
+
+    Pass `requested_model` wherever a claim about which model wrote the text is
+    going to be recorded; without it attribution is best-effort and never sets
+    the mismatch flag.
+    """
     text = (stdout or "").strip()
     if not text:
         return Envelope("", "", 0, True, parse_error="empty stdout")
@@ -264,18 +310,9 @@ def parse_envelope(stdout: str) -> Envelope:
     usage = data.get("usage")
     usage = usage if isinstance(usage, dict) else {}
 
-    # modelUsage is keyed by model id, and it routinely holds more than one:
-    # a live sonnet-5 call came back with both claude-sonnet-5 (71 output
-    # tokens) and claude-haiku-4-5-20251001 (13), the latter being an internal
-    # side-call the harness makes. The model that wrote the document is the one
-    # that emitted the output, so pick by output volume rather than by name.
-    model_reported = ""
-    model_usage = data.get("modelUsage")
-    if isinstance(model_usage, dict) and model_usage:
-        model_reported = max(
-            sorted(model_usage),
-            key=lambda name: _output_tokens(model_usage[name]),
-        )
+    raw_model_usage = data.get("modelUsage")
+    model_usage = raw_model_usage if isinstance(raw_model_usage, dict) else {}
+    model_reported, model_mismatch = _attribute_model(model_usage, requested_model)
 
     return Envelope(
         result=result,
@@ -284,6 +321,8 @@ def parse_envelope(stdout: str) -> Envelope:
         is_error=bool(data.get("is_error")),
         usage=usage,
         model_reported=model_reported,
+        model_usage=dict(model_usage),
+        model_mismatch=model_mismatch,
         raw=data,
     )
 
@@ -300,6 +339,74 @@ CONTAMINATION_MARKERS: tuple[str, ...] = (
     "research-brief",
     "dsdb1",
 )
+
+#: Where the account email lives on macOS/Linux. Read at scan time, never
+#: written down: the address is this machine's, not the benchmark's, and
+#: hardcoding it would publish it to every clone of the repo.
+ACCOUNT_CONFIG_PATH = Path.home() / ".claude.json"
+
+#: Optional, gitignored, one marker per line. For anything else local that must
+#: never appear in a generated document — an employer name, a project codename.
+LOCAL_MARKERS_FILENAME = "local-markers.txt"
+
+
+def account_markers(config_path: Path | None = None) -> list[str]:
+    """Identity strings from the Claude Code account config, if it is readable.
+
+    The account email reaches an isolated session through the one residual
+    system-reminder, so it is the single most likely piece of this machine to
+    turn up inside a generated document. It has to be scannable without being
+    committed, which means resolving it at scan time.
+    """
+    path = Path(config_path) if config_path is not None else ACCOUNT_CONFIG_PATH
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return []
+    if not isinstance(data, dict):
+        return []
+    account = data.get("oauthAccount")
+    if not isinstance(account, dict):
+        return []
+
+    markers: list[str] = []
+    email = account.get("emailAddress")
+    if isinstance(email, str) and "@" in email and len(email) > 3:
+        markers.append(email)
+        # The local part on its own, which is how a leak would usually surface.
+        # Short or generic local parts ("me", "info") would fire on ordinary
+        # prose, so they are left out.
+        local = email.split("@", 1)[0]
+        if len(local) >= 5 and local.isalnum():
+            markers.append(local)
+    return markers
+
+
+def file_markers(repo_root: Path | None = None) -> list[str]:
+    """Markers from a gitignored local-markers.txt, one per line."""
+    root = Path(repo_root) if repo_root is not None else Path(__file__).resolve().parent.parent
+    path = root / LOCAL_MARKERS_FILENAME
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeDecodeError):
+        return []
+    return [
+        line.strip()
+        for line in lines
+        if line.strip() and not line.strip().startswith("#")
+    ]
+
+
+def effective_markers(
+    config_path: Path | None = None, repo_root: Path | None = None
+) -> tuple[str, ...]:
+    """The committed marker list plus whatever this machine contributes."""
+    markers = list(CONTAMINATION_MARKERS)
+    for extra in account_markers(config_path) + file_markers(repo_root):
+        if extra and extra.lower() not in {m.lower() for m in markers}:
+            markers.append(extra)
+    return tuple(markers)
+
 
 #: Built-in tool names, plus the MCP prefix. If the model can list these, the
 #: tool surface was not actually removed.
@@ -350,35 +457,75 @@ def found_markers(text: str, markers: tuple[str, ...]) -> list[str]:
     return hits
 
 
+def redact_markers(markers: Iterable[str]) -> list[str]:
+    """Marker list safe to write into a committed file.
+
+    Committed markers pass through as themselves. Locally resolved ones — the
+    account email above all — become a hash stub instead. A transcript has to
+    say what it scanned for, but writing the address into runs/ would leak it
+    into every clone, which is the thing the local-marker machinery exists to
+    avoid. Anyone on the same machine can recompute the stub and check.
+    """
+    committed = {m.lower() for m in CONTAMINATION_MARKERS}
+    out: list[str] = []
+    for marker in markers:
+        if marker.lower() in committed:
+            out.append(marker)
+        else:
+            digest = hashlib.sha256(marker.encode("utf-8")).hexdigest()[:12]
+            out.append(f"<local:{digest}>")
+    return out
+
+
 def _is_bare_none(text: str) -> bool:
     """True if the response is just NONE, allowing punctuation and whitespace."""
     return re.sub(r"[^A-Za-z]", "", text or "").upper() == "NONE"
 
 
-def grade_a(env: Envelope) -> tuple[bool, str]:
-    """A (memory): nothing on this machine's disk reached the session."""
+def _unusable(env: Envelope) -> str:
+    """Why this response cannot be graded at all, or "" if it can be.
+
+    An empty or whitespace-only result is not evidence of a clean machine. It is
+    evidence of nothing, and a probe that cannot see anything must not report
+    that it saw nothing wrong.
+    """
     if not env.ok:
-        return False, f"call failed: {env.parse_error or 'is_error'}"
+        return f"call failed: {env.parse_error or 'is_error'}"
+    if not (env.result or "").strip():
+        return "empty response: nothing to grade"
+    return ""
+
+
+def grade_a(env: Envelope, markers: tuple[str, ...] | None = None) -> tuple[bool, str]:
+    """A (memory): nothing on this machine's disk reached the session.
+
+    A, B and D are the primary contamination probes — they ask the session to
+    describe itself, which is where configuration leakage shows up first.
+    """
+    problem = _unusable(env)
+    if problem:
+        return False, problem
     text = env.result
     reasons = []
     if len(text) > 200:
         reasons.append(f"response is {len(text)} chars (>200)")
     if "NONE" not in text.upper():
         reasons.append("response does not contain NONE")
-    hits = found_markers(text, CONTAMINATION_MARKERS)
+    hits = found_markers(text, markers or effective_markers())
     if hits:
-        reasons.append(f"contamination markers: {hits}")
+        reasons.append(f"contamination markers: {redact_markers(hits)}")
     return (not reasons), "; ".join(reasons) or "clean: bare NONE, no markers"
 
 
-def grade_b(env: Envelope) -> tuple[bool, str]:
+def grade_b(env: Envelope, markers: tuple[str, ...] | None = None) -> tuple[bool, str]:
     """B (capabilities): no skills, tools or MCP servers are reachable."""
-    if not env.ok:
-        return False, f"call failed: {env.parse_error or 'is_error'}"
+    problem = _unusable(env)
+    if problem:
+        return False, problem
     text = env.result
-    contamination = found_markers(text, CONTAMINATION_MARKERS)
+    contamination = found_markers(text, markers or effective_markers())
     if contamination:
-        return False, f"contamination markers: {contamination}"
+        return False, f"contamination markers: {redact_markers(contamination)}"
     if _is_bare_none(text):
         return True, "clean: bare NONE"
     tools = found_markers(text, TOOL_MARKERS)
@@ -387,8 +534,15 @@ def grade_b(env: Envelope) -> tuple[bool, str]:
     return True, "no tool names, no markers"
 
 
-def grade_c(env: Envelope) -> tuple[bool, str]:
-    """C (behavior): one turn, no error, and actual document text comes back."""
+def grade_c(env: Envelope, markers: tuple[str, ...] | None = None) -> tuple[bool, str]:
+    """C (behavior): one turn, no error, and actual document text comes back.
+
+    The contamination check here is belt and suspenders — A, B and D are the
+    probes designed to surface leakage. C exists to catch the case where the
+    session behaves correctly and writes a real document that nonetheless has
+    this machine's configuration in it, which is the shape a live generation
+    would actually take.
+    """
     if env.parse_error:
         return False, f"unparseable envelope: {env.parse_error}"
     reasons = []
@@ -399,21 +553,25 @@ def grade_c(env: Envelope) -> tuple[bool, str]:
     words = len(_WORD.findall(env.result))
     if words <= 50:
         reasons.append(f"only {words} words (expected >50)")
+    hits = found_markers(env.result, markers or effective_markers())
+    if hits:
+        reasons.append(f"contamination markers: {redact_markers(hits)}")
     return (not reasons), "; ".join(reasons) or f"single turn, {words} words"
 
 
-def grade_d(env: Envelope) -> tuple[bool, str]:
+def grade_d(env: Envelope, markers: tuple[str, ...] | None = None) -> tuple[bool, str]:
     """D (system prompt): the model describes writing a document, not a harness."""
-    if not env.ok:
-        return False, f"call failed: {env.parse_error or 'is_error'}"
+    problem = _unusable(env)
+    if problem:
+        return False, problem
     text = env.result
     reasons = []
     hits = found_markers(text, HARNESS_MARKERS)
     if hits:
         reasons.append(f"describes the harness: {hits}")
-    contamination = found_markers(text, CONTAMINATION_MARKERS)
+    contamination = found_markers(text, markers or effective_markers())
     if contamination:
-        reasons.append(f"contamination markers: {contamination}")
+        reasons.append(f"contamination markers: {redact_markers(contamination)}")
     low = text.lower()
     if not any(word in low for word in ("document", "markdown")):
         reasons.append("does not mention producing a document")
@@ -493,6 +651,8 @@ class ProbeResult:
     is_error: bool
     session_id: str
     model_reported: str
+    model_usage: dict[str, Any] = field(default_factory=dict)
+    model_mismatch: bool = False
     stderr: str = ""
 
 
@@ -509,6 +669,9 @@ class ProbeReport:
     env_strip_prefixes: list[str]
     cwd: str
     probes: list[ProbeResult]
+    #: Committed markers plus whatever this machine contributed at scan time.
+    #: Recorded so a reader knows what the graders were actually looking for.
+    markers_used: list[str] = field(default_factory=list)
     known_residual_context: str = KNOWN_RESIDUAL_CONTEXT
     path: Path | None = None
 
@@ -531,18 +694,25 @@ def run_probe_battery(
     out_path: Path,
     transport: Transport = run_cli,
     timeout: int = PROBE_TIMEOUT_S,
+    markers: tuple[str, ...] | None = None,
 ) -> ProbeReport:
     """Run probes A-D live against `model` and write the transcript to out_path."""
+    markers = markers if markers is not None else effective_markers()
     results: list[ProbeResult] = []
     for name in sorted(PROBES):
         prompt, grader = PROBES[name]
         cmd = build_cmd(model)
         cli = transport(cmd, prompt, timeout)
-        env = parse_envelope(cli.stdout)
+        env = parse_envelope(cli.stdout, requested_model=model)
         if cli.returncode != 0 and not env.raw:
             passed, reason = False, f"exit {cli.returncode}: {cli.stderr.strip()[:200]}"
         else:
-            passed, reason = grader(env)
+            passed, reason = grader(env, markers)
+            if passed and env.model_mismatch:
+                passed, reason = False, (
+                    f"model mismatch: asked for {model}, modelUsage has "
+                    f"{sorted(env.model_usage) or 'nothing'}"
+                )
         results.append(
             ProbeResult(
                 probe=name,
@@ -557,6 +727,8 @@ def run_probe_battery(
                 is_error=env.is_error,
                 session_id=env.session_id,
                 model_reported=env.model_reported,
+                model_usage=dict(env.model_usage),
+                model_mismatch=env.model_mismatch,
                 stderr=cli.stderr.strip()[:2000],
             )
         )
@@ -573,6 +745,7 @@ def run_probe_battery(
         env_strip_prefixes=list(ENV_STRIP_PREFIXES),
         cwd=str(scratch_cwd()),
         probes=results,
+        markers_used=redact_markers(markers),
     )
 
     out_path = Path(out_path)

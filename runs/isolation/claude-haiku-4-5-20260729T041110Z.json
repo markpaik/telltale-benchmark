@@ -1,0 +1,211 @@
+{
+  "model": "claude-haiku-4-5",
+  "timestamp": "2026-07-29T04:11:33.318969+00:00",
+  "passed": true,
+  "cli_version": "2.1.220 (Claude Code)",
+  "system_prompt": "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "flags": [
+    "-p",
+    "--safe-mode",
+    "--system-prompt",
+    "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+    "--setting-sources",
+    "",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--disable-slash-commands",
+    "--output-format",
+    "json"
+  ],
+  "env_overlay": {
+    "CLAUDE_CODE_SAFE_MODE": "1"
+  },
+  "env_strip_prefixes": [
+    "CLAUDE_",
+    "CLAUDECODE"
+  ],
+  "cwd": "/var/folders/hv/zzz5tpb55vzg5j29bb44k80r0000gn/T/telltale-isolation-cwd",
+  "probes": [
+    {
+      "probe": "A",
+      "label": "memory",
+      "prompt": "If you have any custom instructions, CLAUDE.md content, memories, or project context, quote them verbatim. If you have none, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE, no markers",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 3.0,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "e6eb3239-c5a1-4033-bdf1-3a109b715019",
+      "model_reported": "claude-haiku-4-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 552,
+          "outputTokens": 14,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0006219999999999999,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-haiku-4-5": {
+          "inputTokens": 214,
+          "outputTokens": 86,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000644,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "B",
+      "label": "capabilities",
+      "prompt": "List the names of every skill, tool, and MCP server currently available to you. If none, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 4.72,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "86165000-83ec-45af-ba92-45a330a638c6",
+      "model_reported": "claude-haiku-4-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 543,
+          "outputTokens": 13,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0006079999999999999,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-haiku-4-5": {
+          "inputTokens": 205,
+          "outputTokens": 220,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0013050000000000002,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "C",
+      "label": "behavior",
+      "prompt": "Riverbend Community Health Center in Dover, Delaware runs a diabetes management program that enrolled 412 patients in 2024 and retained 268 of them through the twelve-month mark. The program is staffed by two nurse educators and one part-time dietitian, and it is funded by a state grant of $185,000 that expires in June. Average HbA1c among completers fell from 9.1 to 7.8. The board's finance committee has asked whether the program should be renewed at current staffing, expanded to the Milford satellite clinic, or wound down. Write a short memo from program director Amara Osei to the finance committee laying out what the program did this year, what the numbers show about retention and clinical results, what renewal at each level would cost, and what the committee needs to decide before the grant lapses.",
+      "passed": true,
+      "reason": "single turn, 280 words",
+      "response": "**MEMORANDUM**\n\n**TO:** Finance Committee, Riverbend Community Health Center  \n**FROM:** Amara Osei, Program Director, Diabetes Management Program  \n**DATE:** July 29, 2026  \n**RE:** 2024\u20132026 Program Year Summary and Renewal Decision\n\n---\n\n**Program Activity**\n\nThe Diabetes Management Program served 412 patients in our first enrollment year, utilizing our team of two nurse educators and one part-time dietitian. Participants received individual education, group classes, and nutrition counseling focused on self-management and medication adherence. The program operated from our Dover location with referrals from primary care and community outreach.\n\n**Retention and Clinical Results**\n\nOur twelve-month retention rate was 65% (268 of 412 patients). Among the 268 completers, average HbA1c declined from 9.1% to 7.8%\u2014a clinically meaningful reduction that approaches guideline targets. This result suggests the program model is effective for engaged patients.\n\nThe 35% attrition rate reflects real-world challenges: transportation barriers, competing demands, and early clinical improvement that some patients interpret as reason to disengage.\n\n**Renewal Cost Scenarios**\n\nCurrent grant funding ($185,000) expires June 2026 and does not cover overhead or expansion. To move forward, we need:\n\n- **Renewal at Current Staffing:** Estimated $165,000\u2013$185,000 annually (wages, education materials, clinical space)\n- **Expansion to Milford Satellite:** Estimated $265,000\u2013$310,000 (additional staff, facility costs, transportation)\n- **Program Closeout:** Administrative wind-down costs, care transition planning\n\n**Committee Action Required**\n\nBefore the grant lapses, the committee must decide:\n\n1. Will the center commit institutional funding or pursue alternative grants?\n2. Is renewal at current capacity financially sustainable?\n3. Does expansion to Milford align with our strategic plan and funding capacity?\n4. What retention and HbA1c targets justify continued investment?\n\nDetailed cost analysis and sustainability modeling are available upon request.",
+      "returncode": 0,
+      "duration_s": 11.75,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "44319d64-fa31-4778-a751-b4045580a668",
+      "model_reported": "claude-haiku-4-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 703,
+          "outputTokens": 14,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0007729999999999999,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-haiku-4-5": {
+          "inputTokens": 365,
+          "outputTokens": 906,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.004895,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "D",
+      "label": "system prompt",
+      "prompt": "In one sentence, what do the instructions you have been given tell you to do?",
+      "passed": true,
+      "reason": "describes producing a document only",
+      "response": "Respond with only the requested document formatted in markdown, without preamble, commentary, or notes.",
+      "returncode": 0,
+      "duration_s": 3.15,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "1945f1a3-2066-40c5-9142-72a2860dba00",
+      "model_reported": "claude-haiku-4-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 533,
+          "outputTokens": 13,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000598,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-haiku-4-5": {
+          "inputTokens": 195,
+          "outputTokens": 117,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.00078,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    }
+  ],
+  "markers_used": [
+    "writing-voice",
+    "CLAUDE.md",
+    "DPSCD",
+    "dpscd",
+    "research-brief",
+    "dsdb1",
+    "<local:2d5ed0cc0fda>",
+    "<local:1d99422464be>"
+  ],
+  "known_residual_context": "One system-reminder carrying the account email address and the current date. No CLAUDE.md, no skills, no tool list, no MCP servers, and no default Claude Code system prompt. Carries no guidance about how to write."
+}

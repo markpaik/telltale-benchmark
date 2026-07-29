@@ -37,13 +37,31 @@ def envelope(result: str, session_id="sess-1", num_turns=1, is_error=False, **ex
     return json.dumps(data)
 
 
+# Synthetic banks need a unique cast per scenario, same as the real one: the
+# lint that catches reused characters would otherwise fire on the fixture.
+_FIRSTS = ["Dana", "Omar", "Ingrid", "Kofi", "Mei", "Rafael", "Nadia", "Tomas",
+           "Yuki", "Astrid", "Hassan", "Lucia", "Bjorn", "Amara"]
+_LASTS = ["Okonjo", "Vasquez", "Lindqvist", "Marchetti", "Osei", "Nakamura",
+          "Ferreira", "Sorensen"]
+_PLACES = ["Erie", "Dover", "Salem", "Rome", "Athens", "Marion", "Auburn",
+           "Newton", "Clinton", "Franklin", "Madison", "Monroe", "Oxford", "Troy"]
+
+
+def _scenario(fmt_index: int, position: int) -> str:
+    """A unique-cast filler scenario long enough to pass the length checks."""
+    person = f"{_FIRSTS[fmt_index % 14]} {_LASTS[(position - 1) % 8]}"
+    org = f"{_PLACES[fmt_index % 14]}{position} Freight"
+    filler = (
+        "The team reviewed the quarterly figures and agreed on a plan for the "
+        "next period, which covers 41,200 units against a 45,000 unit target. "
+    )
+    return f"{org} employs 312 people and {person} runs the site. " + filler * 12
+
+
 @pytest.fixture
 def bank_dir(tmp_path) -> Path:
     directory = tmp_path / "formats"
     directory.mkdir()
-    scenario = " ".join(
-        ["Northgate Mills in Erie shipped 41,200 units in March against a 45,000 plan."] * 15
-    )
     for index, fmt in enumerate(FORMATS):
         (directory / f"{fmt}.yaml").write_text(
             yaml.safe_dump(
@@ -57,7 +75,7 @@ def bank_dir(tmp_path) -> Path:
                         {
                             "id": f"{fmt}-{position:02d}",
                             "domain": prompts.DOMAINS[(index + position - 1) % 8],
-                            "scenario": scenario,
+                            "scenario": _scenario(index, position),
                         }
                         for position in range(1, 9)
                     ],
@@ -166,7 +184,7 @@ def test_the_call_uses_the_isolation_recipe(bank_dir, runs_root, tmp_path):
     assert isolation.MINIMAL_SYSTEM_PROMPT in cmd
     assert cmd[-2:] == ["--model", "claude-sonnet-5"]
     # The scenario and the convention both reach the model; nothing else does.
-    assert "Northgate Mills" in prompt
+    assert "Freight" in prompt and "employs 312 people" in prompt
     assert "One document, written as the format is normally written." in prompt
     assert "5,000 words" in prompt
 
@@ -344,6 +362,7 @@ def test_a_rate_limit_is_retried_with_backoff(bank_dir, runs_root, tmp_path):
         sleeper=slept.append,
         log=lambda _: None,
     )
+    # Recovers on the third attempt, so only the first two waits are spent.
     assert len(report.written) == 1
     assert slept == [60, 300]
     assert len(transport.calls) == 3
@@ -527,3 +546,107 @@ def test_scan_contamination_finds_a_marker():
 
 def test_scan_contamination_is_clean_on_ordinary_prose():
     assert generate.scan_contamination(WORDS * 20) == []
+
+
+# --- backoff (DEFECT-4) ------------------------------------------------------
+
+
+def test_all_three_backoff_waits_are_reachable(bank_dir, runs_root, tmp_path):
+    # Three escalating waits means four attempts. At three, 900s was dead code.
+    assert generate.MAX_ATTEMPTS == len(generate.BACKOFF_SECONDS) + 1
+    slept: list[float] = []
+    limited = CliResult(0, envelope("rate limit exceeded", is_error=True), "", 0.1)
+    transport = Recorder([limited])
+    report = generate.generate(
+        models=["claude-sonnet-5"],
+        formats=["memo"],
+        limit=1,
+        corpus_root=tmp_path / "corpus",
+        bank_dir=bank_dir,
+        runs_root=runs_root,
+        transport=transport,
+        sleeper=slept.append,
+        log=lambda _: None,
+    )
+    assert slept == list(generate.BACKOFF_SECONDS)
+    assert len(transport.calls) == 4
+    assert len(report.failed) == 1
+
+
+# --- model attribution is fatal (DEFECT-5) -----------------------------------
+
+
+def test_a_document_from_the_wrong_model_is_never_written(bank_dir, runs_root, tmp_path):
+    wrong = envelope(WORDS * 700, modelUsage={"claude-haiku-4-5-20251001": {"outputTokens": 9000}})
+    transport = Recorder([CliResult(0, wrong, "", 0.1)])
+    report = run(bank_dir, runs_root, tmp_path, transport, limit=1)
+
+    assert len(report.failed) == 1
+    assert not (tmp_path / "corpus" / "claude-sonnet-5" / "memo-01.md").exists()
+    marker = json.loads(
+        (tmp_path / "corpus" / "claude-sonnet-5" / "memo-01.failed.json").read_text()
+    )
+    assert any("model mismatch" in note for note in marker["attempts"])
+    assert "claude-haiku-4-5-20251001" in str(marker["attempts"])
+
+
+def test_a_mismatch_is_not_retried(bank_dir, runs_root, tmp_path):
+    wrong = envelope(WORDS * 700, modelUsage={"other-model": {"outputTokens": 900}})
+    transport = Recorder([CliResult(0, wrong, "", 0.1)])
+    run(bank_dir, runs_root, tmp_path, transport, limit=1)
+    # Structural, not transient: one call, no backoff.
+    assert len(transport.calls) == 1
+
+
+def test_a_wrong_model_continuation_fails_the_whole_document(bank_dir, runs_root, tmp_path):
+    good = envelope(WORDS * 200)
+    wrong = envelope(WORDS * 600, modelUsage={"claude-haiku-4-5": {"outputTokens": 9000}})
+    transport = Recorder([CliResult(0, good, "", 0.1), CliResult(0, wrong, "", 0.1)])
+    report = run(bank_dir, runs_root, tmp_path, transport, limit=1)
+
+    assert len(report.failed) == 1
+    assert not (tmp_path / "corpus" / "claude-sonnet-5" / "memo-01.md").exists()
+    marker = json.loads(
+        (tmp_path / "corpus" / "claude-sonnet-5" / "memo-01.failed.json").read_text()
+    )
+    assert any("model mismatch on continuation" in note for note in marker["attempts"])
+
+
+def test_the_requested_model_is_passed_to_the_parser(bank_dir, runs_root, tmp_path):
+    # Dated key, matched by containment rather than equality.
+    dated = envelope(WORDS * 700, modelUsage={
+        "claude-sonnet-5-20260101": {"outputTokens": 9000},
+        "claude-haiku-4-5-20251001": {"outputTokens": 20},
+    })
+    report = run(bank_dir, runs_root, tmp_path, Recorder([CliResult(0, dated, "", 0.1)]), limit=1)
+    assert len(report.written) == 1
+    side = json.loads(
+        (tmp_path / "corpus" / "claude-sonnet-5" / "memo-01.json").read_text()
+    )
+    assert side["model_reported"] == "claude-sonnet-5-20260101"
+    assert side["model_mismatch"] is False
+
+
+# --- contamination scan uses local markers (DEFECT-3) ------------------------
+
+
+def test_scan_contamination_picks_up_the_account_email(tmp_path):
+    config = tmp_path / ".claude.json"
+    config.write_text(
+        json.dumps({"oauthAccount": {"emailAddress": "jrivera.qa@example.org"}}),
+        encoding="utf-8",
+    )
+    text = "Please contact jrivera.qa@example.org with questions."
+    assert generate.scan_contamination(text, config_path=config, repo_root=tmp_path) == [
+        "jrivera.qa@example.org"
+    ]
+
+
+def test_scan_contamination_picks_up_a_local_markers_file(tmp_path):
+    (tmp_path / "local-markers.txt").write_text("Wolverine Codename\n", encoding="utf-8")
+    hits = generate.scan_contamination(
+        "The Wolverine Codename programme shipped.",
+        config_path=tmp_path / "missing.json",
+        repo_root=tmp_path,
+    )
+    assert hits == ["Wolverine Codename"]

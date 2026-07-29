@@ -64,6 +64,116 @@ _BANNED = tuple(
 ID_PATTERN = re.compile(r"^(?P<fmt>[a-z-]+)-(?P<index>\d{2})$")
 
 
+# --- cast uniqueness ---------------------------------------------------------
+#
+# Every scenario is supposed to be its own world. When the same person or the
+# same company turns up in two scenarios, documents that are meant to be
+# independent samples start sharing proper nouns, and a detector that keys on
+# repeated names would see structure that is an artifact of how the bank was
+# written rather than of how a model writes. Seven full names were reused across
+# files on the first pass; this is what stops the eighth.
+
+#: Words that disqualify a capitalized phrase from being read as a person's
+#: name. Roles and org/place vocabulary, mostly — "Chief Financial Officer" and
+#: "Valley Regional Medical Center" are supposed to recur, people are not.
+NON_PERSON_WORDS: frozenset[str] = frozenset(
+    """
+    Chief Officer Director Deputy Vice President Superintendent Principal Manager
+    Supervisor Coordinator Administrator Commissioner Controller Treasurer
+    Secretary Chair Chairman Chairwoman Board Executive Senior Junior Assistant
+    Associate Interim Acting Head Lead Staff Dr Mr Ms Mrs Prof Professor Nurse
+    Physician Attorney Counsel Counselor Engineer Analyst Consultant Auditor
+    Inspector Sergeant Captain Officers Trustee Trustees Member Members Chairs
+    School Schools District University College Academy Academies Hospital Medical
+    Health Center Centre Clinic Foundation Institute Council Committee Commission
+    Department Division Office Bureau Agency Authority Group Systems System
+    Services Service Company Corporation Corp Inc Llc Partners Alliance Network
+    Collaborative Coalition Association Society Union Works Public Community
+    Regional National State County City Township Village Town Municipal Valley
+    River Lake Mountain Ridge Creek Harbor Bay Island Springs Falls Heights Park
+    North South East West Northern Southern Eastern Western Upper Lower Central
+    New Old Saint St Fort Port Grand Great Mount
+    San Santa Los Las El La Des Du Eau Sault Rio Fond Baton Cape
+    January February March April May June July August September October November
+    December Monday Tuesday Wednesday Thursday Friday Saturday Sunday
+    The A An In On At For And But By This That These Those Their His Her Its
+    Last Next After Before During Since When While With Without All Both Each
+    Every Most Some No Not First Second Third Fourth Fifth Final Total Annual
+    Quarterly Monthly Weekly Daily Two Three Four Five Six Seven Eight Nine Ten
+    """.split()
+)
+
+#: Org names generic enough that sharing them across scenarios is realistic
+#: rather than a collision. Compared case-insensitively.
+ORG_NAME_ALLOWLIST: frozenset[str] = frozenset(
+    {
+        "public works",
+        "department of public works",
+        "human resources",
+        "information technology",
+        "city council",
+        "town council",
+        "county council",
+        "board of education",
+        "school board",
+        "planning commission",
+    }
+)
+
+#: A capitalized run ending in one of these reads as an organization.
+ORG_SUFFIXES: tuple[str, ...] = (
+    "Group", "District", "Systems", "System", "Health", "Center", "Centre",
+    "Works", "Mills", "Partners", "Alliance", "Foundation", "Academies",
+    "Academy", "Schools", "School", "Services", "Logistics", "Markets",
+    "Market", "Company", "Corporation", "Authority", "Collaborative",
+    "Institute", "Network", "Payments", "Freight", "Carriers", "Labs",
+    "Hospital", "Clinic", "Cooperative", "Council", "Coalition", "Association",
+    "Industries", "Manufacturing", "Technologies", "Solutions", "Holdings",
+)
+
+_PERSON = re.compile(
+    r"\b[A-Z][a-z]+(?:-[A-Z][a-z]+)?(?:\s+[A-Z][a-z']+){1,2}\b"
+)
+
+# "and" is deliberately not a connector: it over-captures across conjunctions
+# ("the Council and Public Works" reads as one seven-word organization).
+_ORG = re.compile(
+    r"\b(?:[A-Z][A-Za-z&'.-]*\s+(?:of\s+|the\s+|for\s+)?){1,5}"
+    r"(?:" + "|".join(ORG_SUFFIXES) + r")\b"
+)
+
+_LEADING_ARTICLE = re.compile(r"^(?:The|A|An)\s+")
+
+
+def person_names(text: str) -> set[str]:
+    """Two- and three-word capitalized phrases that read as people's names."""
+    names = set()
+    for match in _PERSON.findall(text or ""):
+        words = re.split(r"[\s-]+", match)
+        if any(word.rstrip(".").capitalize() in NON_PERSON_WORDS for word in words):
+            continue
+        names.add(match)
+    return names
+
+
+def org_names(text: str) -> set[str]:
+    """Capitalized runs ending in an organization word, longest match wins."""
+    found = set()
+    for match in _ORG.findall(text or ""):
+        name = _LEADING_ARTICLE.sub("", " ".join(match.split()))
+        if name.lower() in ORG_NAME_ALLOWLIST:
+            continue
+        found.add(name)
+    # A shorter name fully contained in a longer one is the same organization
+    # seen through a smaller window ("Valley Regional Medical Center" inside
+    # "Klamath Valley Regional Medical Center"); keep only the longest.
+    return {
+        name
+        for name in found
+        if not any(other != name and name in other for other in found)
+    }
+
+
 @dataclass(frozen=True)
 class Prompt:
     """One scenario within a format."""
@@ -258,4 +368,31 @@ def bank_lint(directory: Path | None = None) -> list[str]:
                 f"{where}: domains do not cover the rotation exactly once each: {counts}"
             )
 
+    violations.extend(_cast_violations(bank))
+    return violations
+
+
+def _cast_violations(bank: dict[str, FormatSpec]) -> list[str]:
+    """Person and organization names that appear in more than one scenario."""
+    ordered = [
+        prompt
+        for fmt in sorted(bank)
+        for prompt in sorted(bank[fmt].prompts, key=lambda p: p.id)
+    ]
+    violations = []
+    for label, extract in (("person", person_names), ("organization", org_names)):
+        seen: dict[str, str] = {}
+        collisions: dict[str, list[str]] = {}
+        for prompt in ordered:
+            for name in sorted(extract(prompt.scenario)):
+                if name in seen and seen[name] != prompt.id:
+                    collisions.setdefault(name, [seen[name]]).append(prompt.id)
+                else:
+                    seen.setdefault(name, prompt.id)
+        for name in sorted(collisions):
+            where = collisions[name]
+            violations.append(
+                f"{label} name {name!r} is reused across scenarios "
+                f"({', '.join(where)}) — each scenario needs its own cast"
+            )
     return violations

@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .DS_Store
+
+# Local contamination markers (machine-specific, never committed).
+local-markers.txt

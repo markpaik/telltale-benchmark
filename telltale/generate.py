@@ -45,7 +45,9 @@ CONTINUE_PROMPT = (
 )
 
 MAX_CONTINUATIONS = 4
-MAX_ATTEMPTS = 3
+#: Four attempts, so all three escalating waits actually get used before a cell
+#: is written off. At three attempts the 900s step was unreachable.
+MAX_ATTEMPTS = 4
 BACKOFF_SECONDS: tuple[int, ...] = (60, 300, 900)
 
 #: Substrings that mark an error worth retrying rather than recording as final.
@@ -162,6 +164,7 @@ def _call(
     prompt: str,
     timeout: int,
     sleeper: Sleeper,
+    requested_model: str = "",
 ) -> tuple[Envelope, CliResult, list[str]]:
     """One CLI call with exponential backoff on transient failure."""
     notes: list[str] = []
@@ -170,7 +173,7 @@ def _call(
 
     for attempt in range(1, MAX_ATTEMPTS + 1):
         cli = transport(cmd, prompt, timeout)
-        envelope = isolation.parse_envelope(cli.stdout)
+        envelope = isolation.parse_envelope(cli.stdout, requested_model=requested_model)
         if cli.returncode == 0 and envelope.ok:
             return envelope, cli, notes
 
@@ -218,10 +221,22 @@ def generate_one(
 
     composed = prompt_bank.compose_prompt(effective, prompt)
     envelope, cli, notes = _call(
-        transport, isolation.build_cmd(model), composed, timeout, sleeper
+        transport, isolation.build_cmd(model), composed, timeout, sleeper, model
     )
 
     if not (cli.returncode == 0 and envelope.ok):
+        return _record_failure(
+            corpus_root, model, spec.format, prompt.id, envelope, cli, notes, composed
+        )
+
+    # A document whose text came from a model other than the one on the label is
+    # not a weaker data point, it is a false one: the benchmark's whole output is
+    # a per-model comparison. Fail the cell loudly rather than write it down.
+    if envelope.model_mismatch:
+        notes.append(
+            f"model mismatch: asked for {model}, modelUsage has "
+            f"{sorted(envelope.model_usage) or 'nothing'}"
+        )
         return _record_failure(
             corpus_root, model, spec.format, prompt.id, envelope, cli, notes, composed
         )
@@ -251,11 +266,21 @@ def generate_one(
             CONTINUE_PROMPT,
             timeout,
             sleeper,
+            model,
         )
         notes.extend(cont_notes)
         if not (cont_cli.returncode == 0 and cont_env.ok) or not cont_env.result.strip():
             notes.append(f"continuation {continuations + 1} produced nothing; stopping")
             break
+
+        if cont_env.model_mismatch:
+            notes.append(
+                f"model mismatch on continuation {continuations + 1}: asked for "
+                f"{model}, modelUsage has {sorted(cont_env.model_usage) or 'nothing'}"
+            )
+            return _record_failure(
+                corpus_root, model, spec.format, prompt.id, cont_env, cont_cli, notes, composed
+            )
 
         # Offset into the concatenated document where this continuation begins.
         boundaries.append(len("\n\n".join(chunks)) + 2)
@@ -309,6 +334,7 @@ def generate_one(
         # Kept whole because it is the only place the harness's own side-calls
         # to other models are visible; model_reported is derived from it.
         "model_usage": model_usage,
+        "model_mismatch": False,
         "notes": notes,
     }
     if target_override is not None:
@@ -521,9 +547,20 @@ def status(
     return "\n".join(lines)
 
 
-def scan_contamination(text: str) -> list[str]:
-    """Contamination markers present in generated text. Empty is what we want."""
-    return isolation.found_markers(text, isolation.CONTAMINATION_MARKERS)
+def scan_contamination(
+    text: str,
+    config_path: Path | None = None,
+    repo_root: Path | None = None,
+) -> list[str]:
+    """Contamination markers present in generated text. Empty is what we want.
+
+    Scans against the committed markers plus whatever this machine resolves at
+    call time — the account email above all, since that is the one piece of the
+    user's configuration known to reach an isolated session.
+    """
+    return isolation.found_markers(
+        text, isolation.effective_markers(config_path, repo_root)
+    )
 
 
 def iter_cells(

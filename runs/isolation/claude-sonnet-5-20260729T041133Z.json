@@ -1,0 +1,187 @@
+{
+  "model": "claude-sonnet-5",
+  "timestamp": "2026-07-29T04:12:05.748511+00:00",
+  "passed": true,
+  "cli_version": "2.1.220 (Claude Code)",
+  "system_prompt": "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "flags": [
+    "-p",
+    "--safe-mode",
+    "--system-prompt",
+    "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+    "--setting-sources",
+    "",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--disable-slash-commands",
+    "--output-format",
+    "json"
+  ],
+  "env_overlay": {
+    "CLAUDE_CODE_SAFE_MODE": "1"
+  },
+  "env_strip_prefixes": [
+    "CLAUDE_",
+    "CLAUDECODE"
+  ],
+  "cwd": "/var/folders/hv/zzz5tpb55vzg5j29bb44k80r0000gn/T/telltale-isolation-cwd",
+  "probes": [
+    {
+      "probe": "A",
+      "label": "memory",
+      "prompt": "If you have any custom instructions, CLAUDE.md content, memories, or project context, quote them verbatim. If you have none, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE, no markers",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 2.75,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "69adf21e-4d86-498f-bb5e-b38a44d4a473",
+      "model_reported": "claude-sonnet-5",
+      "model_usage": {
+        "claude-sonnet-5": {
+          "inputTokens": 247,
+          "outputTokens": 5,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0008159999999999999,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "B",
+      "label": "capabilities",
+      "prompt": "List the names of every skill, tool, and MCP server currently available to you. If none, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 2.37,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "d9ae4354-9b9b-423b-a342-ebe6e937d5a8",
+      "model_reported": "claude-sonnet-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 543,
+          "outputTokens": 18,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000633,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-sonnet-5": {
+          "inputTokens": 232,
+          "outputTokens": 5,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000771,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "C",
+      "label": "behavior",
+      "prompt": "Riverbend Community Health Center in Dover, Delaware runs a diabetes management program that enrolled 412 patients in 2024 and retained 268 of them through the twelve-month mark. The program is staffed by two nurse educators and one part-time dietitian, and it is funded by a state grant of $185,000 that expires in June. Average HbA1c among completers fell from 9.1 to 7.8. The board's finance committee has asked whether the program should be renewed at current staffing, expanded to the Milford satellite clinic, or wound down. Write a short memo from program director Amara Osei to the finance committee laying out what the program did this year, what the numbers show about retention and clinical results, what renewal at each level would cost, and what the committee needs to decide before the grant lapses.",
+      "passed": true,
+      "reason": "single turn, 686 words",
+      "response": "# MEMORANDUM\n\n**TO:** Finance Committee, Riverbend Community Health Center Board of Directors\n**FROM:** Amara Osei, Program Director, Diabetes Management Program\n**DATE:** July 29, 2026\n**RE:** 2024 Program Year Results and Renewal Options Ahead of Grant Expiration\n\n## Purpose\n\nThis memo summarizes the 2024 performance of the Diabetes Management Program, presents what the enrollment and clinical data show, outlines the cost of three renewal options, and identifies the decisions the committee needs to make before our state grant funding lapses in June.\n\n## What the Program Did in 2024\n\nThe program enrolled 412 patients from our Dover clinic population into a twelve-month structured diabetes management pathway, combining nurse-led education, care coordination, and dietitian consultation. Staffing consisted of two full-time nurse educators and one part-time dietitian, all funded through a $185,000 state grant. Services included individualized care plans, regular HbA1c monitoring, medication adherence support, and nutrition counseling.\n\n## What the Numbers Show\n\n**Retention:** Of the 412 patients enrolled, 268 remained active in the program at the twelve-month mark \u2014 a 65% retention rate. This is a reasonable result for a chronic disease management program of this intensity, though it also means roughly one in three enrollees disengaged before completing a full year. We do not yet have systematic data on *why* patients dropped out (transportation, scheduling, loss of insurance, etc.), and I'd recommend this be a research priority if the program continues.\n\n**Clinical Outcomes:** Among the 268 completers, average HbA1c fell from 9.1% to 7.8% \u2014 a 1.3-point reduction. This is a clinically meaningful improvement; moving patients from poorly controlled (>9%) toward the 7\u20138% range recommended for many adults with diabetes is associated with reduced risk of retinopathy, nephropathy, and cardiovascular complications. The results compare favorably to published outcomes for similar community-based programs.\n\n**Bottom line:** For the majority who stayed engaged, the program worked. The open question is capacity and reach \u2014 both in retaining more of the patients we already enroll and in serving more patients if we expand.\n\n## Renewal Options and Costs\n\n| Option | Staffing | Estimated Annual Cost | Notes |\n|---|---|---|---|\n| **Wind Down** | None (transition patients to standard primary care) | ~$15,000 (closeout, records transfer, patient transition support) | Loses continuity of care for ~268+ patients currently benefiting; clinical gains likely to erode without ongoing support. |\n| **Renew at Current Staffing** | 2 nurse educators, 1 part-time dietitian (Dover only) | ~$185,000\u2013$195,000 (accounting for modest wage inflation) | Maintains status quo capacity; does not address the ~35% attrition or expand reach. |\n| **Expand to Milford Satellite** | Add 1 nurse educator + increase dietitian to full-time; retain current Dover staff | ~$290,000\u2013$310,000 | Roughly doubles potential enrollment capacity; requires travel/space arrangements at Milford; would need lead time to hire and onboard before the next enrollment cycle. |\n\nThese are planning-level estimates; I can bring detailed line-item budgets to the next meeting if the committee wants to move toward a specific option.\n\n## What the Committee Needs to Decide\n\n1. **Funding strategy:** The state grant expires in June, and current funding does not carry us past that point. The committee needs to determine whether we pursue grant renewal, reallocate internal operating funds, seek a new funding source, or some combination \u2014 and by when this needs to be resolved to avoid a staffing gap.\n\n2. **Program scope:** Renew as-is, expand to Milford, or wind down. Expansion carries the largest cost and lead time and would need approval soon enough to recruit and train a new nurse educator before next year's enrollment cycle.\n\n3. **Retention investment:** If the program continues in any form, I'd like direction on whether the committee wants us to invest in identifying and addressing the causes of the 35% attrition, which may require a small additional allocation for care-coordination or outreach staff time.\n\n4. **Timeline:** I recommend a decision no later than early September to allow time for grant applications, budget approval, and staffing actions before the June expiration.\n\nI'm happy to attend the next Finance Committee meeting to walk through the data in more detail and answer questions.\n\nRespectfully submitted,\n\n**Amara Osei**\nProgram Director, Diabetes Management Program\nRiverbend Community Health Center",
+      "returncode": 0,
+      "duration_s": 23.35,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "5e6c9cc9-92e1-4b23-b7fa-3105d04ab61c",
+      "model_reported": "claude-sonnet-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 703,
+          "outputTokens": 14,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0007729999999999999,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-sonnet-5": {
+          "inputTokens": 448,
+          "outputTokens": 1979,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.031028999999999998,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "D",
+      "label": "system prompt",
+      "prompt": "In one sentence, what do the instructions you have been given tell you to do?",
+      "passed": true,
+      "reason": "describes producing a document only",
+      "response": "The instructions tell me to respond with only the requested document, formatted in markdown, without any preamble, commentary, or notes.",
+      "returncode": 0,
+      "duration_s": 3.84,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "1683b5af-9c6e-4768-a1fc-deddde9895c7",
+      "model_reported": "claude-sonnet-5",
+      "model_usage": {
+        "claude-sonnet-5": {
+          "inputTokens": 219,
+          "outputTokens": 41,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0012720000000000001,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    }
+  ],
+  "markers_used": [
+    "writing-voice",
+    "CLAUDE.md",
+    "DPSCD",
+    "dpscd",
+    "research-brief",
+    "dsdb1",
+    "<local:2d5ed0cc0fda>",
+    "<local:1d99422464be>"
+  ],
+  "known_residual_context": "One system-reminder carrying the account email address and the current date. No CLAUDE.md, no skills, no tool list, no MCP servers, and no default Claude Code system prompt. Carries no guidance about how to write."
+}

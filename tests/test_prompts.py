@@ -81,10 +81,30 @@ def test_scenarios_contain_concrete_numbers():
 # --- loader ------------------------------------------------------------------
 
 
+# Synthetic banks need a unique cast per scenario, same as the real one: the
+# lint that catches reused characters would otherwise fire on the fixture.
+_FIRSTS = ["Dana", "Omar", "Ingrid", "Kofi", "Mei", "Rafael", "Nadia", "Tomas",
+           "Yuki", "Astrid", "Hassan", "Lucia", "Bjorn", "Amara"]
+_LASTS = ["Okonjo", "Vasquez", "Lindqvist", "Marchetti", "Osei", "Nakamura",
+          "Ferreira", "Sorensen"]
+_PLACES = ["Erie", "Dover", "Salem", "Rome", "Athens", "Marion", "Auburn",
+           "Newton", "Clinton", "Franklin", "Madison", "Monroe", "Oxford", "Troy"]
+
+
+def _scenario(fmt_index: int, position: int) -> str:
+    """A unique-cast filler scenario long enough to pass the length checks."""
+    person = f"{_FIRSTS[fmt_index % 14]} {_LASTS[(position - 1) % 8]}"
+    org = f"{_PLACES[fmt_index % 14]}{position} Freight"
+    filler = (
+        "The team reviewed the quarterly figures and agreed on a plan for the "
+        "next period, which covers 41,200 units against a 45,000 unit target. "
+    )
+    return f"{org} employs 312 people and {person} runs the site. " + filler * 12
+
+
 def _write_bank(tmp_path: Path, **overrides) -> Path:
     directory = tmp_path / "formats"
     directory.mkdir(parents=True, exist_ok=True)
-    scenario = " ".join(["Bellwether Freight moved 41,000 pallets in March."] * 20)
     for index, fmt in enumerate(FORMATS):
         data = {
             "format": fmt,
@@ -96,7 +116,7 @@ def _write_bank(tmp_path: Path, **overrides) -> Path:
                 {
                     "id": f"{fmt}-{position:02d}",
                     "domain": prompts.DOMAINS[(index + position - 1) % 8],
-                    "scenario": scenario,
+                    "scenario": _scenario(index, position),
                 }
                 for position in range(1, 9)
             ],
@@ -265,3 +285,75 @@ def test_lint_flags_min_words_above_target(tmp_path):
 def test_lint_reports_a_missing_directory(tmp_path):
     violations = prompts.bank_lint(tmp_path / "nope")
     assert violations and "does not exist" in violations[0]
+
+
+# --- cast uniqueness (DEFECT-1) ----------------------------------------------
+
+
+def test_real_bank_gives_every_scenario_its_own_cast():
+    # Reused characters would let a detector key on a proper noun that recurs
+    # because of how the bank was written, not because of how a model writes.
+    violations = [v for v in prompts.bank_lint(BANK) if "is reused across" in v]
+    assert violations == [], "\n".join(violations)
+
+
+def test_lint_flags_a_reused_person_name(tmp_path):
+    directory = _write_bank(tmp_path)
+    data = yaml.safe_load((directory / "memo.yaml").read_text())
+    other = yaml.safe_load((directory / "sop.yaml").read_text())
+    borrowed = "Wilhelmina Ashgrove"
+    data["prompts"][0]["scenario"] += f" The reviewer is {borrowed}."
+    other["prompts"][3]["scenario"] += f" The reviewer is {borrowed}."
+    (directory / "memo.yaml").write_text(yaml.safe_dump(data), encoding="utf-8")
+    (directory / "sop.yaml").write_text(yaml.safe_dump(other), encoding="utf-8")
+
+    violations = prompts.bank_lint(directory)
+    assert any(
+        borrowed in v and "memo-01" in v and "sop-04" in v and "person name" in v
+        for v in violations
+    ), violations
+
+
+def test_lint_flags_a_reused_organization_name(tmp_path):
+    directory = _write_bank(tmp_path)
+    data = yaml.safe_load((directory / "memo.yaml").read_text())
+    other = yaml.safe_load((directory / "case-study.yaml").read_text())
+    borrowed = "Thornbury Kettleman Industries"
+    data["prompts"][1]["scenario"] += f" The vendor is {borrowed}."
+    other["prompts"][2]["scenario"] += f" The vendor is {borrowed}."
+    (directory / "memo.yaml").write_text(yaml.safe_dump(data), encoding="utf-8")
+    (directory / "case-study.yaml").write_text(yaml.safe_dump(other), encoding="utf-8")
+
+    violations = prompts.bank_lint(directory)
+    assert any(
+        borrowed in v and "organization name" in v for v in violations
+    ), violations
+
+
+def test_person_extraction_ignores_titles_places_and_sentence_starts():
+    text = (
+        "Chief Financial Officer and the Public Works Director met in San Antonio "
+        "and Eau Claire on Tuesday. The Board approved it. Last March the New "
+        "Brighton School District agreed."
+    )
+    assert prompts.person_names(text) == set()
+
+
+def test_person_extraction_finds_real_names():
+    text = "Adaeze Nwosu briefed Gerard Thibodeaux and Ji-Won Paek on Tuesday."
+    assert prompts.person_names(text) == {
+        "Adaeze Nwosu",
+        "Gerard Thibodeaux",
+        "Ji-Won Paek",
+    }
+
+
+def test_org_extraction_prefers_the_longest_form_of_a_name():
+    # "Valley Regional Medical Center" inside "Klamath Valley Regional Medical
+    # Center" is one organization seen twice, not two organizations.
+    text = "Klamath Valley Regional Medical Center reported the figure."
+    assert prompts.org_names(text) == {"Klamath Valley Regional Medical Center"}
+
+
+def test_org_extraction_skips_generic_public_bodies():
+    assert prompts.org_names("The City Council and Public Works met.") == set()

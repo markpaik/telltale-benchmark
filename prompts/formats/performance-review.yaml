@@ -13,7 +13,7 @@ prompts:
     domain: software
     scenario: |
       Ocotillo Payments Group is a card-processing platform in Tempe, Arizona, with 260 employees and
-      1.4 billion dollars in annual processed volume across 8,700 merchants. Priya Raghunathan,
+      1.4 billion dollars in annual processed volume across 8,700 merchants. Sunita Kapadia,
       director of the Merchant Platform group, is writing annual reviews for three of her nine
       engineers for the year ending June 30. Compensation has set a merit pool of 3.1 percent, a
       distribution allowing at most two exceeds-expectations ratings in a group her size, and one
@@ -21,7 +21,7 @@ prompts:
 
       Tobias Ekwueme, senior engineer, four years in seat, led the tokenization vault rewrite that cut
       authorization latency from 340 milliseconds to 96 and carried the December peak of 4.1 million
-      daily transactions without an incident. His self-assessment says Raghunathan called him the
+      daily transactions without an incident. His self-assessment says Kapadia called him the
       obvious staff candidate in January, and that he has since taken two recruiter calls. Marisol
       Ybarra, senior engineer with six years, beat her reliability goal with 22 minutes of unplanned
       downtime against a 60-minute target, but she is the only approved reviewer for the settlement
@@ -151,7 +151,7 @@ prompts:
     domain: municipal-government
     scenario: |
       The City of Palo Duro, Texas, population 96,000, runs its own water and wastewater utility with
-      34,000 connections and 140 employees. Deputy director Kwame Boateng is writing annual reviews for
+      34,000 connections and 140 employees. Deputy director Reginald Ashcroft is writing annual reviews for
       three staff under civil service rules in which completed evaluations are public records, a 2
       percent across-the-board increase plus a 1 percent performance pool, a hiring freeze in its
       fourteenth month, and an August notice of violation from the state environmental agency for
