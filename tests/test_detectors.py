@@ -19,7 +19,10 @@ from telltale.detectors import (
     Detection,
     RegexDetector,
     StatDetector,
+    at_sentence_start,
     build,
+    is_proper_noun_use,
+    search_guarded,
     source_for,
 )
 from telltale.registry import Registry, Tell
@@ -233,6 +236,126 @@ def test_line_numbers_count_in_the_source_actually_searched() -> None:
     detection = build(heading).detect(doc)
     assert detection.matches[0]["line"] == 7
     assert text.split("\n")[6] == "## Conclusion"
+
+
+# --- the proper-noun guard ---------------------------------------------------
+#
+# The five sentences QA reproduced the class defect with. Each fires the bare
+# pattern and must not survive the guard.
+
+QA_REPRO = [
+    ("lex.foster", "The event was held at Foster Elementary School."),
+    ("lex.harness", "Ms. Harness led the session on grading policy."),
+    ("lex.bolster", "Mr. Bolster asked for the revised timeline."),
+    ("lex.streamline", "We hired Streamline Consulting to review the intake process."),
+    ("cl.north-star", "Students at North Star Academy improved on every measure."),
+]
+
+
+def guarded(**overrides) -> Tell:
+    return tell(proper_noun_guard=True, flags=("IGNORECASE",), **overrides)
+
+
+@pytest.mark.parametrize(("tell_id", "sentence"), QA_REPRO, ids=[t for t, _ in QA_REPRO])
+def test_qa_repro_sentences_no_longer_fire(tell_id: str, sentence: str) -> None:
+    entry = REGISTRY.get(tell_id)
+    assert entry.proper_noun_guard, f"{tell_id} is expected to carry the guard"
+    # The pattern still matches — the guard is what rejects it.
+    assert entry.compiled().search(sentence)
+    assert search_guarded(entry, sentence) is None
+    assert build(entry).detect(make(sentence)).raw == 0.0
+
+
+def test_the_word_itself_still_counts() -> None:
+    """The guard must not cost the tell its actual job."""
+    entry = REGISTRY.get("lex.foster")
+    doc = make("The new schedule fosters more collaboration between departments.")
+    assert build(entry).detect(doc).raw == 1.0
+
+
+def test_guard_drops_a_mid_sentence_capital() -> None:
+    doc = make("We met the Widget team on Tuesday.")
+    assert build(guarded()).detect(doc).raw == 0.0
+    assert build(tell(flags=("IGNORECASE",))).detect(doc).raw == 1.0
+
+
+def test_guard_keeps_a_lowercase_match_anywhere() -> None:
+    doc = make("We shipped the widget on Tuesday. Another widget followed.")
+    assert build(guarded()).detect(doc).raw == 2.0
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Widget is the first word of the text.",
+        "The meeting ended. Widget spoke next.",
+        "Was it done? Widget says yes.",
+        "It arrived! Widget confirmed.",
+        "One question remains: Widget or nothing.",
+        'She replied: "Widget is fine."',
+        "He asked around. (Widget was in the room.)",
+    ],
+)
+def test_guard_keeps_sentence_initial_capitals(text: str) -> None:
+    """Sentence-initial capitals are ambiguous between word and name, so they stay."""
+    assert build(guarded()).detect(make(text)).raw == 1.0
+
+
+def test_a_mid_sentence_parenthetical_is_not_a_sentence_start() -> None:
+    """An opening bracket only carries the exemption when a terminator precedes it."""
+    assert build(guarded()).detect(make("He asked (Widget was there) about it.")).raw == 0.0
+
+
+def test_guard_keeps_the_first_word_of_a_line() -> None:
+    """Headings and list items sit on their own line once markdown is stripped."""
+    doc = make("# Widget adoption\n\n- Widget rollout is on track\n")
+    assert build(guarded()).detect(doc).raw == 2.0
+
+
+def test_guard_uses_the_projects_own_abbreviation_rule() -> None:
+    """"Ms. Harness" is not a new sentence, so the capital is a name."""
+    assert build(guarded()).detect(make("We asked Ms. Widget for the file.")).raw == 0.0
+    assert build(guarded()).detect(make("The vote passed. Widget abstained.")).raw == 1.0
+
+
+def test_guard_reports_what_it_dropped() -> None:
+    doc = make(
+        "Widget Corp. sells them.\n"
+        "We met the Widget team on Tuesday.\n"
+        "The widget policy is unchanged.\n"
+    )
+    detection = build(guarded()).detect(doc)
+    # Line 1 opens the text and line 3 is lowercase, so both survive. Line 2 is a
+    # capital in the middle of a sentence: a name, and dropped.
+    assert detection.raw == 2.0
+    assert detection.detail == {"guard_dropped": 1}
+    assert [m["line"] for m in detection.matches] == [1, 3]
+
+
+def test_an_unguarded_tell_reports_no_guard_detail() -> None:
+    doc = make("We met the Widget team about widget policy.")
+    assert build(tell(flags=("IGNORECASE",))).detect(doc).detail == {}
+
+
+def test_at_sentence_start_edges() -> None:
+    assert at_sentence_start("", 0)
+    assert at_sentence_start("Widget", 0)
+    assert at_sentence_start("a.\nWidget", 3)
+    assert not at_sentence_start("a Widget", 2)
+
+
+def test_is_proper_noun_use_ignores_lowercase_and_punctuation_starts() -> None:
+    assert not is_proper_noun_use("a widget", 2)
+    assert not is_proper_noun_use("a 3-widget rack", 2)
+    assert not is_proper_noun_use("short", 99)  # past the end
+    assert is_proper_noun_use("a Widget", 2)
+
+
+def test_the_guard_is_off_unless_the_registry_asks_for_it() -> None:
+    assert tell().proper_noun_guard is False
+    assert not build(tell()).guard
+    unguarded = [t for t in REGISTRY.active_tells() if t.method == "regex" and not t.proper_noun_guard]
+    assert len(unguarded) > 60, "the guard is meant to be opt-in, not the default"
 
 
 # --- format scoping ----------------------------------------------------------

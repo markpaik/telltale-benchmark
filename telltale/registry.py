@@ -52,6 +52,25 @@ def is_valid_scope(scope: str) -> bool:
     return scope in SCOPES or bool(MODEL_SCOPE_PATTERN.match(scope))
 
 
+def guarded_search(tell: "Tell", text: str) -> "re.Match[str] | None":
+    """First match of a tell's pattern in `text`, with its guards applied.
+
+    Validation has to see exactly what the detector will see. A counter-example
+    for a guarded tell ("held at Foster Elementary School") *does* match the bare
+    pattern — the guard is what rejects it — so checking against `tell.compiled()`
+    alone would report an error the run will never make.
+
+    Imported lazily for the same reason `known_stats` is: the registry must be
+    able to load and validate without dragging in the detection engine, and
+    regex_detector imports this module.
+    """
+    if not tell.proper_noun_guard:
+        return tell.compiled().search(text)
+    from telltale.detectors.regex_detector import search_guarded
+
+    return search_guarded(tell, text)
+
+
 def known_stats() -> set[str]:
     """Names in the textstats registry, imported lazily.
 
@@ -100,6 +119,9 @@ class Tell:
     unit: str = "count"
     pattern: str | None = None
     flags: tuple[str, ...] = ()
+    # Drop mid-sentence capitalized matches as proper nouns. Opt-in, and only
+    # meaningful for regex tells; see detectors/regex_detector.py for the rule.
+    proper_noun_guard: bool = False
     stat: str | None = None
     direction: str | None = None
     ramp: tuple[float, ...] | None = None
@@ -132,6 +154,7 @@ class Tell:
             unit=str(det.get("unit", "")),
             pattern=det.get("pattern"),
             flags=tuple(det.get("flags") or ()),
+            proper_noun_guard=bool(det.get("proper_noun_guard", False)),
             stat=det.get("stat"),
             direction=det.get("direction"),
             ramp=tuple(ramp) if isinstance(ramp, list) else None,
@@ -152,6 +175,8 @@ class Tell:
         if self.method == "regex":
             detection["pattern"] = self.pattern
             detection["flags"] = list(self.flags)
+            if self.proper_noun_guard:
+                detection["proper_noun_guard"] = True
         elif self.method == "statistic":
             detection["stat"] = self.stat
             if self.direction is not None:
@@ -308,6 +333,12 @@ class Registry:
     def _validate_detection(self, tell: Tell, tid: str, stats: set[str]) -> list[str]:
         errors: list[str] = []
 
+        if tell.proper_noun_guard and tell.method != "regex":
+            errors.append(
+                f"{tid}: proper_noun_guard is only meaningful for regex tells "
+                f"(method is {tell.method!r})"
+            )
+
         if tell.method == "regex":
             if not isinstance(tell.pattern, str) or not tell.pattern:
                 errors.append(f"{tid}: regex tell has no pattern")
@@ -316,16 +347,19 @@ class Registry:
                 if str(name) not in FLAG_MAP:
                     errors.append(f"{tid}: unknown regex flag {name!r}")
             try:
-                rx = tell.compiled()
+                tell.compiled()
             except re.error as exc:
                 errors.append(f"{tid}: pattern does not compile: {exc}")
                 return errors
             if not tell.examples:
                 errors.append(f"{tid}: regex tell has no examples")
-            elif not any(rx.search(ex) for ex in tell.examples):
-                errors.append(f"{tid}: no example matches the pattern")
+            elif not any(guarded_search(tell, ex) for ex in tell.examples):
+                errors.append(
+                    f"{tid}: no example matches the pattern"
+                    + (" once the proper-noun guard is applied" if tell.proper_noun_guard else "")
+                )
             for counter in tell.counter_examples:
-                if rx.search(counter):
+                if guarded_search(tell, counter):
                     errors.append(f"{tid}: counter-example matches the pattern: {counter!r}")
 
         elif tell.method == "statistic":

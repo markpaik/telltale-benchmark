@@ -36,11 +36,13 @@ tells:
     pattern: \btapestr(?:y|ies)\b(?!\s+(?:hanging|hung|woven\s+in|on\s+the\s+wall))
     flags:
     - IGNORECASE
+    proper_noun_guard: true
   examples:
   - The initiative adds another thread to the district's tapestry of supports.
   - Our staffing model reflects a rich tapestry of professional backgrounds.
   counter_examples:
   - The tapestry hanging in the lobby dates to 1890.
+  - Enrollment at Tapestry Charter School rose by forty students.
   provenance:
     source: seed
     added: 2026-07-28
@@ -83,10 +85,12 @@ tells:
     pattern: \bpivotal\b
     flags:
     - IGNORECASE
+    proper_noun_guard: true
   examples:
   - Principals play a pivotal part in the rollout.
   - This was a pivotal quarter for the enrollment campaign.
-  counter_examples: []
+  counter_examples:
+  - The original platform was built by Pivotal Labs in 2015.
   provenance:
     source: seed
     added: 2026-07-28
@@ -200,12 +204,14 @@ tells:
     pattern: \bfoster(?:s|ed|ing)?\b(?!\s+(?:care|child|children|parent|parents|home|homes|famil|youth|placement))
     flags:
     - IGNORECASE
+    proper_noun_guard: true
   examples:
   - The new schedule fosters more collaboration between departments.
   - We want to foster a culture of early data review.
   counter_examples:
   - The student entered foster care placement in March.
   - We contacted the foster parents before the meeting.
+  - The event was held at Foster Elementary School.
   provenance:
     source: seed
     added: 2026-07-28
@@ -225,10 +231,12 @@ tells:
     pattern: \bbolster(?:s|ed|ing)?\b
     flags:
     - IGNORECASE
+    proper_noun_guard: true
   examples:
   - The grant will bolster tutoring capacity at six schools.
   - These findings bolster the case for an earlier start date.
-  counter_examples: []
+  counter_examples:
+  - Mr. Bolster asked for the revised timeline.
   provenance:
     source: seed
     added: 2026-07-28
@@ -364,10 +372,12 @@ tells:
     pattern: \bsynerg(?:y|ies|istic|istically)\b
     flags:
     - IGNORECASE
+    proper_noun_guard: true
   examples:
   - There is real synergy between the tutoring and attendance teams.
   - The merger creates synergies across the two departments.
-  counter_examples: []
+  counter_examples:
+  - Daily attendance is recorded in Synergy before the first bell.
   provenance:
     source: seed
     added: 2026-07-28
@@ -387,10 +397,12 @@ tells:
     pattern: \bstreamlin(?:e|es|ed|ing)\b
     flags:
     - IGNORECASE
+    proper_noun_guard: true
   examples:
   - The new form streamlines the approval path.
   - We streamlined intake from nine steps to four.
-  counter_examples: []
+  counter_examples:
+  - We hired Streamline Consulting to review the intake process.
   provenance:
     source: seed
     added: 2026-07-28
@@ -410,10 +422,12 @@ tells:
     pattern: \bempower(?:s|ed|ing|ment)?\b
     flags:
     - IGNORECASE
+    proper_noun_guard: true
   examples:
   - The dashboard empowers principals to act on daily data.
   - This policy empowers school teams to adjust their own schedules.
-  counter_examples: []
+  counter_examples:
+  - The district moved its retirement accounts to Empower in June.
   provenance:
     source: seed
     added: 2026-07-28
@@ -457,11 +471,13 @@ tells:
     pattern: \bharness(?:es|ed|ing)?\b(?!\s+(?:racing|race|horse|driver))
     flags:
     - IGNORECASE
+    proper_noun_guard: true
   examples:
   - We should harness the momentum from the fall campaign.
   - The office harnesses vendor data to flag billing errors.
   counter_examples:
   - He spent Saturday at the harness racing track.
+  - Ms. Harness led the session on grading policy.
   provenance:
     source: seed
     added: 2026-07-28
@@ -529,10 +545,12 @@ tells:
     pattern: \brealms?\b
     flags:
     - IGNORECASE
+    proper_noun_guard: true
   examples:
   - That decision sits in the realm of the operations team.
   - These are two different realms of accountability.
-  counter_examples: []
+  counter_examples:
+  - The mobile team migrated the app to Realm last spring.
   provenance:
     source: seed
     added: 2026-07-28
@@ -552,11 +570,13 @@ tells:
     pattern: \b(?:customer|user|student|transformation|learning|improvement|our|this)\s+journey\b
     flags:
     - IGNORECASE
+    proper_noun_guard: true
   examples:
   - This is early in our journey toward daily data use.
   - The user journey breaks down at the second login screen.
   counter_examples:
   - The bus journey from the east side takes forty minutes.
+  - We licensed the Student Journey module last spring.
   provenance:
     source: seed
     added: 2026-07-28
@@ -1667,10 +1687,12 @@ tells:
     pattern: \bnorth star\b
     flags:
     - IGNORECASE
+    proper_noun_guard: true
   examples:
   - Daily attendance is our north star for this initiative.
   - The team needs a north star metric before it picks tactics.
-  counter_examples: []
+  counter_examples:
+  - Students at North Star Academy improved on every measure.
   provenance:
     source: seed
     added: 2026-07-28
@@ -1783,11 +1805,13 @@ tells:
     pattern: \bguard[-\s]?rails?\b(?!\s+(?:installation|repair|replacement|posts?|barrier|along the))
     flags:
     - IGNORECASE
+    proper_noun_guard: true
   examples:
   - We need guardrails before schools can edit the field directly.
   - The policy sets a guardrail on mid-year transfers.
   counter_examples:
   - The contractor completed guardrail repair on the access road.
+  - The team evaluated Guardrails AI for output validation.
   provenance:
     source: seed
     added: 2026-07-28

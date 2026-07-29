@@ -16,7 +16,15 @@ from telltale.detectors.base import (
     JudgeDetector,
     build,
 )
-from telltale.detectors.regex_detector import RAW_TEXT_CATEGORIES, RegexDetector, source_for
+from telltale.detectors.regex_detector import (
+    RAW_TEXT_CATEGORIES,
+    RegexDetector,
+    at_sentence_start,
+    finditer_guarded,
+    is_proper_noun_use,
+    search_guarded,
+    source_for,
+)
 from telltale.detectors.stat_detector import StatDetector
 
 __all__ = [
@@ -29,6 +37,10 @@ __all__ = [
     "JudgeDetector",
     "RegexDetector",
     "StatDetector",
+    "at_sentence_start",
     "build",
+    "finditer_guarded",
+    "is_proper_noun_use",
+    "search_guarded",
     "source_for",
 ]

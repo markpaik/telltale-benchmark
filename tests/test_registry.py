@@ -234,6 +234,110 @@ def test_seed_tells_are_all_general(registry: Registry) -> None:
     assert {t.scope for t in registry} == {"general"}
 
 
+# --- proper_noun_guard -------------------------------------------------------
+
+
+def _guard_registry(tmp_path: Path, detection: dict, **overrides) -> Registry:
+    """A one-tell registry whose detection block is given wholesale."""
+    tell = {
+        "id": "lex.guardcheck",
+        "name": "guard check",
+        "category": "lexical",
+        "scope": "general",
+        "formats": None,
+        "detection": detection,
+        "examples": ["The widget fires here."],
+        "counter_examples": [],
+        "provenance": {"source": "seed", "run_id": None, "evidence": "literature"},
+        "status": "active",
+        "weight": 1.0,
+        "notes": None,
+    }
+    tell.update(overrides)
+    doc = {
+        "registry_version": 1,
+        "schema_version": 1,
+        "updated": "2026-07-28",
+        "tells": [tell],
+    }
+    path = tmp_path / "guard.yaml"
+    path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+    return Registry(path)
+
+
+def test_proper_noun_guard_defaults_to_off(registry: Registry) -> None:
+    unguarded = [t for t in registry if not t.proper_noun_guard]
+    assert len(unguarded) == len(list(registry)) - 12
+
+
+def test_proper_noun_guard_round_trips(tmp_path: Path) -> None:
+    detection = {
+        "method": "regex",
+        "unit": "count",
+        "pattern": r"\bwidget\b",
+        "flags": ["IGNORECASE"],
+        "proper_noun_guard": True,
+    }
+    tell = _guard_registry(tmp_path, detection).get("lex.guardcheck")
+    assert tell.proper_noun_guard is True
+    assert tell.to_dict()["detection"] == detection
+
+
+def test_an_unguarded_tell_does_not_serialize_the_key(tmp_path: Path) -> None:
+    """Omitted rather than written false, so 109 tells keep a quiet diff."""
+    detection = {
+        "method": "regex",
+        "unit": "count",
+        "pattern": r"\bwidget\b",
+        "flags": ["IGNORECASE"],
+    }
+    tell = _guard_registry(tmp_path, detection).get("lex.guardcheck")
+    assert "proper_noun_guard" not in tell.to_dict()["detection"]
+
+
+def test_the_guard_is_rejected_on_a_statistic_tell(tmp_path: Path) -> None:
+    registry = _guard_registry(
+        tmp_path,
+        {
+            "method": "statistic",
+            "unit": "value",
+            "stat": "mattr_500",
+            "direction": "high_is_telling",
+            "ramp": [0.78, 0.86],
+            "proper_noun_guard": True,
+        },
+        id="sta.guardcheck",
+        category="statistical",
+    )
+    errors = registry.validate()
+    assert any("proper_noun_guard is only meaningful for regex tells" in e for e in errors), errors
+
+
+def test_validation_applies_the_guard_to_counter_examples(tmp_path: Path) -> None:
+    """A guarded counter-example matches the pattern; only the guard rejects it.
+
+    Validating against the bare pattern would report an error for a registry the
+    detector handles perfectly well, so the two have to agree.
+    """
+    detection = {
+        "method": "regex",
+        "unit": "count",
+        "pattern": r"\bwidget\b",
+        "flags": ["IGNORECASE"],
+        "proper_noun_guard": True,
+    }
+    counter = "We met the Widget team on Tuesday."
+    guarded = _guard_registry(tmp_path, detection, counter_examples=[counter])
+    assert guarded.validate() == []
+
+    unguarded = _guard_registry(
+        tmp_path,
+        {k: v for k, v in detection.items() if k != "proper_noun_guard"},
+        counter_examples=[counter],
+    )
+    assert any("counter-example matches" in e for e in unguarded.validate())
+
+
 # --- deliberately broken registry -------------------------------------------
 
 BROKEN = {
