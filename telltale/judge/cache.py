@@ -32,6 +32,12 @@ from telltale.judge.protocol import PROTOCOL_VERSION
 EXTRACT = "extract"
 ADJUDICATE = "adjudicate"
 STRUCTURAL = "structural"
+#: M7 discovery lens calls. A lens prompt is not about one chunk of one document
+#: and has no rubric to version, so it keys on the sha of the whole prompt with
+#: the lens name standing in for the tell id — which is exactly right, because
+#: everything that could change the answer (the excerpts, the sweep rows, the
+#: existing-tell list) is already in that prompt.
+DISCOVER = "discover"
 
 
 def _sha(text: str) -> str:
@@ -198,6 +204,7 @@ class JudgeClient:
 
 __all__ = [
     "ADJUDICATE",
+    "DISCOVER",
     "EXTRACT",
     "STRUCTURAL",
     "CacheMiss",

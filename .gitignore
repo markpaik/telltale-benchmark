@@ -16,3 +16,11 @@ runs/2[0-9][0-9][0-9][0-9][0-9][0-9][0-9]T*/
 # is reproducible by re-asking the judge, and the key carries the whole recipe,
 # so there is nothing to gain from versioning it — and a lot of noise to lose.
 cache/
+
+# Discovery working directories (M7). The sweep is pure arithmetic over the
+# corpus and re-runs in seconds; the lens answers are in the judge cache; and
+# every candidate that survived verification carries its whole evidence trail in
+# its registry provenance block. What is NOT preserved elsewhere is why a
+# candidate was rejected, so a run worth keeping goes in deliberately:
+#   git add -f runs/discovery/<run>/verify/verdicts.jsonl
+runs/discovery/

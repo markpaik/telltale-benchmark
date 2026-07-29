@@ -7,6 +7,7 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from typing import Any
 
 from telltale.registry import Registry
 
@@ -15,6 +16,7 @@ DEFAULT_REGISTRY = PROJECT_ROOT / "registry" / "tells.yaml"
 DEFAULT_CORPUS = PROJECT_ROOT / "corpus"
 DEFAULT_RUNS = PROJECT_ROOT / "runs"
 DEFAULT_BANK = PROJECT_ROOT / "prompts" / "formats"
+DEFAULT_DISCOVERY = PROJECT_ROOT / "runs" / "discovery"
 
 
 # --- registry subcommands ----------------------------------------------------
@@ -510,6 +512,229 @@ def _add_judge_parser(subparsers: argparse._SubParsersAction) -> None:
     audit.set_defaults(func=cmd_judge_audit)
 
 
+# --- discovery subcommands ---------------------------------------------------
+
+
+def _discover_client(args: argparse.Namespace, cache_only: bool = False) -> Any:
+    """A `JudgeClient` on the resolved judge, sharing the run-wide judge cache."""
+    from telltale.discovery.auditor import LENS_TIMEOUT_S
+    from telltale.judge import DEFAULT_CACHE_ROOT
+    from telltale.judge.cache import JudgeCache, JudgeClient
+    from telltale.judge.transport import CliJudgeTransport
+
+    model = _resolved_judge(args)
+    wire = CliJudgeTransport(model=model, timeout=LENS_TIMEOUT_S)
+    cache = JudgeCache(DEFAULT_CACHE_ROOT)
+    return JudgeClient(
+        transport=wire,
+        cache=cache,
+        force=getattr(args, "force_judge", False),
+        cache_only=cache_only,
+    )
+
+
+def cmd_discover_sweep(args: argparse.Namespace) -> int:
+    from telltale.corpus import load_corpus
+    from telltale.discovery import sweep as sweep_mod
+
+    docs = load_corpus(args.corpus)
+    if not docs:
+        print(f"no documents under {args.corpus}", file=sys.stderr)
+        return 1
+    summary = sweep_mod.run_sweep(
+        docs,
+        args.out,
+        z_min=args.z_min,
+        min_count=args.min_count,
+        top_k=args.top_k,
+    )
+    print(
+        f"swept {summary['n_docs']} docs across {len(summary['models'])} model(s) -> "
+        f"{args.out}"
+    )
+    for name, count in sorted(summary["written"].items()):
+        print(f"  {name}: {count} rows")
+    return 0
+
+
+def cmd_discover_audit(args: argparse.Namespace) -> int:
+    from telltale.corpus import load_corpus
+    from telltale.discovery import auditor, pipeline
+
+    docs = load_corpus(args.corpus)
+    if not docs:
+        print(f"no documents under {args.corpus}", file=sys.stderr)
+        return 1
+    registry = Registry(args.registry)
+    sweep_root = pipeline.sweep_dir(args.out) if args.sweep is None else args.sweep
+    from telltale.discovery import sweep as sweep_mod
+
+    rows = sweep_mod.load_sweep(sweep_root, model=args.target_model)
+    if not rows:
+        print(
+            f"note: no sweep rows for {args.target_model} under {sweep_root}; "
+            "the lens will run without the n-gram table",
+            file=sys.stderr,
+        )
+
+    client = _discover_client(args)
+    run = auditor.run_audit(
+        docs,
+        client,
+        args.lens,
+        args.target_model,
+        out_dir=pipeline.audit_dir(args.out),
+        sweep_rows=rows,
+        existing_tells=registry.active_tells(include_candidates=True),
+    )
+    print(
+        f"{args.lens} lens on {args.target_model}: {len(run.candidates)} candidate(s), "
+        f"{len(run.rejected)} rejected"
+        + (" (retried once)" if run.retried else "")
+        + (" [cached]" if run.cached else "")
+    )
+    for candidate in run.candidates:
+        rule = candidate.get("rule") or {}
+        detail = rule.get("pattern") or rule.get("stat_name") or rule.get("judge_view")
+        print(f"  {candidate.get('name')!r} [{candidate.get('method')}] {detail!r}")
+    for entry in run.rejected:
+        print(
+            f"  REJECTED {entry.get('candidate', {}).get('name')!r}: "
+            + "; ".join(entry.get("errors") or []),
+            file=sys.stderr,
+        )
+    return 0
+
+
+def cmd_discover_verify(args: argparse.Namespace) -> int:
+    from telltale.corpus import load_corpus
+    from telltale.discovery import pipeline
+
+    docs = load_corpus(args.corpus)
+    if not docs:
+        print(f"no documents under {args.corpus}", file=sys.stderr)
+        return 1
+    registry = Registry(args.registry)
+    judge = None if args.no_judge else _discover_client(args)
+
+    log, verdicts = pipeline.stage_verify(
+        docs,
+        args.out,
+        registry,
+        judge,
+        candidates_dir=args.candidates,
+        force=args.force,
+        seed=args.seed,
+    )
+    print(log.line())
+    for verdict in verdicts:
+        print("  " + verdict.summary())
+    if args.append and verdicts:
+        append_log = pipeline.stage_append(
+            docs, args.out, registry, verdicts, args.run_id or "", force=args.force
+        )
+        print(append_log.line())
+    return 0
+
+
+def cmd_discover_run_all(args: argparse.Namespace) -> int:
+    from telltale.corpus import load_corpus
+    from telltale.discovery import pipeline
+
+    docs = load_corpus(args.corpus)
+    if not docs:
+        print(f"no documents under {args.corpus}", file=sys.stderr)
+        return 1
+    registry = Registry(args.registry)
+    client = None if args.no_judge else _discover_client(args)
+    summary = pipeline.run_all(
+        docs,
+        args.out,
+        registry,
+        judge_client=client,
+        judge_backend=client,
+        models=args.models,
+        run_id=args.run_id,
+        force=args.force,
+        seed=args.seed,
+        log=print,
+    )
+    print(f"\nrun {summary['run_id']} -> {summary['out_dir']}")
+    return 0
+
+
+def _add_discover_parser(subparsers: argparse._SubParsersAction) -> None:
+    from telltale.discovery.auditor import LENSES
+
+    parser = subparsers.add_parser(
+        "discover", help="M7: propose, verify, and register new candidate tells"
+    )
+    parser.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=DEFAULT_DISCOVERY,
+        help="discovery working directory (default: %(default)s)",
+    )
+    parser.add_argument("--model", default=None, help="judge model id for the lenses")
+    actions = parser.add_subparsers(dest="action", required=True)
+
+    sweep_cmd = actions.add_parser("sweep", help="the statistical sweep; no model calls")
+    sweep_cmd.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
+    sweep_cmd.add_argument("--out", type=Path, default=DEFAULT_DISCOVERY / "sweep")
+    sweep_cmd.add_argument("--z-min", type=float, default=3.09)
+    sweep_cmd.add_argument("--min-count", type=int, default=10)
+    sweep_cmd.add_argument("--top-k", type=int, default=200)
+    sweep_cmd.set_defaults(func=cmd_discover_sweep)
+
+    audit = actions.add_parser("audit", help="run one lens against one target model")
+    audit.add_argument("--lens", required=True, choices=list(LENSES))
+    audit.add_argument("--target-model", required=True)
+    audit.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
+    audit.add_argument("--out", type=Path, default=DEFAULT_DISCOVERY)
+    audit.add_argument("--sweep", type=Path, default=None, help="sweep output directory")
+    audit.add_argument("--model", default=None, help="judge model id")
+    audit.add_argument(
+        "--force-judge", action="store_true", help="ignore cached lens answers"
+    )
+    audit.set_defaults(func=cmd_discover_audit)
+
+    verify_cmd = actions.add_parser(
+        "verify", help="run proposed candidates through the gates"
+    )
+    verify_cmd.add_argument(
+        "--candidates", type=Path, default=None, help="candidate jsonl dir"
+    )
+    verify_cmd.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
+    verify_cmd.add_argument("--out", type=Path, default=DEFAULT_DISCOVERY)
+    verify_cmd.add_argument("--model", default=None, help="judge model id")
+    verify_cmd.add_argument(
+        "--no-judge",
+        action="store_true",
+        help="skip gate 4 (no regex candidate can be accepted without it)",
+    )
+    verify_cmd.add_argument("--force", action="store_true", help="re-verify completed stages")
+    verify_cmd.add_argument("--force-judge", action="store_true")
+    verify_cmd.add_argument("--append", action="store_true", help="append accepted candidates")
+    verify_cmd.add_argument("--run-id", default=None)
+    verify_cmd.add_argument("--seed", type=int, default=13)
+    verify_cmd.set_defaults(func=cmd_discover_verify)
+
+    run_all_cmd = actions.add_parser(
+        "run-all", help="sweep -> lenses -> verify -> append, resumable per stage"
+    )
+    run_all_cmd.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
+    run_all_cmd.add_argument("--out", type=Path, default=DEFAULT_DISCOVERY)
+    run_all_cmd.add_argument("--models", nargs="*", default=None)
+    run_all_cmd.add_argument("--model", default=None, help="judge model id")
+    run_all_cmd.add_argument("--run-id", default=None)
+    run_all_cmd.add_argument("--no-judge", action="store_true")
+    run_all_cmd.add_argument("--force", action="store_true")
+    run_all_cmd.add_argument("--force-judge", action="store_true")
+    run_all_cmd.add_argument("--seed", type=int, default=13)
+    run_all_cmd.set_defaults(func=cmd_discover_run_all)
+
+
 # --- parser ------------------------------------------------------------------
 
 
@@ -533,8 +758,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_score_parser(subparsers)
     _add_report_parser(subparsers)
     _add_judge_parser(subparsers)
-    # Later milestones register their own groups here the same way:
-    # _add_discover_parser(subparsers)   # M7
+    _add_discover_parser(subparsers)
 
     return parser
 
