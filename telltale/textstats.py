@@ -38,15 +38,20 @@ _NUMBERED = re.compile(r"^\s*\d+[.)]\s+")
 _TASKBOX = re.compile(r"^\[[ xX]\]\s+")
 _TABLE_DELIM = re.compile(r"^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)+\|?\s*$")
 
-_IMAGE = re.compile(r"!\[[^\]]*\]\((?:[^()]*)\)|!\[[^\]]*\]\[[^\]]*\]")
-_INLINE_LINK = re.compile(r"\[([^\]]*)\]\((?:[^()]*)\)")
+# The URL group tolerates one level of nested parens, so Wikipedia-style
+# "Example_(disambiguation)" targets do not leak their URL into the prose.
+_URL = r"(?:[^()\n]|\([^()\n]*\))*"
+_IMAGE = re.compile(rf"!\[[^\]]*\]\({_URL}\)|!\[[^\]]*\]\[[^\]]*\]")
+_INLINE_LINK = re.compile(rf"\[([^\]]*)\]\({_URL}\)")
 _REF_LINK = re.compile(r"\[([^\]]*)\]\[[^\]]*\]")
 _AUTOLINK = re.compile(r"<(https?://[^>\s]+)>")
 _CODE_DOUBLE = re.compile(r"``(.+?)``", re.DOTALL)
 _CODE_SINGLE = re.compile(r"`([^`\n]*)`")
 _BOLD_STAR = re.compile(r"\*\*(.+?)\*\*")
 _BOLD_UNDER = re.compile(r"(?<![A-Za-z0-9_])__(.+?)__(?![A-Za-z0-9_])")
-_ITALIC_STAR = re.compile(r"\*(?!\s)([^*\n]+?)(?<!\s)\*")
+# An italic span must hold at least one letter and must not open right after an
+# alphanumeric character, so arithmetic ("3*4*5", "qty*price*2") is left alone.
+_ITALIC_STAR = re.compile(r"(?<![A-Za-z0-9])\*(?!\s)((?=[^*\n]*[A-Za-z])[^*\n]+?)(?<!\s)\*")
 _ITALIC_UNDER = re.compile(r"(?<![A-Za-z0-9_])_(?!\s)([^_\n]+?)(?<!\s)_(?![A-Za-z0-9_])")
 _STRIKE = re.compile(r"~~(.+?)~~")
 _BLANK_RUN = re.compile(r"\n{3,}")
@@ -147,7 +152,10 @@ def strip_markdown(md: str) -> str:
 
 # --- splitting ---------------------------------------------------------------
 
-WORD_PATTERN = re.compile(r"[A-Za-z0-9'’-]+")
+# A word starts and ends on an alphanumeric (or apostrophe) character; hyphens
+# and apostrophes only join two halves. "fast-paced" is one word, and a lone
+# spaced hyphen is none — it must not inflate the denominator of every rate.
+WORD_PATTERN = re.compile(r"[A-Za-z0-9'’]+(?:[-'’][A-Za-z0-9'’]+)*")
 
 # Never split after these. Sentence-final abbreviations ("...Acme Corp. The
 # board met.") are therefore merged into the following sentence — a deliberate
@@ -410,7 +418,13 @@ MATTR_WINDOW = 500
 
 # --- 1-2: punctuation --------------------------------------------------------
 
-_EM_DASH = re.compile(r"—|–| - ")
+_EM_DASH = re.compile(r"—")
+# A digit on both sides of an en dash is a numeric range ("3–5", "2022 – 2023"),
+# not a dash habit. The lookahead leaves the closing digit unconsumed so runs
+# like "3–5–7" are both caught.
+_EN_DASH_RANGE = re.compile(r"\d\s*–(?=\s*\d)")
+# A spaced hyphen only counts between letters: "pages 3 - 5" is a range.
+_SPACED_HYPHEN = re.compile(r"(?<=[A-Za-z]) - (?=[A-Za-z])")
 _HEADING_LINE = re.compile(r"^#{1,6}\s", re.MULTILINE)
 _BULLET_LINE = re.compile(r"^\s*[-*+]\s")
 _BULLET_LINE_M = re.compile(r"^\s*[-*+]\s", re.MULTILINE)
@@ -424,10 +438,29 @@ _LY_ADVERB = re.compile(r"\b[a-z]{3,}ly\b", re.IGNORECASE)
 _H2_SPLIT = re.compile(r"^## ", re.MULTILINE)
 
 
+def _dash_count(text: str) -> int:
+    """Dashes used as dashes, not as ranges.
+
+    An em dash always counts. An en dash counts unless digits flank it. A spaced
+    hyphen counts only between letters. Letter-flanked route and pairing notation
+    ("the New York - Boston route", "the Smith - Jones bill") still counts: it
+    reads exactly like a parenthetical dash, and separating the two would take a
+    parser. Accepted residual noise.
+    """
+    em = len(_EM_DASH.findall(text))
+    en = text.count("–") - len(_EN_DASH_RANGE.findall(text))
+    hyphen = len(_SPACED_HYPHEN.findall(text))
+    return em + en + hyphen
+
+
 @stat("em_dash_per_1k")
 def em_dash_per_1k(doc: "Doc") -> float:
-    """Em dashes, en dashes, and spaced hyphens per 1k prose words. NaN if empty."""
-    return _per_1k(len(_EM_DASH.findall(doc.plain)), doc.words)
+    """Em dashes, en dashes, and spaced hyphens per 1k prose words.
+
+    Numeric ranges ("pages 3 - 5", "FY 2022 - 2023", "3–5 students") are not
+    dashes and do not count. NaN if empty.
+    """
+    return _per_1k(_dash_count(doc.plain), doc.words)
 
 
 @stat("semicolon_per_1k")

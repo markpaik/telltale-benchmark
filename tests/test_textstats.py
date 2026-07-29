@@ -148,6 +148,42 @@ def test_strip_markdown_does_not_eat_snake_case_or_multiplication() -> None:
     assert plain == "text with snake_case_names and 3 * 4 * 5 arithmetic"
 
 
+@pytest.mark.parametrize(
+    "text",
+    [
+        "3*4*5",  # unspaced arithmetic is not emphasis
+        "qty*price*2",
+        "the formula is n*m*k here",
+        "2*3",
+    ],
+)
+def test_strip_markdown_leaves_unspaced_arithmetic_alone(text: str) -> None:
+    assert ts.strip_markdown(text) == text
+
+
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("*emphasis*", "emphasis"),
+        ("an *emphatic* word", "an emphatic word"),
+        ("(*emphatic*)", "(emphatic)"),
+        ("**bold** and *italic*", "bold and italic"),
+    ],
+)
+def test_strip_markdown_still_removes_real_italics(text: str, expected: str) -> None:
+    assert ts.strip_markdown(text) == expected
+
+
+def test_strip_markdown_handles_urls_containing_parens() -> None:
+    """A Wikipedia-style disambiguation target must not leak into the prose."""
+    text = "See [the article](https://en.wikipedia.org/wiki/Example_(disambiguation)) today."
+    assert ts.strip_markdown(text) == "See the article today."
+
+
+def test_strip_markdown_handles_images_with_parens_in_the_url() -> None:
+    assert ts.strip_markdown("Before ![chart](https://x.org/a_(b).png) after") == "Before  after"
+
+
 # --- split_sentences ---------------------------------------------------------
 
 
@@ -251,6 +287,23 @@ def test_word_count() -> None:
     assert ts.word_count("") == 0
 
 
+@pytest.mark.parametrize(
+    "text,expected",
+    [
+        ("a - b", 2),  # a lone spaced hyphen is punctuation, not a word
+        ("one — two", 2),
+        ("fast-paced", 1),  # a hyphenated compound is one word
+        ("a fast-paced state-by-state rollout", 4),
+        ("-5 degrees", 2),
+        ("well- known", 2),  # a dangling hyphen joins nothing
+        ("2022-2023", 1),
+        ("- - -", 0),
+    ],
+)
+def test_word_count_treats_hyphens_as_joiners_only(text: str, expected: int) -> None:
+    assert ts.word_count(text) == expected
+
+
 # --- stat registry -----------------------------------------------------------
 
 
@@ -280,14 +333,43 @@ def test_compute_runs_a_stat_by_name() -> None:
 
 
 def test_em_dash_per_1k() -> None:
-    # 9 words; 3 dash forms: em dash, en dash, spaced hyphen.
+    # 8 words: Alpha, beta, and, gamma, delta, plus, epsilon, zeta. The lone
+    # spaced hyphen is punctuation, not a word — it used to tokenize as one and
+    # inflate the denominator of every per-1k rate.
+    # 3 dash forms: em dash, letter-flanked en dash, letter-flanked hyphen.
     doc = make("Alpha — beta and gamma – delta plus epsilon - zeta.")
-    assert doc.words == 9
-    assert ts.STATS["em_dash_per_1k"](doc) == pytest.approx(1000.0 * 3 / 9)
+    assert doc.words == 8
+    assert ts.STATS["em_dash_per_1k"](doc) == pytest.approx(1000.0 * 3 / 8)
 
 
 def test_em_dash_ignores_unspaced_hyphens() -> None:
     doc = make("A school-based data-driven plan.")
+    assert ts.STATS["em_dash_per_1k"](doc) == pytest.approx(0.0)
+
+
+@pytest.mark.parametrize(
+    "text,dashes",
+    [
+        ("pages 3 - 5", 0),  # numeric range, not a dash
+        ("FY 2022 - 2023", 0),
+        ("3–5 students", 0),  # digit-flanked en dash
+        ("the range is 3–5–7 across grades", 0),
+        ("the plan — ambitious as it is — hinges on Q3", 2),
+        ("a sharp change - not a small one - in retention", 2),
+        ("the New York - Boston route", 1),  # accepted residual noise
+    ],
+)
+def test_dash_counting_excludes_numeric_ranges(text: str, dashes: int) -> None:
+    doc = make(text)
+    assert ts.STATS["em_dash_per_1k"](doc) == pytest.approx(1000.0 * dashes / doc.words)
+
+
+def test_a_range_heavy_document_scores_zero_dashes() -> None:
+    """The construct-validity case: ranges everywhere, no dash habit at all."""
+    doc = make(
+        "Grades 3 - 5 improved. Cohorts 2020 - 2021 and 2022 - 2023 held. "
+        "See pages 12 - 18 and rows 4–9 for the detail."
+    )
     assert ts.STATS["em_dash_per_1k"](doc) == pytest.approx(0.0)
 
 

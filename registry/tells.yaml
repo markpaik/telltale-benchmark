@@ -2996,7 +2996,9 @@ tells:
     evidence: literature
   status: active
   weight: 1.0
-  notes: -ly adverbs per 1,000 words.
+  notes: '-ly adverbs per 1,000 words. Noise floor includes -ly nouns/adjectives (supply,
+    family, monthly, early); domain-dependent. Cross-model comparison stays valid because
+    all models answer identical prompts.'
 - id: sta.comma-rate
   name: commas per sentence
   category: statistical
