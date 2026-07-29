@@ -535,22 +535,26 @@ def _discover_client(args: argparse.Namespace, cache_only: bool = False) -> Any:
 
 def cmd_discover_sweep(args: argparse.Namespace) -> int:
     from telltale.corpus import load_corpus
+    from telltale.discovery import pipeline
     from telltale.discovery import sweep as sweep_mod
 
     docs = load_corpus(args.corpus)
     if not docs:
         print(f"no documents under {args.corpus}", file=sys.stderr)
         return 1
+    # Into <out>/sweep, the same place `run-all` puts it and the same place
+    # `audit` looks for it, so the three compose without extra flags.
+    out = pipeline.sweep_dir(args.out)
     summary = sweep_mod.run_sweep(
         docs,
-        args.out,
+        out,
         z_min=args.z_min,
         min_count=args.min_count,
         top_k=args.top_k,
     )
     print(
         f"swept {summary['n_docs']} docs across {len(summary['models'])} model(s) -> "
-        f"{args.out}"
+        f"{out}"
     )
     for name, count in sorted(summary["written"].items()):
         print(f"  {name}: {count} rows")
@@ -667,21 +671,36 @@ def _add_discover_parser(subparsers: argparse._SubParsersAction) -> None:
     from telltale.discovery.auditor import LENSES
 
     parser = subparsers.add_parser(
-        "discover", help="M7: propose, verify, and register new candidate tells"
+        "discover",
+        help="M7: propose, verify, and register new candidate tells",
+        description=(
+            "Flags shared by every action (--corpus, --out, --model) belong to "
+            "this group and go BEFORE the action: `discover --corpus X sweep`, "
+            "not `discover sweep --corpus X`."
+        ),
     )
-    parser.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
+    # Declared here and nowhere else. When a subparser re-declares a parent's
+    # option, argparse writes its own default over the parsed value on the way
+    # out — so `discover --corpus X run-all` silently ran against the default
+    # corpus. One declaration per flag is the only version of this that cannot
+    # go quietly wrong.
+    parser.add_argument(
+        "--corpus",
+        type=Path,
+        default=DEFAULT_CORPUS,
+        help="corpus root (default: %(default)s)",
+    )
     parser.add_argument(
         "--out",
         type=Path,
         default=DEFAULT_DISCOVERY,
-        help="discovery working directory (default: %(default)s)",
+        help="discovery working directory; every action reads and writes its own "
+        "subdirectory of this (default: %(default)s)",
     )
     parser.add_argument("--model", default=None, help="judge model id for the lenses")
     actions = parser.add_subparsers(dest="action", required=True)
 
     sweep_cmd = actions.add_parser("sweep", help="the statistical sweep; no model calls")
-    sweep_cmd.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
-    sweep_cmd.add_argument("--out", type=Path, default=DEFAULT_DISCOVERY / "sweep")
     sweep_cmd.add_argument("--z-min", type=float, default=3.09)
     sweep_cmd.add_argument("--min-count", type=int, default=10)
     sweep_cmd.add_argument("--top-k", type=int, default=200)
@@ -690,10 +709,7 @@ def _add_discover_parser(subparsers: argparse._SubParsersAction) -> None:
     audit = actions.add_parser("audit", help="run one lens against one target model")
     audit.add_argument("--lens", required=True, choices=list(LENSES))
     audit.add_argument("--target-model", required=True)
-    audit.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
-    audit.add_argument("--out", type=Path, default=DEFAULT_DISCOVERY)
     audit.add_argument("--sweep", type=Path, default=None, help="sweep output directory")
-    audit.add_argument("--model", default=None, help="judge model id")
     audit.add_argument(
         "--force-judge", action="store_true", help="ignore cached lens answers"
     )
@@ -705,9 +721,6 @@ def _add_discover_parser(subparsers: argparse._SubParsersAction) -> None:
     verify_cmd.add_argument(
         "--candidates", type=Path, default=None, help="candidate jsonl dir"
     )
-    verify_cmd.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
-    verify_cmd.add_argument("--out", type=Path, default=DEFAULT_DISCOVERY)
-    verify_cmd.add_argument("--model", default=None, help="judge model id")
     verify_cmd.add_argument(
         "--no-judge",
         action="store_true",
@@ -723,10 +736,7 @@ def _add_discover_parser(subparsers: argparse._SubParsersAction) -> None:
     run_all_cmd = actions.add_parser(
         "run-all", help="sweep -> lenses -> verify -> append, resumable per stage"
     )
-    run_all_cmd.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
-    run_all_cmd.add_argument("--out", type=Path, default=DEFAULT_DISCOVERY)
     run_all_cmd.add_argument("--models", nargs="*", default=None)
-    run_all_cmd.add_argument("--model", default=None, help="judge model id")
     run_all_cmd.add_argument("--run-id", default=None)
     run_all_cmd.add_argument("--no-judge", action="store_true")
     run_all_cmd.add_argument("--force", action="store_true")

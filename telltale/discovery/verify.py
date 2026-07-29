@@ -37,10 +37,13 @@ it stays a human decision *after* the M6 calibration gate.
 
 from __future__ import annotations
 
+import hashlib
+import json
 import math
 import random
 import re
-import time
+import subprocess
+import sys
 from dataclasses import dataclass, field
 from datetime import date
 from typing import Any, Mapping, Sequence
@@ -60,6 +63,21 @@ from telltale.registry import FLAG_MAP, Registry, Tell
 MAX_TOKEN_SHARE = 0.05
 MAX_MEDIAN_MS = 100.0
 TIMING_DOCS = 20
+
+#: Wall-clock budget for the whole regex probe, and why it is this number rather
+#: than a round one: `MAX_MEDIAN_MS` already says a pattern may take 100ms per
+#: document, and the probe runs `TIMING_DOCS` of them, so 2.0s is exactly the
+#: time the median check would tolerate. A pattern that cannot finish inside it
+#: is failing gate 1 either way — the timeout only makes it fail in bounded
+#: time instead of unbounded. The allowance covers interpreter start (~15ms
+#: measured) with room to spare on a loaded machine.
+REGEX_PROBE_BUDGET_S = TIMING_DOCS * MAX_MEDIAN_MS / 1000.0
+REGEX_PROBE_STARTUP_S = 0.3
+
+#: Matches carried back from the probe. A pattern producing more than this over
+#: twenty documents has already blown the token-share ceiling many times over,
+#: so the excess is counted and discarded rather than serialized.
+MAX_PROBE_SPANS = 50000
 
 #: Gate 2. Either floor is enough — a binary-ish habit that shows up in one
 #: document in twenty, or a steady drip of a tenth of an occurrence per 1k words.
@@ -362,6 +380,95 @@ def gate_executable(
     )
 
 
+#: The probe body, run by a fresh interpreter. Deliberately tiny and importing
+#: nothing from this package: it has to start fast, and everything it could get
+#: wrong is a threshold decision that belongs in the parent where it is testable.
+#: It reports spans and timings; the parent counts tokens and applies the rules.
+_PROBE_SOURCE = """\
+import json, re, sys, time
+payload = json.loads(sys.stdin.read())
+pattern = re.compile(payload["pattern"], payload["flags"])
+limit = payload["max_spans"]
+out = []
+for source in payload["sources"]:
+    start = time.perf_counter()
+    spans = []
+    dropped = 0
+    for match in pattern.finditer(source):
+        if len(spans) < limit:
+            spans.append([match.start(), match.end()])
+        else:
+            dropped += 1
+    out.append({
+        "ms": (time.perf_counter() - start) * 1000.0,
+        "spans": spans,
+        "dropped": dropped,
+    })
+sys.stdout.write(json.dumps({"docs": out}))
+"""
+
+
+class ProbeTimeout(RuntimeError):
+    """The regex probe did not finish inside its budget."""
+
+
+def probe_regex(
+    pattern_text: str,
+    flags: int,
+    sources: Sequence[str],
+    budget_s: float = REGEX_PROBE_BUDGET_S,
+    max_spans: int = MAX_PROBE_SPANS,
+) -> list[dict[str, Any]]:
+    """Run one pattern over `sources` in a child process, under a hard deadline.
+
+    A separate PROCESS rather than a separate thread, and that is not a style
+    preference. CPython's `re` engine holds the GIL for the whole of a match, so
+    a catastrophically backtracking pattern — `(a+)+b` against a run of forty
+    unbroken `a`s, which an LLM will happily propose after seeing a dashed rule
+    or a repeated placeholder — freezes every thread in the interpreter. A
+    `Thread.join(timeout=...)` in the parent never gets scheduled to return.
+    Measured here: that call does not come back at all.
+
+    A child process has no such problem. `subprocess.run` sends SIGKILL after
+    the deadline, so nothing is left running and nothing has to be documented as
+    "dies with the process later" — the cost is one interpreter start, measured
+    at ~15ms against a budget of seconds.
+
+    Raises `ProbeTimeout` when the deadline passes, which the caller turns into
+    a rejection rather than a crash.
+    """
+    payload = json.dumps(
+        {
+            "pattern": pattern_text,
+            "flags": int(flags),
+            "sources": list(sources),
+            "max_spans": int(max_spans),
+        }
+    )
+    try:
+        result = subprocess.run(
+            [sys.executable, "-c", _PROBE_SOURCE],
+            input=payload,
+            capture_output=True,
+            text=True,
+            timeout=budget_s + REGEX_PROBE_STARTUP_S,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise ProbeTimeout(
+            f"the pattern did not finish {len(sources)} document(s) in "
+            f"{budget_s:.1f}s"
+        ) from exc
+    if result.returncode != 0:
+        raise ProbeTimeout(
+            f"the regex probe exited {result.returncode}: {result.stderr.strip()[:200]}"
+        )
+    try:
+        data = json.loads(result.stdout)
+    except json.JSONDecodeError as exc:  # pragma: no cover - defensive
+        raise ProbeTimeout(f"the regex probe returned no usable result: {exc}") from None
+    return list(data.get("docs") or [])
+
+
 def _gate_regex(candidate: Mapping[str, Any], docs: Sequence[Doc]) -> GateResult:
     rule = candidate.get("rule") or {}
     pattern_text = str(rule.get("pattern") or "")
@@ -373,7 +480,7 @@ def _gate_regex(candidate: Mapping[str, Any], docs: Sequence[Doc]) -> GateResult
                 1, "executability", False, f"unknown regex flag {str(name)!r}"
             )
     try:
-        pattern = compile_rule(candidate)
+        compiled = compile_rule(candidate)
     except (re.error, TypeError) as exc:
         return GateResult(1, "executability", False, f"pattern does not compile: {exc}")
 
@@ -384,19 +491,36 @@ def _gate_regex(candidate: Mapping[str, Any], docs: Sequence[Doc]) -> GateResult
             1, "executability", True, "compiles; no documents to time it against"
         )
 
+    sources = [source_for(category, doc) for doc in sample]
+    try:
+        probed = probe_regex(pattern_text, compiled.flags, sources)
+    except ProbeTimeout as exc:
+        return GateResult(
+            1,
+            "executability",
+            False,
+            f"pathological-regex (timed out): {exc}. A pattern that can backtrack "
+            "this far is not a measurement instrument, whatever it matches",
+            {
+                "timed_out": True,
+                "budget_s": REGEX_PROBE_BUDGET_S,
+                "docs_timed": len(sample),
+            },
+        )
+
     timings: list[float] = []
     matched_tokens = 0
     total_tokens = 0
-    for doc in sample:
-        source = source_for(category, doc)
-        start = time.perf_counter()
-        hits = list(pattern.finditer(source))
-        timings.append((time.perf_counter() - start) * 1000.0)
-        for hit in hits:
-            matched_tokens += len(
-                textstats.WORD_PATTERN.findall(source[hit.start() : hit.end()])
-            )
+    dropped = 0
+    for source, entry in zip(sources, probed):
+        timings.append(float(entry.get("ms") or 0.0))
+        dropped += int(entry.get("dropped") or 0)
+        for start, end in entry.get("spans") or []:
+            matched_tokens += len(textstats.WORD_PATTERN.findall(source[start:end]))
         total_tokens += len(textstats.WORD_PATTERN.findall(source))
+
+    if not timings:  # pragma: no cover - defensive
+        return GateResult(1, "executability", False, "the regex probe reported nothing")
 
     timings.sort()
     median_ms = timings[len(timings) // 2]
@@ -408,6 +532,8 @@ def _gate_regex(candidate: Mapping[str, Any], docs: Sequence[Doc]) -> GateResult
         "matched_tokens": matched_tokens,
         "total_tokens": total_tokens,
     }
+    if dropped:
+        data["spans_dropped"] = dropped
     if median_ms >= MAX_MEDIAN_MS:
         return GateResult(
             1,
@@ -1192,6 +1318,36 @@ def to_tell(
     )
 
 
+def rule_fingerprint(
+    method: str, pattern: str = "", stat: str = "", rubric: str = ""
+) -> str:
+    """A normalized identity for one detection rule, for the idempotence check.
+
+    Method-specific because the three methods have nothing comparable in common:
+    a regex folds to its normalized pattern, a statistic *is* its function name,
+    and a rubric folds to a hash of its whitespace-normalized text.
+    """
+    if method == "regex":
+        return "regex:" + dedup_mod.normalize_pattern(pattern)
+    if method == "statistic":
+        return "statistic:" + str(stat or "").strip()
+    normalized = " ".join(str(rubric or "").split())
+    return "judge:" + hashlib.sha256(normalized.encode("utf-8")).hexdigest()[:32]
+
+
+def tell_fingerprint(tell: Tell) -> str:
+    return rule_fingerprint(
+        tell.method,
+        pattern=tell.pattern or "",
+        stat=tell.stat or "",
+        rubric=tell.rubric or "",
+    )
+
+
+def _warn(message: str) -> None:
+    print(f"telltale.discovery: {message}", file=sys.stderr)
+
+
 def append_accepted(
     verdicts: Sequence[Verdict],
     registry: Registry,
@@ -1204,13 +1360,35 @@ def append_accepted(
     has destroyed the thing it was extending, and `Registry.append` writes the
     file before anybody looks at it. So the tells are built, checked against a
     throwaway validation pass, and only then committed.
+
+    Idempotent on content, not just on the marker file. `pipeline`'s
+    `appended.json` is the fast path, but it is a file on disk and files get
+    lost, copied, or bypassed by someone calling this directly — and because
+    `make_tell_id` politely disambiguates a taken id, a second append would land
+    the same finding again as `phr.bears-emphasis-2` rather than failing. That is
+    the worst kind of duplicate: it inflates the category denominator, and it
+    looks like a discovery. So a candidate whose (run_id, rule) pair is already
+    in the registry is skipped and said aloud.
     """
+    seen = {
+        (str((t.provenance or {}).get("run_id") or ""), tell_fingerprint(t))
+        for t in registry
+        if isinstance(t.provenance, dict)
+    }
     taken = {t.id for t in registry}
     tells: list[Tell] = []
     for verdict in verdicts:
         if not verdict.accepted:
             continue
         tell = to_tell(verdict, run_id, taken=taken, docs=docs)
+        key = (run_id, tell_fingerprint(tell))
+        if key in seen:
+            _warn(
+                f"skipping {tell.name!r}: run {run_id} already contributed this exact "
+                f"rule to the registry"
+            )
+            continue
+        seen.add(key)
         taken.add(tell.id)
         tells.append(tell)
     if not tells:
@@ -1244,6 +1422,7 @@ __all__ = [
     "MAX_TOKEN_SHARE",
     "MIN_DOC_FREQ",
     "MIN_MEAN_RATE",
+    "MAX_PROBE_SPANS",
     "PRECISION_MIN",
     "PRECISION_SAMPLE",
     "PRECISION_SEED",
@@ -1252,9 +1431,13 @@ __all__ = [
     "STATUS_ACCEPTED",
     "STATUS_NEEDS_STAT",
     "STATUS_REJECTED",
+    "REGEX_PROBE_BUDGET_S",
+    "REGEX_PROBE_STARTUP_S",
     "GateResult",
     "Measurement",
+    "ProbeTimeout",
     "Verdict",
+    "probe_regex",
     "adhoc_rubric",
     "append_accepted",
     "compile_rule",
@@ -1266,7 +1449,9 @@ __all__ = [
     "make_tell_id",
     "measure",
     "registry_counts",
+    "rule_fingerprint",
     "slugify",
+    "tell_fingerprint",
     "source_for",
     "to_tell",
     "two_proportion_z",

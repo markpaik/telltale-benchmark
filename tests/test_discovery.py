@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import math
 import shutil
+import time
 from pathlib import Path
 from typing import Any
 
@@ -595,6 +596,59 @@ def test_a_degenerate_pattern_fails_the_token_share_ceiling(corpus: list[Doc]) -
     assert gate.data["matched_token_share"] >= verify.MAX_TOKEN_SHARE
 
 
+def test_a_catastrophically_backtracking_pattern_is_rejected_in_bounded_time() -> None:
+    """`(a+)+b` against an unbroken run of 60 `a`s: exponential, and it must not hang.
+
+    The run of `a`s is not contrived — a dashed rule, a repeated placeholder, or
+    an ASCII table border all produce long unbroken character runs in real LLM
+    output, and the lens proposes patterns without knowing that.
+    """
+    docs = [
+        Doc.from_text(
+            f"m/memo-{i:02d}",
+            "m",
+            "memo",
+            "prefix " + "a" * 60 + " suffix. " + "Filler words here. " * 20,
+        )
+        for i in range(20)
+    ]
+    candidate = {
+        **GOOD_CANDIDATE,
+        "name": "pathological",
+        "rule": {"pattern": r"(a+)+b", "flags": []},
+    }
+    started = time.monotonic()
+    gate, hint = verify.gate_executable(candidate, docs)
+    elapsed = time.monotonic() - started
+
+    assert gate.passed is False
+    assert hint == ""
+    assert "pathological-regex (timed out)" in gate.detail
+    assert gate.data["timed_out"] is True
+    assert elapsed < 2 * (verify.REGEX_PROBE_BUDGET_S + verify.REGEX_PROBE_STARTUP_S)
+
+
+def test_the_probe_kills_the_child_rather_than_abandoning_it() -> None:
+    """A thread could not be interrupted here at all — `re` holds the GIL."""
+    with pytest.raises(verify.ProbeTimeout, match="did not finish"):
+        verify.probe_regex(r"(a+)+b", 0, ["a" * 60], budget_s=0.5)
+
+
+def test_the_probe_reports_spans_and_timings_for_a_sane_pattern() -> None:
+    probed = verify.probe_regex(r"\bdelve\b", 0, ["we delve here", "no match at all"])
+    assert len(probed) == 2
+    assert probed[0]["spans"] == [[3, 8]]
+    assert probed[1]["spans"] == []
+    assert all(entry["ms"] >= 0.0 for entry in probed)
+
+
+def test_the_probe_budget_is_the_median_ceiling_times_the_sample() -> None:
+    """Not a round number picked by hand: the two thresholds have to agree."""
+    assert verify.REGEX_PROBE_BUDGET_S == pytest.approx(
+        verify.TIMING_DOCS * verify.MAX_MEDIAN_MS / 1000.0
+    )
+
+
 def test_a_pattern_that_does_not_compile_fails_gate_one(corpus: list[Doc]) -> None:
     candidate = {**GOOD_CANDIDATE, "rule": {"pattern": "(unclosed", "flags": []}}
     gate, _ = verify.gate_executable(candidate, corpus)
@@ -1023,6 +1077,54 @@ def test_a_candidate_is_ignored_by_default_scoring_and_seen_with_the_flag(
     assert set(rows["scope"]) == {"model:model-a"}
 
 
+def test_appending_the_same_verdicts_twice_adds_one_tell(
+    corpus: list[Doc], registry: Registry, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """The marker file is the fast path; content identity is the real guard."""
+    verdicts = verify.verify_all(
+        [GOOD_CANDIDATE], corpus, registry, FakeClient(always_true_adjudicator)
+    )
+    first = verify.append_accepted(verdicts, registry, "discover-twice", docs=corpus)
+    second = verify.append_accepted(verdicts, registry, "discover-twice", docs=corpus)
+
+    assert len(first) == 1
+    assert second == []
+    assert "already contributed this exact rule" in capsys.readouterr().err
+
+    reloaded = Registry(registry.path)
+    added = [t for t in reloaded if (t.provenance or {}).get("run_id") == "discover-twice"]
+    assert len(added) == 1
+    assert not any(t.id.endswith("-2") for t in reloaded)
+
+
+def test_a_different_run_may_re_find_the_same_rule(
+    corpus: list[Doc], registry: Registry
+) -> None:
+    """Idempotence is per run, not global: a later run re-finding it is a finding."""
+    verdicts = verify.verify_all(
+        [GOOD_CANDIDATE], corpus, registry, FakeClient(always_true_adjudicator)
+    )
+    verify.append_accepted(verdicts, registry, "discover-one", docs=corpus)
+    again = verify.append_accepted(verdicts, registry, "discover-two", docs=corpus)
+    assert len(again) == 1
+    assert again[0].id == "phr.bears-emphasis-2"
+
+
+def test_the_rule_fingerprint_folds_notation_but_not_meaning() -> None:
+    assert verify.rule_fingerprint("regex", pattern=r"(?:a|b)") == verify.rule_fingerprint(
+        "regex", pattern=r"(a|b)"
+    )
+    assert verify.rule_fingerprint("regex", pattern=r"\ba\b") != verify.rule_fingerprint(
+        "regex", pattern=r"\bb\b"
+    )
+    assert verify.rule_fingerprint("statistic", stat="mattr_500") != verify.rule_fingerprint(
+        "statistic", stat="ly_adverbs_per_1k"
+    )
+    assert verify.rule_fingerprint("judge", rubric="(a) one\n(b) two") == (
+        verify.rule_fingerprint("judge", rubric="(a) one   (b) two")
+    )
+
+
 def test_an_id_collision_is_disambiguated_rather_than_overwriting() -> None:
     taken = {"phr.bears-emphasis"}
     assert verify.make_tell_id("bears emphasis", "lexical", taken) == "phr.bears-emphasis-2"
@@ -1249,19 +1351,54 @@ def test_run_all_without_a_judge_client_skips_the_lenses(
 # --- the CLI surface ---------------------------------------------------------
 
 
+DISCOVER_ACTIONS = (
+    ("sweep", []),
+    ("audit", ["--lens", "lexical", "--target-model", "model-a"]),
+    ("verify", []),
+    ("run-all", []),
+)
+
+
 def test_the_discover_group_exposes_all_four_subcommands() -> None:
     from telltale.cli import build_parser
 
     parser = build_parser()
-    for action, extra in (
-        ("sweep", []),
-        ("audit", ["--lens", "lexical", "--target-model", "model-a"]),
-        ("verify", []),
-        ("run-all", []),
-    ):
+    for action, extra in DISCOVER_ACTIONS:
         args = parser.parse_args(["discover", action, *extra])
         assert callable(args.func)
         assert args.action == action
+
+
+@pytest.mark.parametrize("action,extra", DISCOVER_ACTIONS)
+def test_the_shared_flags_reach_every_action(action: str, extra: list[str]) -> None:
+    """A subparser re-declaring a parent flag overwrites it with its own default."""
+    from telltale.cli import build_parser
+
+    args = build_parser().parse_args(
+        [
+            "discover",
+            "--corpus", "/tmp/x",
+            "--out", "/tmp/y",
+            "--model", "claude-opus-4-6",
+            action,
+            *extra,
+        ]
+    )
+    assert args.corpus == Path("/tmp/x")
+    assert args.out == Path("/tmp/y")
+    assert args.model == "claude-opus-4-6"
+
+
+@pytest.mark.parametrize("flag", ["--corpus", "--out", "--model"])
+def test_each_shared_flag_is_declared_exactly_once(flag: str) -> None:
+    """Two declarations is how the value got silently dropped in the first place."""
+    from telltale.cli import build_parser
+
+    discover = build_parser()._subparsers._group_actions[0].choices["discover"]
+    declarations = sum(flag in (a.option_strings or []) for a in discover._actions)
+    for sub in discover._subparsers._group_actions[0].choices.values():
+        declarations += sum(flag in (a.option_strings or []) for a in sub._actions)
+    assert declarations == 1
 
 
 def test_the_audit_subcommand_refuses_an_unknown_lens() -> None:
