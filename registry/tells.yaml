@@ -2020,7 +2020,7 @@ tells:
   detection:
     method: regex
     unit: count
-    pattern: ^\s*[-*+]\s+\*\*[^*\n]{2,60}\*\*[:.]?\s
+    pattern: ^[ \t]*[-*+]\s+\*\*[^*\n]{2,60}\*\*[:.]?\s
     flags:
     - MULTILINE
   examples:
@@ -2044,7 +2044,7 @@ tells:
   detection:
     method: regex
     unit: count
-    pattern: ^\s*\d+\.\s+\*\*[^*\n]{2,60}\*\*
+    pattern: ^[ \t]*\d+\.\s+\*\*[^*\n]{2,60}\*\*
     flags:
     - MULTILINE
   examples:

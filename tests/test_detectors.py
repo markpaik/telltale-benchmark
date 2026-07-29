@@ -218,6 +218,58 @@ def test_quote_collapses_whitespace_to_one_line() -> None:
     assert detection.matches[0]["quote"] == "before widget after"
 
 
+# A list almost always follows a blank line, so this is the shape of nearly
+# every real bullet-lead-in match rather than an edge case.
+BLANK_LINE_BEFORE_LIST = """# Report
+
+Some paragraph text here.
+
+- **Alpha**: one
+- **Beta**: two
+
+1. **First**: a
+2. **Second**: b
+"""
+
+
+@pytest.mark.parametrize(
+    ("tell_id", "expected_lines"),
+    [("pnc.bold-lead-in-bullet", [5, 6]), ("pnc.numbered-bold-lead", [8, 9])],
+)
+def test_a_blank_line_before_a_list_does_not_shift_the_line_number(
+    tell_id: str, expected_lines: list[int]
+) -> None:
+    """A leading `\\s*` under MULTILINE anchors on the blank line above the list.
+
+    `\\s` matches a newline, so `^\\s*[-*+]` could start at the blank line, eat the
+    newline, and still match the bullet — putting the quote's line number one
+    line high and pointing a reviewer at an empty line. The character class has
+    to be horizontal whitespace only.
+    """
+    detection = build(REGISTRY.get(tell_id)).detect(make(BLANK_LINE_BEFORE_LIST))
+    assert [m["line"] for m in detection.matches] == expected_lines
+
+    source_lines = BLANK_LINE_BEFORE_LIST.split("\n")
+    for match, line in zip(detection.matches, expected_lines):
+        assert source_lines[line - 1].lstrip().startswith(("-", "1.", "2."))
+        assert "**" in source_lines[line - 1]
+
+
+def test_the_blank_line_fix_did_not_change_what_counts() -> None:
+    """Indented and tab-indented continuation items still match."""
+    doc = make("Intro.\n\n- **Top**: one\n    - **Nested**: two\n\t- **Tabbed**: three\n")
+    detection = build(REGISTRY.get("pnc.bold-lead-in-bullet")).detect(doc)
+    assert detection.raw == 3.0
+    assert [m["line"] for m in detection.matches] == [3, 4, 5]
+
+
+def test_a_list_at_the_very_top_of_a_document_still_matches() -> None:
+    doc = make("- **Alpha**: one\n- **Beta**: two\n")
+    detection = build(REGISTRY.get("pnc.bold-lead-in-bullet")).detect(doc)
+    assert detection.raw == 2.0
+    assert [m["line"] for m in detection.matches] == [1, 2]
+
+
 def test_line_numbers_count_in_the_source_actually_searched() -> None:
     """A structural tell's line number points into the raw file, not the prose.
 
