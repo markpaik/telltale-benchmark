@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from telltale.registry import Registry, Tell, is_valid_scope
+from telltale.registry import Registry, Tell, is_valid_scope, known_stats
 
 REGISTRY_PATH = Path(__file__).resolve().parent.parent / "registry" / "tells.yaml"
 
@@ -386,3 +386,62 @@ def test_broken_registry_reports_error(broken_errors: list[str], needle: str) ->
 
 def test_valid_registry_reports_no_errors_for_broken_only(broken_errors: list[str]) -> None:
     assert broken_errors  # sanity: the broken fixture really is broken
+
+
+# --- statistic tells resolve to real stat functions --------------------------
+
+
+def _stat_registry(tmp_path: Path, stat_name: str) -> Registry:
+    """A minimal one-tell registry whose statistic tell names the given stat."""
+    doc = {
+        "registry_version": 1,
+        "schema_version": 1,
+        "updated": "2026-07-28",
+        "tells": [
+            {
+                "id": "sta.statcheck",
+                "name": "stat check",
+                "category": "statistical",
+                "scope": "general",
+                "formats": None,
+                "detection": {
+                    "method": "statistic",
+                    "unit": "value",
+                    "stat": stat_name,
+                    "direction": "high_is_telling",
+                    "ramp": [1.0, 2.0],
+                },
+                "examples": ["Illustration."],
+                "counter_examples": [],
+                "provenance": {"source": "seed", "run_id": None, "evidence": "literature"},
+                "status": "active",
+                "weight": 1.0,
+                "notes": None,
+            }
+        ],
+    }
+    path = tmp_path / "stat.yaml"
+    path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+    return Registry(path)
+
+
+def test_validate_rejects_an_unknown_stat_function(tmp_path: Path) -> None:
+    errors = _stat_registry(tmp_path, "no_such_stat").validate()
+    assert "sta.statcheck: unknown stat function 'no_such_stat'" in errors
+
+
+def test_validate_accepts_a_registered_stat_function(tmp_path: Path) -> None:
+    assert _stat_registry(tmp_path, "mattr_500").validate() == []
+
+
+def test_known_stats_matches_the_textstats_registry() -> None:
+    from telltale.textstats import STATS
+
+    assert known_stats() == set(STATS)
+    assert len(known_stats()) == 18
+
+
+def test_every_statistic_tell_in_the_real_registry_resolves(registry: Registry) -> None:
+    named = {t.stat for t in registry if t.method == "statistic"}
+    assert named
+    assert named <= known_stats()

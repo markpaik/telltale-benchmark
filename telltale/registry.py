@@ -52,6 +52,21 @@ def is_valid_scope(scope: str) -> bool:
     return scope in SCOPES or bool(MODEL_SCOPE_PATTERN.match(scope))
 
 
+def known_stats() -> set[str]:
+    """Names in the textstats registry, imported lazily.
+
+    Kept out of module scope on purpose: the registry has to load and validate
+    its own schema without dragging in the measurement engine. If textstats
+    cannot be imported at all, statistic tells simply go unchecked rather than
+    taking the whole validation down.
+    """
+    try:
+        from telltale.textstats import STATS
+    except ImportError:  # pragma: no cover - only if the package is broken
+        return set()
+    return set(STATS)
+
+
 class _Dumper(yaml.SafeDumper):
     """SafeDumper that writes multi-line strings as block scalars and no anchors."""
 
@@ -241,6 +256,7 @@ class Registry:
         """Return one error string per violation. An empty list means the file is valid."""
         errors: list[str] = []
         seen: set[str] = set()
+        stats = known_stats()
 
         for tell in self._tells:
             tid = tell.id or "<missing id>"
@@ -273,7 +289,7 @@ class Registry:
             if tell.unit not in UNITS:
                 errors.append(f"{tid}: invalid unit {tell.unit!r}")
 
-            errors.extend(self._validate_detection(tell, tid))
+            errors.extend(self._validate_detection(tell, tid, stats))
 
             if tell.unit == "value":
                 if tell.direction is None:
@@ -289,7 +305,7 @@ class Registry:
 
         return errors
 
-    def _validate_detection(self, tell: Tell, tid: str) -> list[str]:
+    def _validate_detection(self, tell: Tell, tid: str, stats: set[str]) -> list[str]:
         errors: list[str] = []
 
         if tell.method == "regex":
@@ -315,6 +331,8 @@ class Registry:
         elif tell.method == "statistic":
             if not isinstance(tell.stat, str) or not tell.stat.strip():
                 errors.append(f"{tid}: statistic tell requires a stat name")
+            elif stats and tell.stat not in stats:
+                errors.append(f"{tid}: unknown stat function {tell.stat!r}")
 
         elif tell.method == "judge":
             if not isinstance(tell.rubric, str) or not tell.rubric.strip():
