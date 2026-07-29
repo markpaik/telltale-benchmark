@@ -1,0 +1,234 @@
+format: sop
+bundle: false
+target_words: 5000
+min_words: 4500
+output_convention: |
+  One standard operating procedure: a document control block (number, version, effective
+  date, owner, approver, review cycle), then purpose, scope, definitions, responsibilities, the
+  numbered procedural steps, then records, references, related documents, and a revision history.
+  Steps are specific enough that someone new could follow them without asking a question.
+prompts:
+  - id: sop-01
+    domain: municipal-government
+    scenario: |
+      The City of Harlow Springs, Oregon, serves 28,400 residents through 9,800 water service
+      connections drawing on two groundwater wells and a surface intake. In January the Oregon Health
+      Authority's sanitary survey found that 11 of the 30 lead and copper tap samples collected in
+      the 2025 monitoring period came from sites that did not meet the highest tier criteria, two
+      chain-of-custody forms were missing entirely, and the service line material inventory still
+      carries 1,240 of 9,800 lines as unknown. OHA issued a compliance advisory requiring a written
+      sampling and inventory procedure in place by September 1 and a reduction of unknowns below 400
+      by the following June.
+
+      The Water Division needs the procedure written and approved. Elena Mirzoyan, water quality
+      supervisor, owns it; Public Works Director Omar Haddad approves it. Utility operators collect
+      and log samples, the meter services crew performs pothole and hydrant-vac excavations for
+      material verification, records coordinator Sylvia Koval maintains the inventory and the
+      chain-of-custody file, and Rogue Basin Analytical Labs in Medford runs the analyses. Work orders
+      run through Cityworks, results come back through the lab's system, and reporting goes to the
+      state through Drinking Water Data Online. The city distributes 30 sample kits with resident
+      instructions, collects between June 1 and September 30, calculates a 90th percentile against
+      the 0.010 milligram per liter action level, and must notify the public within 24 hours of an
+      exceedance.
+
+      The procedure has to cover site tier classification and pool maintenance, kit distribution and
+      resident instruction, the collection window and first-draw conditions, chain of custody and lab
+      submission, result review and reporting, sample invalidation and substitution when a site
+      refuses or a house is vacant, material verification methods and how unknowns are retired, and
+      the exceedance response including public education and service line replacement triggers.
+  - id: sop-02
+    domain: retail
+    scenario: |
+      Cedar Line Markets runs 34 grocery stores across eastern Washington and northern Idaho with
+      2,900 employees and a single distribution center in Airway Heights, plus a commissary that
+      produces store-made deli items. In February a supplier recall on a ready-to-eat chicken salad
+      for Listeria monocytogenes exposed how badly the current process works: 11 of the 34 stores
+      still had product on the shelf 31 hours after the notice arrived, a Washington State Department
+      of Agriculture inspector documented it, and the following mock recall reached only 71 percent
+      of affected units against a target of 100 percent within four hours. The chain also sells
+      direct-store-delivery product from 46 vendors whose inventory never touches the DC.
+
+      Priscilla Ndiaye, director of food safety and quality assurance, owns the rewritten procedure;
+      Grady Sturdivant, senior vice president of retail operations, approves it. Execution runs
+      through the recall coordinator, category managers, 34 store directors, receiving leads, DC
+      inventory control, customer care, and marketing. The tools involved are the supplier
+      notification platform, the item file that pushes a register block to every lane, the warehouse
+      management system at the DC, lot-level receiving records, and a loyalty database covering 1.2
+      million cardholders that supports direct customer notice.
+
+      The procedure must cover how a notice is received and classified, who is notified within what
+      clock, the register block and shelf pull at store level, DC quarantine and reconciliation of
+      quantities received against quantities recovered, customer notification, effectiveness checks
+      at 24 and 72 hours, product disposition and credit, reporting to state and federal regulators,
+      record retention, and the exceptions for after-hours notices, direct-store-delivery vendors,
+      commissary items with no supplier lot code, and voluntary market withdrawals.
+  - id: sop-03
+    domain: logistics
+    scenario: |
+      Chugach Air Cargo Services flies scheduled and charter freight from Anchorage to 16 rural
+      Alaska communities including Bethel, Nome, Kotzebue, and Dillingham, with 240 employees and
+      nine aircraft. In 2025 the FAA assessed a $178,000 civil penalty after an undeclared
+      lithium-ion battery pack vented in the Anchorage warehouse, and a follow-up internal audit
+      found errors on 14 of 50 shipper's declarations sampled, three acceptance checklists signed by
+      agents whose recurrent dangerous goods training had lapsed past the 24-month interval, and no
+      written procedure covering hidden or undeclared goods discovered at the counter.
+
+      Yelena Sorokin, dangerous goods compliance manager, owns the procedure; Cheryl Aningayou, vice
+      president of operations, approves it. Acceptance agents at the Anchorage counter and at eight
+      village stations do the first check, dangerous goods checkers do the second, load planners
+      apply segregation and quantity limits, ramp handlers load, and a duty officer is reachable at
+      all hours. Shipments move through the Hermes cargo management system, acceptance runs on
+      checklist form DG-201, and the notification to captain is generated before departure. The
+      governing requirements are 49 CFR Parts 171 through 180 and the IATA Dangerous Goods
+      Regulations. Common commodities include Section II lithium batteries, dry ice with seafood at
+      up to 200 kilograms a flight, ammunition, aviation fuel in drums, and diagnostic specimens.
+
+      The procedure must cover shipper qualification and pre-alert, document verification, package
+      marking and labeling inspection, quantity and segregation limits by aircraft type, acceptance
+      or rejection and how a rejection is documented, load planning and the notification to captain,
+      discrepancy and incident reporting to the FAA within the required time, training and
+      qualification records, and the exception paths for village stations without a certified scale,
+      medevac charters, damaged packages found on the ramp, and undeclared goods discovered in a
+      package already accepted.
+  - id: sop-04
+    domain: software
+    scenario: |
+      Larkspur Health Interfaces in Boise, Idaho, has 320 employees and moves 41 million clinical
+      messages a day between 62 hospital customers and their downstream systems. The SOC 2 Type II
+      report for the period ending December 31, 2025 carried an exception under the change management
+      criterion: 9 of 34 emergency changes had no retrospective approval recorded, and four had no
+      ticket at all. In March an engineer used a shared break-glass credential to query a customer
+      database directly and the session was not recorded, exposing 1,900 patient records to
+      unreviewed access and triggering a breach risk assessment. Sagebrush Health Network, a
+      14-hospital customer, has demanded documented controls within 30 days and threatens to invoke
+      an audit clause.
+
+      Nadia Oyelaran, director of platform engineering, owns the procedure; Ana Lucia Ferreiro, chief
+      information security officer, approves it. The roles that execute it are the incident commander,
+      the on-call site reliability engineer, a designated change approver, a peer reviewer, a security
+      analyst, and the customer success lead who handles notification. The systems are GitHub
+      Enterprise, Jira Service Management for change tickets, PagerDuty for paging and escalation,
+      Terraform Cloud for infrastructure changes, Okta for identity, a vault that issues just-in-time
+      production credentials with a four-hour lifetime, and a logging platform that retains audit
+      trails for 18 months.
+
+      The procedure must cover severity declaration, who authorizes an emergency change and within
+      what window, how just-in-time production access is requested, granted, recorded, and revoked,
+      the two-person rule for deployment, retrospective approval and evidence attachment, the
+      post-incident review, quarterly access recertification, customer notification when a change
+      touches protected health information, and the exception paths for an unreachable approver at
+      three in the morning, a customer-mandated freeze window, and a rollback that itself fails.
+  - id: sop-05
+    domain: k12-education
+    scenario: |
+      Northline Public Schools serves 11,400 students in 19 schools in Vancouver, Washington, with
+      1,610 students on individualized education programs. In April a state citizen complaint
+      decision found that 38 of 112 initial special education evaluations completed during the school
+      year exceeded the 35 school day timeline, with an average of 71 school days, that two middle
+      schools kept no referral log at all, and that prior written notice was missing in 22 files. The
+      corrective action order requires a written procedure approved by August 15, monthly timeline
+      reporting for twelve months, and compensatory services determinations for the affected
+      students. The district also lost 4 of its 11 school psychologists to retirement and relocation
+      in June.
+
+      Yvonne Castellanos, director of special education, owns the procedure; Deputy Superintendent
+      Dr. Malia Fonoti approves it. Building administrators receive referrals, school psychologists
+      and speech-language pathologists conduct assessments, general education teachers supply
+      intervention data, registrars date-stamp and route documents, and a records clerk maintains the
+      timeline dashboard. Referrals arrive on form SE-100 through the front office, an online
+      counseling request, or a parent letter. Student data lives in Skyward and evaluation documents
+      in the district's IEP system. Families speak 33 home languages and 9 percent of referrals need
+      interpretation.
+
+      The procedure must cover how a referral is received and dated regardless of its form, the 25
+      school day decision whether to evaluate, consent and prior written notice, evaluation planning
+      and assignment of assessors, the 35 school day evaluation window and how it is tracked, the
+      eligibility meeting and the 30 calendar day IEP that follows, and the exception paths for
+      students who transfer mid-evaluation, parents who do not produce the student or revoke consent,
+      agreed written extensions, referrals that arrive in June, private school and out-of-district
+      referrals, and a suspected disability raised during a disciplinary proceeding.
+  - id: sop-06
+    domain: healthcare
+    scenario: |
+      Klamath Valley Regional Medical Center is a 186-bed hospital in Klamath Falls, Oregon, whose
+      gastroenterology lab performs 4,900 procedures a year with 22 flexible endoscopes. Over eleven
+      weeks last spring three patients grew the same strain of Pseudomonas aeruginosa after
+      procedures, and a borescope inspection of the full inventory found channel defects, retained
+      debris, or damaged distal ends in 6 of the 22 scopes. A Joint Commission survey in May issued
+      requirements for improvement on high-level disinfection, the state health authority followed
+      with a request for a plan of correction within 45 days, and two of the eight reprocessing
+      technicians resigned in the same month.
+
+      Ifeoma Adeyemi, manager of sterile processing and endoscope reprocessing, owns the procedure;
+      Dr. Nadine Escobar, vice president of quality and patient safety, approves it. Reprocessing
+      technicians, procedure room nurses, transport staff, the infection preventionist, biomedical
+      engineering, and the department educator all have parts in it. The equipment includes automated
+      endoscope reprocessors, gastroscopes and colonoscopes with manufacturer instructions specifying
+      brush sizes and soak times, a scope tracking system with barcode scans at every step, drying
+      cabinets, borescopes, and adenosine triphosphate and protein residue test kits. The governing
+      references are the manufacturer instructions for use, the AAMI standard for flexible endoscope
+      processing, and the hospital's infection control plan.
+
+      The procedure must cover bedside precleaning, transport, leak testing, manual cleaning,
+      cleaning verification testing and its sampling frequency, the automated cycle, drying and
+      storage hang time, documentation that ties every scope to a patient and a technician, quarterly
+      water testing, initial and annual competency, and the exception paths for a failed leak test, a
+      failed residue test, delayed reprocessing, loaner scopes, an after-hours emergency case, and a
+      scope implicated in an infection investigation.
+  - id: sop-07
+    domain: manufacturing
+    scenario: |
+      Teton Fabrication Works runs a 90,000 square foot metal fabrication plant in Idaho Falls,
+      Idaho, with 310 employees on two shifts, producing weldments and enclosures on press brakes,
+      fiber lasers, robotic weld cells, and a powder coat line. In March an operator lost part of two
+      fingers during a die change on a 200-ton press brake when a second worker restored power at the
+      disconnect, believing the job was finished. OSHA issued three citations including a repeat item
+      under the energy control standard with $94,500 in proposed penalties, and the informal
+      settlement requires machine-specific written energy control procedures for all 148 pieces of
+      equipment plus documented annual inspections. An internal audit found 61 of the 148 procedures
+      missing or outdated, three lock boxes with unaccounted keys, and no record of the required
+      periodic inspection for either shift in the past two years.
+
+      Ruthann Begay, environmental health and safety manager, owns the procedure; Darius Whitfield,
+      vice president of manufacturing operations, approves it. It is executed by 74 authorized
+      employees, roughly 200 affected employees, 9 maintenance technicians, 6 shift supervisors, a
+      training coordinator, and outside contractors including a conveyor vendor working the powder
+      coat line. Energy sources on the floor include 480 volt electrical, pneumatics at 110 psi,
+      hydraulic accumulators that hold pressure after shutdown, and gravity loads on overhead
+      conveyor sections. Work orders and procedure documents live in the maintenance system.
+
+      The procedure must cover how equipment-specific procedures are written and revised, notification
+      and orderly shutdown, isolation of every energy source, lock and tag application, verification
+      of zero energy, service, release and restart, shift change, group lockout, the annual
+      inspection, training and authorization records, and the exceptions for removing an absent
+      employee's lock, cord-and-plug equipment, minor servicing such as clearing a laser jam,
+      contractor coordination, and testing that requires temporary re-energization.
+  - id: sop-08
+    domain: nonprofit
+    scenario: |
+      Front Range Workforce Collaborative in Denver, Colorado, passes $46.2 million a year to 31
+      subrecipient organizations delivering job training across 14 counties, with 78 staff of its own.
+      The FY2025 single audit reported a material weakness in subrecipient monitoring: 9 of the 31
+      subrecipients had no documented pre-award risk assessment, 4 had received no site visit in
+      three years, required audit reports were missing for 6, and $412,000 in questioned costs
+      surfaced at one subrecipient that charged staff time and vehicle leases outside its approved
+      budget. The federal awarding agency and the state pass-through both requested corrective action
+      plans, and continuation of a $12.8 million grant is conditioned on an approved written
+      monitoring procedure by October 1.
+
+      Solomon Kirui, director of grants compliance, owns the procedure; Chief Executive Officer Dr.
+      Tanya Ruelas approves it. Program officers manage the relationships, contract analysts issue
+      subawards, fiscal monitors test expenditures, and the finance team processes reimbursements.
+      The work runs through a grants management system, the accounting system, federal exclusion
+      checks, subaward reporting, a risk assessment worksheet, a monitoring tool, and a corrective
+      action log. The governing citation is the Uniform Guidance subrecipient monitoring and audit
+      requirements, including the $1,000,000 single audit threshold and the required elements of a
+      subaward agreement.
+
+      The procedure must cover the contractor versus subrecipient determination, pre-award risk
+      assessment and eligibility screening, subaward issuance and required terms including indirect
+      cost treatment, risk tiering and the monitoring plan it drives, desk reviews and on-site
+      monitoring with expenditure sampling, collection and review of audit reports, findings and
+      corrective action tracking, disallowed cost recovery, closeout and record retention, and the
+      exceptions for a subrecipient below the audit threshold, one with going-concern doubt, a
+      mid-year change in key personnel, and suspected fraud.

@@ -1,0 +1,243 @@
+format: white-paper
+bundle: false
+target_words: 5000
+min_words: 4500
+output_convention: |
+  One white paper for an external professional audience: title, an abstract or summary,
+  then numbered sections that build the argument, then a conclusion and a short reference list. Tables
+  and figures are numbered and captioned where they are used.
+prompts:
+  - id: white-paper-01
+    domain: manufacturing
+    scenario: |
+      The Great Lakes Metalcasting Institute in Sheboygan, Wisconsin, is a research and standards
+      nonprofit whose 140 member foundries employ about 21,400 hourly workers across eight states. It
+      is publishing for plant managers, human resources directors, and regional workforce boards. The
+      authors are research director Dr. Priscilla Vandenberg, an industrial engineer; workforce
+      program lead Rafael Quintanilla, who spent nineteen years as a foundry human resources
+      director; and labor economist Dr. Sung-Min Roh.
+
+      The institute's turnover census, collected from members since 2019, puts first-year separation
+      at 38 percent on the melt and molding lines, average cost per separation at $11,800, and time
+      to fill at 14 weeks. Thirty-four percent of the member hourly workforce is over 55. Plants in
+      the top turnover quartile run scrap at 9.4 percent against 5.1 percent in the bottom quartile,
+      and carry a recordable injury rate 60 percent higher. Two large agricultural equipment
+      customers have begun requiring staffing commitments as a condition of long-term supply
+      agreements, and a federal apprenticeship expansion grant closes its window on November 14, 2026.
+
+      Members have tried five pipeline approaches: registered apprenticeship, high school youth
+      apprenticeship and co-op, community college cohort partnerships, a structured ninety-day
+      in-house onboarding, and temp-to-hire conversion through staffing agencies. Registered
+      apprenticeship costs roughly $27,000 per apprentice over three years with $9,400 in available
+      offsets. Member objections are consistent: poaching by neighboring plants, the burden on plants
+      under 75 employees, seniority language in collective bargaining agreements, and supervisors who
+      will not release trainees from production.
+
+      The paper must lay out the problem in the sector, present the institute's data, compare the
+      five approaches, work through a cost model and implementation sequence a single plant could
+      follow, and take on the objections members raise.
+  - id: white-paper-02
+    domain: nonprofit
+    scenario: |
+      Headwaters Philanthropy Lab is the research unit of a regional grantmakers association in
+      Minneapolis, Minnesota, with 310 member foundations, corporate giving programs, and
+      donor-advised funds. It publishes for foundation trustees, program officers, and family office
+      advisors. The authors are research director Dr. Rekha Balasubramanian; senior fellow Marisol
+      Trevino-Guzman, formerly chief executive of a community foundation in central Wisconsin; and
+      evaluation lead Dr. Everett Kwiatkowski.
+
+      The lab holds grant-level records on 9,100 awards totaling $1.9 billion made between 2016 and
+      2024, audited financial statements for 620 grantees, and a 2025 survey of 480 nonprofit
+      executive directors. Grantees receiving multiyear unrestricted support held a median of 4.8
+      months of operating reserve against 1.9 months for project-restricted grantees, and reported
+      executive turnover of 14 percent against 26 percent. Average allowed indirect recovery across
+      the portfolio was 11.4 percent while audited true indirect ran 26.8 percent. Executive
+      directors reported a median of 71 hours a year of reporting labor per restricted grant.
+      Forty-one percent of surveyed organizations hold under three months of reserve, and state
+      contract payments in the region are running 94 days behind on average.
+
+      Five practices are in use among members and have to be compared: multiyear general operating
+      support, tiered trust-based grantmaking, project grants that pay full indirect, participatory
+      pooled funds, and recoverable grants. Members have asked for a three-year transition model for
+      a foundation with a $40 million annual payout, including staffing, board policy changes, and
+      risk controls. Trustees raise accountability, donor intent, and small grantee capacity as
+      objections.
+
+      The paper must set out the problem in the field, present the lab's data, compare the five
+      practices, work through the transition model with its costs, and answer the trustee objections.
+  - id: white-paper-03
+    domain: municipal-government
+    scenario: |
+      The Upper Midwest League of Municipal Utilities, headquartered in Lansing, Michigan, represents
+      412 publicly owned water systems in Michigan, Wisconsin, Indiana, and Ohio serving 4.3 million
+      people. It is publishing for city managers, public works directors, utility board members, and
+      county finance officers. The authors are policy director Ravinder Gill, a licensed professional
+      engineer; senior fellow Consuelo Barrera-Nunez, who ran public works for a city of 88,000; and
+      environmental economist Dr. Halima Bektas.
+
+      Member inventories filed under the federal lead and copper rule revisions cover 1.06 million
+      service lines: 214,000 confirmed lead or galvanized requiring replacement and 118,000 still of
+      unknown material. Replacement averages $9,100 a line and ranges from $4,200 to $21,000
+      depending on street restoration and whether the customer-side portion is in scope. Systems
+      already running programs report homeowner refusal or non-response between 22 and 31 percent.
+      The rule requires ten years of replacement beginning in 2027 and finishing in 2037. Modeled
+      rate impact on a median residential bill of $52 a month runs from $6.40 to $18.90. State
+      revolving fund allocations cover roughly a third of estimated member need, and one member city
+      is defending a class action over partial replacements done in 2018.
+
+      Members have taken five approaches: neighborhood-by-neighborhood full replacement,
+      opportunistic replacement during main and paving work, homeowner reimbursement programs,
+      regional shared procurement of crews and materials, and records-based verification to retire
+      unknowns. The league wants a program model sized to a 22,000-connection system, with crew
+      capacity, a $2.1 million annual bonding schedule, right-of-entry ordinances, and affordability
+      protections. Objections center on private property access, a shortage of licensed plumbers, and
+      rate shock in low-income neighborhoods.
+
+      The paper must state the problem, present the inventory and cost data, compare the approaches,
+      build out the implementation and financing model, and answer the objections.
+  - id: white-paper-04
+    domain: retail
+    scenario: |
+      Bluestem Retail Research in Des Moines, Iowa, provides transaction analytics to 1,240
+      independent grocery and convenience stores across eleven states. It is publishing for
+      independent operators, regional chain executives, and the lenders who finance store remodels.
+      The authors are chief research officer Dr. Anneke Vermeulen; loss prevention practice director
+      Jamal Whitcomb-Reyes, a former regional asset protection manager; senior analyst Xiomara
+      Delacruz; and guest contributor Fiona Brannigan, vice president of store operations for a
+      62-store chain in Nebraska.
+
+      Bluestem holds 2.4 billion transactions from 2021 through 2025, 340 audited physical
+      inventories, and intercept surveys of 6,800 shoppers. Stores where self-checkout handles more
+      than half of transactions show shrink at 1.68 percent of sales against 1.02 percent at stores
+      under 20 percent. Labor hours per thousand transactions fall 31 percent, but attendant ratios
+      matter: at one attendant per six lanes, shrink runs nearly double the rate at one per four.
+      Weighted produce and bulk items account for 44 percent of measured loss. A lane costs about
+      $34,000 installed on a seven-year life, and reversion to a staffed lane runs $19,000.
+
+      Three national chains have publicly pulled back on self-checkout, one state legislature is
+      weighing a bill capping lanes per attendant, and a minimum wage step to $15.75 takes effect in
+      January 2027, so operators are asking now. The approaches in the field are full conversion,
+      hybrid with staffed express lanes, attendant-heavy deployment, exit receipt verification, and
+      scan-and-go on the shopper's phone. Operators raise labor relations, accessibility, benefit
+      tender handling, alcohol age checks, and whether any of it works below 12,000 square feet.
+
+      The paper must define the problem, present the transaction and audit data, compare the
+      deployment approaches, model the economics for a thirty-store chain, and answer the operator
+      objections.
+  - id: white-paper-05
+    domain: logistics
+    scenario: |
+      The Northern Reach Cold Chain Consortium in Eau Claire, Wisconsin, is a joint venture of nine
+      refrigerated carriers operating 4,100 reefer trailers and the supply chain center at a regional
+      university. It publishes for fleet executives, shipper logistics managers, and cargo claims
+      professionals. The authors are executive director Malachi Odum; Dr.
+      Sofiya Kravchenko, associate professor of supply chain management; and standards director
+      Yumiko Tanaka-Reeves, a former quality manager for a national protein processor.
+
+      The consortium holds 1.8 million temperature logs from member trailers covering 2022 through
+      2025, alongside 11,400 claim files totaling $46.2 million. Excursion causes break down as
+      door-open dwell at receiving docks 38 percent, setpoint entry error 17 percent, omitted precool
+      14 percent, defrost cycles 12 percent, and unit failure 9 percent. The median claim is $4,050,
+      but the largest two percent of claims carry 41 percent of the dollars. A national grocery
+      retailer now charges back 3 percent of invoice on any load with a documented excursion, cargo
+      insurance renewed in January at a 34 percent premium increase, and two federal enforcement
+      actions under the sanitary transportation rule have named carriers in the region.
+
+      Members have tried trailer-level telematics alone, pallet-level sensors at $9 to $27 a
+      shipment, door sensors with dwell alarms, two-person precool and seal verification, and
+      contract clauses that fix tolerance bands and settle in advance what counts as evidence. The
+      model members want is sized to a 120-trailer fleet: $1.4 million in capital, integration with a
+      transportation management system, training for 340 drivers, and a ninety-day pilot. Objections
+      are cost on low-margin lanes, receivers who refuse sensor data, and who owns the record.
+
+      The paper must set out the problem, present the log and claims data, compare the approaches,
+      lay out the fleet model and its costs, and answer the objections.
+  - id: white-paper-06
+    domain: software
+    scenario: |
+      Ironwood Commerce Systems in Grand Rapids, Michigan, sells a point-of-sale and payments
+      platform to 8,700 restaurant and specialty retail locations in fourteen states and employs 260
+      people. It is publishing for franchise operators, restaurant technology directors, acquiring
+      banks, and independent sales organizations. The authors are chief information security officer
+      Devika Ranganathan; vice president of product Thabo Mokoena; compliance director Erin
+      Nakashima-O'Leary, a certified information systems auditor; and Gareth Sowinski, a qualified
+      security assessor with the outside firm that reviews the company's merchants.
+
+      The future-dated requirements of the card industry data security standard became mandatory on
+      March 31, 2025, and franchisors are pushing the obligation down to franchisees. Ironwood holds
+      assessment outcomes for its merchant base, 1,120 self-assessment questionnaires, and 96
+      card-present incidents from 2021 through 2025. The average incident cost a four-location
+      operator $118,000 in forensics, fines, and reissuance. The requirements failed most often are
+      targeted risk analyses, payment page script integrity, authenticated internal vulnerability
+      scanning, and phishing-resistant multifactor authentication for remote access. Roughly 2,300
+      locations still run terminals on an operating system that lost support in October 2025.
+
+      Two large franchisors have set an April 2026 compliance mandate, acquirer non-compliance fees
+      have risen to between $35 and $100 a month per merchant identifier, and a class action followed
+      a 2024 breach at a 38-location franchisee. The paths available are validated point-to-point
+      encryption at roughly $640 a lane plus $19 a month, tokenization, full network segmentation at
+      about $14,000 a site, outsourced hosted checkout, and a managed compliance service. Operators
+      object on capital, legacy hardware, offline mode during outages, and tip adjustment workflows.
+
+      The paper must state the compliance problem, present what Ironwood sees across its merchant
+      base, compare the five paths, lay out an implementation and cost model for a multi-location
+      operator, and answer the objections.
+  - id: white-paper-07
+    domain: k12-education
+    scenario: |
+      Prairie States Education Research Collaborative in Iowa City, Iowa, is a nonprofit research
+      center that works with 220 school districts in Iowa, Nebraska, and South Dakota. It is
+      publishing for superintendents, chief academic officers, school board members, and state
+      legislators. The authors are executive director Dr. Lourdes Sandoval-Whitmer; analytics
+      director Tobias Njoroge; senior research associate Hana Al-Sabbagh; and Corey Lindenbaum,
+      superintendent of a 2,800-student district that ran tutoring for four years.
+
+      The collaborative holds session-level tutoring records for 61,000 students in 118 districts
+      from 2021 through 2025. Median attendance in scheduled tutoring was 63 percent. Annual cost per
+      student ran from $1,180 to $4,600 depending on staffing: certified teachers at $52 an hour,
+      paraprofessionals at $22, community college tutor corps members at $17, and vendor virtual
+      tutors at $38. Tutor turnover averaged 41 percent a year. When federal relief money expired, 74
+      of the 118 districts cut or ended tutoring for 2025-26, and a new state grant program of $18
+      million drew $71 million in requests.
+
+      The models in the data are teacher-led small group inside the school day, paraprofessional-led
+      instruction with scripted materials, a community college tutor corps, a virtual vendor, and
+      hybrids of those. Districts have asked for an implementation model for a 3,400-student district
+      covering master schedule constraints, tutor recruitment and retention, student selection, and
+      fidelity monitoring. The objections raised in the field are the instructional time given up,
+      equity in who gets selected, union questions about paraprofessional duties, and the reporting
+      burden on principals.
+
+      The paper must define the problem districts face, present the collaborative's four years of
+      data, compare the delivery models on cost and results, work through the implementation and
+      funding model, and answer the objections.
+  - id: white-paper-08
+    domain: healthcare
+    scenario: |
+      Cedarbrook Health Institute is the research arm of Cedarbrook Health Partners, a nine-hospital
+      system headquartered in Mankato, Minnesota, that operates fourteen emergency departments across
+      southern Minnesota and western Wisconsin. It is publishing for hospital executives, state
+      Medicaid officials, payers, county human services directors, and legislators. The authors are
+      Dr. Feliciano Arriaga-Mendez, system chief of emergency medicine; Dr. Priyanka Deshmukh,
+      medical director of child and adolescent psychiatry; Kaleb Ironcloud, director of behavioral
+      health crisis services; and health economist Dr. Hollis Trembath.
+
+      The institute has records on 11,900 pediatric behavioral health emergency visits from 2021
+      through 2025. Counting boarding as more than twelve hours past disposition, the
+      median boarding stay is 31 hours and the ninetieth percentile is 106 hours; 18 percent of
+      boarded children waited more than three days. Restraint or seclusion occurred in 9.4 percent of
+      boarded stays. Sitter labor cost $1.1 million last year, and boarding occupies an average of
+      4.2 treatment bays a day systemwide. The region has 38 inpatient child psychiatric beds for a
+      catchment of 1.4 million people, and the two facilities holding them refused 44 percent of
+      transfer requests in 2025.
+
+      The approaches under discussion are a dedicated psychiatric emergency unit, telepsychiatry
+      consultation into rural sites, mobile crisis teams with short-stay stabilization beds, a
+      pediatric observation protocol inside the emergency department, and bridge clinics with
+      follow-up within 72 hours. A twelve-bay psychiatric emergency unit would cost $6.8 million in
+      capital and $4.2 million a year to operate, against a state grant round that closes in
+      September 2026. Objections raised are rural travel distance, psychiatrist recruitment, Medicaid
+      rates, and whether upstream investment moves volume at all.
+
+      The paper must set out the problem, present the system's five years of data, compare the
+      approaches on cost and reach, build the financial model, and answer the objections.

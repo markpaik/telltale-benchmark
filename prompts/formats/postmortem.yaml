@@ -1,0 +1,249 @@
+format: postmortem
+bundle: false
+target_words: 5000
+min_words: 4500
+output_convention: |
+  One incident postmortem: a summary, the impact stated in numbers, a timestamped
+  timeline of detection through resolution, root cause, contributing factors, what worked and what did
+  not during the response, and action items with named owners and due dates. It examines systems and
+  decisions rather than assigning fault to individuals.
+prompts:
+  - id: postmortem-01
+    domain: retail
+    scenario: |
+      Northway Fuel and Provisions runs 190 convenience stores and fuel sites across
+      upstate New York from a support center in Latham, with 3,400 employees. Its price
+      book publishes nightly from a system called Anchor to in-store controllers; a
+      loyalty engine called Waypoint applies discounts at the terminal.
+
+      At 11:40 p.m. Friday, December 4, 2026, the Anchor publishing job failed partway
+      through and reported success. One hundred eighteen stores took a partial file with
+      new prices for 2,900 items and no matching loyalty exclusions, so Waypoint stacked
+      promotions on already-reduced prices. Nobody noticed for 19 hours, until a
+      Plattsburgh district manager called at 6:15 p.m. Saturday about a customer buying 40
+      cases of energy drinks at 61 cents each. On-call engineer Miguel Arellano blamed the
+      loyalty engine and disabled Waypoint at 8:10, pushing a null promotion table to the
+      controllers and taking point-of-sale offline in all 118 stores for three hours and
+      40 minutes on the quarter's busiest evening. Doug Pelletier, manager of
+      point-of-sale engineering, was paged at 9:05; Nia Broadwater, Director of Retail
+      Technology, took command at 9:30; Fatima Zubairi, Vice President of Store
+      Operations, ran store messaging; Renee Saint-Fleur's care team fielded 2,100 calls
+      Sunday.
+
+      The Anchor publisher upgrade, scheduled for March 2026, was deferred twice. The
+      queue-depth alert routed to a mailbox belonging to an engineer who left in August
+      2025, and the rollback runbook, last edited in 2023, named a tool decommissioned the
+      following year. Final impact: 41,300 mispriced transactions, $312,000 in
+      undercharges, $88,000 refunded, some 26,000 lost transactions, $1.1 million in lost
+      sales, and a state weights-and-measures inquiry opened December 11. The document
+      must account for the detection gap, the decision to disable Waypoint, the cash
+      handling stores improvised, and the deferred upgrade and orphaned alert.
+  - id: postmortem-02
+    domain: logistics
+    scenario: |
+      Tannery Row Logistics runs a 900,000-square-foot fulfillment center in Rome, New
+      York, with 1,150 associates, serving 14 brands and shipping 78,000 units a day. Its
+      warehouse management system, Baseline, went from version 9.2 to 11.0 over the
+      weekend of November 21, 2026, a date moved from May at the vendor's request.
+
+      The upgrade finished at 4:10 a.m. Sunday. A location master transformation silently
+      dropped the aisle prefix from 61,000 of 214,000 pick locations, so scans validated
+      against wrong bins. Pick accuracy fell from 99.6 to 91.2 percent by Monday
+      afternoon, but the quality report runs on a two-shift lag and the exception queue
+      lost its owner to a September transfer. Nobody escalated until 11:20 a.m. Tuesday,
+      31 hours in, when a brand's returns team flagged 900 wrong items in one trailer.
+      Ephraim Sackey, Director of Information Technology, blamed scanner firmware pushed
+      the prior week and ordered a fleet rollback that burned nine hours for nothing.
+      Bianca Cardoso-Reyes, Vice President of Operations, moved the building to paper pick
+      sheets Wednesday, cutting throughput to 31,000 units a day and building a
+      214,000-order backlog against Black Friday volume. Marguerite Lapointe, Continuous
+      Improvement Manager, found the prefix defect Thursday at 2 a.m. against a
+      pre-upgrade export; Client Services Director Tanya Whitehorse handled the brands.
+
+      Clearing the backlog took 11 days. Thirty-eight thousand orders shipped wrong or
+      late, expedited freight cost $1.8 million, two clients took service credits totaling
+      $640,000, and one gave notice on a $9 million contract. The regression suite had not
+      changed since version 9.0, parallel validation shrank from two weeks to four days,
+      and the cutover runbook was the vendor's template. The document must reconstruct the
+      upgrade decision, the detection gap, the scanner misdiagnosis, the paper picking
+      tradeoff, and the testing gaps.
+  - id: postmortem-03
+    domain: software
+    scenario: |
+      Meridian Stack, in Somerville, Massachusetts, sells a hosted database and message
+      queue platform to 6,800 customers and employs 340 people. Its control plane runs on
+      a PostgreSQL cluster called Compass, whose major-version upgrade was deferred three
+      quarters for revenue work.
+
+      On Tuesday, March 9, 2027, a 2:14 p.m. migration added a defaulted column to a
+      400-million-row Compass table, taking an exclusive lock. Control plane API error
+      rates crossed 5 percent at 2:19 and 71 percent by 2:41. The first page fired at
+      3:01, 47 minutes in: the error-rate alert used a 30-minute window the deploy freeze
+      calendar had suppressed. Priyanka Deshmukh, staff site reliability engineer, took
+      command at 3:06 and, seeing timeouts clustered in one availability zone, called it a
+      provider network event; the team spent 38 minutes there while the status page stayed
+      green. At 3:52 Sofia Grigoryan, who leads the database platform team, found the
+      lock. The team killed the migration and restarted the control plane fleet at 4:05,
+      sending 900 instances reconnecting at once, exhausting the metadata store connection
+      pool and adding 71 minutes. Oliver Baptiste, Vice President of Engineering, joined
+      at 4:20; Malik Tarrant ran support triage; Jun-ho Park, Director of Customer
+      Reliability, posted the first status update 52 minutes after the page.
+
+      Degradation ran four hours and 52 minutes, hit 2,140 customers and failed 11.4
+      million API requests. Service credits came to $410,000, and four accounts worth
+      $290,000 in annual recurring revenue cancelled within a month. The migration
+      checklist made its lock-duration question optional, the replication-lag alert routed
+      to a Slack channel archived in January, and the failover runbook named a command
+      removed in 2025. The document must cover the detection gap, the provider
+      misdiagnosis, the restart that made things worse, the communication lag, and the
+      deferred upgrade and stale alerts.
+  - id: postmortem-04
+    domain: k12-education
+    scenario: |
+      Willow Brook Public Schools enrolls 9,800 students across 14 schools in Middlesex
+      County, New Jersey, and transports 5,600 of them on 112 buses. The incumbent
+      transportation contractor lost the bid in June 2026, leaving eight weeks to stand up
+      a new operator and a routing platform called Trailhead before the September 8
+      opening.
+
+      The student address import ran August 24 and silently dropped 1,340 records whose
+      apartment fields exceeded the field length, including 41 students whose
+      individualized education programs mandate door-to-door service. Validation reports
+      generated but went unreconciled; the step had an owner in the old runbook and none
+      in the new one. On September 8, 62 routes ran late by an average of 47 minutes, nine
+      buses never arrived, and a kindergartner was released 1.2 miles from home before a
+      crossing guard intervened. Transportation Director Rudolph Sciarra blamed the driver
+      shortage, real at 14 open positions, and Chief Technology Officer Bethany Kwan did
+      not compare address counts until Wednesday evening. Hand-written route sheets issued
+      at the yard Tuesday and Wednesday carried no tier assignments, so elementary and
+      high school runs collided and Tuesday's average delay grew to 63 minutes.
+      Superintendent Dr. Ifeoma Adeyemi opened a command post Wednesday. Marisela Duarte,
+      Supervisor of Special Services, arranged contracted vans for the 41 students
+      starting Thursday, four school days after the first missed pickup; Business
+      Administrator Gerald Ostrowski approved $214,000 for them.
+
+      The district logged 3,100 parent calls on September 9 alone, counted 890 students
+      absent or tardy for transportation reasons that week, and drew two state complaints
+      over missed mandated service. The document must cover the compressed procurement,
+      the unreconciled import, the driver-shortage misdiagnosis, the route sheets that
+      worsened delays, the gap in mandated services, and the ownership failure behind the
+      address defect.
+  - id: postmortem-05
+    domain: healthcare
+    scenario: |
+      Housatonic Valley Health runs two hospitals with 480 beds and 22 clinics around
+      Danbury, Connecticut, employing 6,100 people. Lab results move from analyzer
+      middleware through an interface engine called Confluence into the health record,
+      roughly 19,000 messages a day.
+
+      A vendor patch applied to Confluence at 10:15 p.m. Sunday, February 7, 2027, changed
+      how one message segment was parsed. Microbiology results with more than three
+      organism entries and flagged critical chemistry results stopped filing, queueing
+      rather than erroring, so the interface dashboard stayed green. Over 62 hours, 1,120
+      microbiology and 340 critical chemistry results never reached a chart. Detection
+      came Wednesday at 12:30 p.m., when hospitalist Dr. Simone Kellerman called about a
+      blood culture ordered Monday. Ravi Chandrasekaran, Manager of Integration
+      Engineering, suspected the analyzer middleware and restarted it twice, losing three
+      hours. Colleen Brannigan, Director of Laboratory Services, activated manual
+      reporting at 4:40 p.m., but the 2019 downtime procedure gave fax numbers for units
+      that no longer exist. The 8:15 p.m. queue replay delivered 4,800 duplicates stamped
+      with replay time, not collection time, so nurses saw conflicting values. Dr. Yusuf
+      Abdullahi, Chief Medical Information Officer, took command at 9 p.m.; Tamika
+      Osei-Bonsu, Chief Nursing Informatics Officer, ran a reconciliation lasting until
+      Friday; Dr. Elena Vasilenko chaired the quality review.
+
+      Nine patients had antibiotic changes delayed more than 24 hours, two were readmitted
+      within 30 days, one case went to sentinel event review, and the system filed a
+      reportable event February 13. Confluence alerts routed to a distribution list
+      emptied by a reorganization 14 months earlier, the patch had sat available since
+      August, and the regression suite covers 40 of 218 message types. The document must
+      cover the detection gap, the middleware misdiagnosis, the downtime procedure and
+      duplicate replay, the harm review, and the monitoring gaps.
+  - id: postmortem-06
+    domain: manufacturing
+    scenario: |
+      Kettle Point Foods makes frozen entrees in Fall River, Massachusetts, with 620
+      employees and 41 million pounds of output a year across four lines. Line 3 is
+      certified dairy-free and runs a plant-based product sold nationally.
+
+      During a shutdown the weekend of April 4, 2026, a technician reconfigured a diverter
+      valve so Line 3's dry ingredient transfer drew through a pneumatic header dedicated
+      to Line 2, which runs a cheese powder. The work order closed that day without the
+      required verification and never went to allergen review. Line 3 ran nine production
+      days between April 6 and 24, producing 218,000 cases shipped to 14 states. The first
+      consumer complaint reached the plant April 17, coded as a flavor complaint; two more
+      arrived the week of April 20, one a hospitalization in Rhode Island. Amit Vaidya,
+      Director of Food Safety and Quality, opened an investigation April 24, blamed a new
+      dry blend supplier, held that material and cleared the line to restart, sending
+      another 26,000 cases out before April 29 testing found casein in a different lot.
+      Plant Manager Rosalie Thibodeau shut Line 3 that day; Maintenance Superintendent
+      Curtis Mbeki traced the valve April 30; Sylvie Charbonneau, Vice President of Supply
+      Chain, ran the retrieval; Regulatory Affairs Manager Grant Halloran filed the Class
+      I recall May 2.
+
+      The recall cost $4.7 million, recovered 71 percent of shipped cases, drew an FDA
+      inspection closing with six observations, and followed three reported allergic
+      reactions. The revised food safety plan had been pending since March, the allergen
+      swab program went from 20 sample sites to six in a 2025 headcount reduction, and
+      complaint coding had no allergen escalation trigger. The document must cover the
+      detection lag, the supplier misdiagnosis and restart, the change control failure,
+      the complaint handling, and the swab program cut.
+  - id: postmortem-07
+    domain: nonprofit
+    scenario: |
+      Penobscot Bay Independence Network serves 480 adults with developmental disabilities
+      across 62 group homes in midcoast Maine, employing 740 people, most direct support
+      professionals earning $19 to $23 an hour. Its payroll conversion to a platform
+      called Harborworks moved from July to October 2026 to clear a grant deadline, and
+      parallel testing was cut from two pay cycles to one.
+
+      The shift differential and overtime rules table did not migrate. Evening, overnight,
+      and weekend differentials worth $1.50 to $3.25 an hour stopped paying, and overtime
+      calculated on base rate alone. The first affected check issued October 23. Employees
+      reported shortfalls within a day, but the payroll manager post had been vacant since
+      August and tickets piled up in a shared mailbox. Controller Soren Bragg decided the
+      time clocks were dropping shift codes and spent nine days auditing punch data.
+      Director of Human Resources Nkechi Obiora found the missing rules table November 12,
+      after three pay periods. The remediation, off-cycle checks cut November 18,
+      double-paid 84 employees $71,000, skipped the overtime recalculation, and posted
+      wrong withholding that resurfaced in January W-2 corrections. Chief Financial
+      Officer Marcus Tillinghast approved that run without reconciliation. Chief Executive
+      Officer Delphine Ouellette learned the scope November 14.
+
+      Six hundred ten employees were underpaid $251,000 combined, averaging $412 each.
+      Thirty-eight direct support professionals resigned between November 1 and December
+      15, overtime rose $390,000 in six weeks, and Director of Residential Services Imelda
+      Restrepo reported two homes below mandated supervision ratios, drawing two state
+      licensing citations in December. Twenty-two employees filed a wage complaint with
+      the state Department of Labor. The document must cover the compressed conversion,
+      the untested rules table, the time clock misdiagnosis, the remediation that created
+      new errors, the staffing and licensing fallout, and the vacant role.
+  - id: postmortem-08
+    domain: municipal-government
+    scenario: |
+      The Quinsigamond Regional Water Pollution Control Authority treats 34 million
+      gallons a day for five member towns in Worcester County, Massachusetts, with 128
+      employees and nine of 34 operator posts vacant. Its permit bars partially treated
+      discharge to the Blackstone River.
+
+      A March 14, 2027 storm dropped 3.1 inches in 14 hours. Influent pump 2 tripped at
+      9:52 p.m. on a fault in a variable frequency drive whose replacement was budgeted in
+      FY25 and deferred twice. The high wet well alarm never annunciated, silenced during
+      a contractor's SCADA point test February 3 and never restored; the silenced-point
+      report went to a supervisor who retired in November. Chief Plant Operator Dmitri
+      Sokolov found it on rounds at 3:40 a.m., six hours later, blaming a power dip logged
+      at 9:48. The crew then started standby pump 4 at 4:10 a.m. against a discharge valve
+      left closed after a January exercise, wrecking the impeller and cutting firm
+      capacity to 19 million gallons a day. Bar screen 1's rake motor had been out on a
+      work order open 94 days, blinding the second screen at 5:20 a.m. Director of
+      Operations Kathleen Ng declared a bypass at 6:05 a.m.; Maintenance Supervisor Hollis
+      Pruitt rebuilt the valve arrangement by 2 p.m.; Compliance Manager Rochelle Grantham
+      notified the state at 6:40 a.m., past the two-hour window; Executive Director Alonzo
+      Ferreira briefed the towns Sunday.
+
+      The bypass ran 41 hours and released 11.4 million gallons. A downstream drinking
+      water intake ran on backup four days, river access stayed posted closed nine, and
+      the state issued a noncompliance notice carrying $312,000 in penalty exposure. The
+      wet weather operating plan dates to 2016. The document must cover the alarm
+      suppression, the detection gap, the misdiagnosis, the pump start that cut capacity,
+      the late notice, and the deferred capital work.

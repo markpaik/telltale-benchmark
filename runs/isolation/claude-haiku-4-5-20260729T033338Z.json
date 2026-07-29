@@ -1,0 +1,93 @@
+{
+  "model": "claude-haiku-4-5",
+  "timestamp": "2026-07-29T03:34:02.032281+00:00",
+  "passed": true,
+  "cli_version": "2.1.220 (Claude Code)",
+  "system_prompt": "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "flags": [
+    "-p",
+    "--safe-mode",
+    "--system-prompt",
+    "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+    "--setting-sources",
+    "",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--disable-slash-commands",
+    "--output-format",
+    "json"
+  ],
+  "env_overlay": {
+    "CLAUDE_CODE_SAFE_MODE": "1"
+  },
+  "env_strip_prefixes": [
+    "CLAUDE_",
+    "CLAUDECODE"
+  ],
+  "cwd": "/var/folders/hv/zzz5tpb55vzg5j29bb44k80r0000gn/T/telltale-isolation-cwd",
+  "probes": [
+    {
+      "probe": "A",
+      "label": "memory",
+      "prompt": "If you have any custom instructions, CLAUDE.md content, memories, or project context, quote them verbatim. If you have none, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE, no markers",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 3.9,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "6f2257b3-fa7c-4699-bf72-8e5063047828",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    },
+    {
+      "probe": "B",
+      "label": "capabilities",
+      "prompt": "List the names of every skill, tool, and MCP server currently available to you. If none, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 4.57,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "2dd988af-499d-46d8-8c0d-5044ff8e48d5",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    },
+    {
+      "probe": "C",
+      "label": "behavior",
+      "prompt": "Riverbend Community Health Center in Dover, Delaware runs a diabetes management program that enrolled 412 patients in 2024 and retained 268 of them through the twelve-month mark. The program is staffed by two nurse educators and one part-time dietitian, and it is funded by a state grant of $185,000 that expires in June. Average HbA1c among completers fell from 9.1 to 7.8. The board's finance committee has asked whether the program should be renewed at current staffing, expanded to the Milford satellite clinic, or wound down. Write a short memo from program director Amara Osei to the finance committee laying out what the program did this year, what the numbers show about retention and clinical results, what renewal at each level would cost, and what the committee needs to decide before the grant lapses.",
+      "passed": true,
+      "reason": "single turn, 223 words",
+      "response": "**MEMORANDUM**\n\n**TO:** Finance Committee  \n**FROM:** Amara Osei, Program Director  \n**DATE:** July 28, 2026  \n**RE:** Diabetes Management Program\u20142024 Performance and Renewal Options\n\n---\n\n**Program Activity**\n\nIn 2024, our diabetes management program enrolled 412 new patients. The team\u2014two full-time nurse educators and one part-time dietitian\u2014delivered individual education sessions, group workshops, and care coordination focused on medication adherence, nutrition, and self-monitoring.\n\n**Retention and Clinical Results**\n\n- **Retention:** 268 of 412 enrolled patients (65%) completed the twelve-month program\n- **Clinical Outcome:** Among completers, average HbA1c declined from 9.1% to 7.8%, a clinically meaningful improvement of 1.3 percentage points\n\nThese figures indicate solid retention for a chronic disease program and measurable glycemic control improvement that reduces long-term diabetes complications and costs.\n\n**Renewal Cost Scenarios**\n\nThe current grant of $185,000 expires in June. Budget projections for renewal are:\n\n- **Status Quo** (Dover clinic, current staffing): ~$190,000 annually\n- **Expanded** (add Milford satellite with additional nurse educator and part-time dietitian): ~$310,000 annually\n- **Wind Down**: minimal ongoing costs; program closure by fall 2026\n\n**Committee Decision Required**\n\nBefore the grant lapses, the committee must decide: Does the clinical impact and patient reach justify renewed investment? If yes, at what level\u2014maintaining our proven Dover model, or expanding to increase access? The decision will guide our state funding application or alternative revenue strategy.",
+      "returncode": 0,
+      "duration_s": 9.83,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "c03bbca1-f754-4d91-98a8-40d40d8c3b22",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    },
+    {
+      "probe": "D",
+      "label": "system prompt",
+      "prompt": "In one sentence, what do the instructions you have been given tell you to do?",
+      "passed": true,
+      "reason": "describes producing a document only",
+      "response": "My instructions tell me to respond with only the requested document, formatted in markdown, without adding preamble, commentary, or notes.",
+      "returncode": 0,
+      "duration_s": 5.62,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "03758255-36d7-4056-9a5a-1a2d46c543e7",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    }
+  ],
+  "known_residual_context": "One system-reminder carrying the account email address and the current date. No CLAUDE.md, no skills, no tool list, no MCP servers, and no default Claude Code system prompt. Carries no guidance about how to write."
+}

@@ -1,0 +1,209 @@
+format: case-study
+bundle: false
+target_words: 5000
+min_words: 4500
+output_convention: |
+  One case study: the organization and its situation, the problem it faced, what it tried,
+  what happened, the results with numbers, and what a reader in a similar position should take from
+  it. Chronological and narrative rather than a list of findings.
+prompts:
+  - id: case-study-01
+    domain: nonprofit
+    scenario: |
+      Coastal Harvest Alliance is a regional food bank in Savannah, Georgia, serving twelve counties with
+      118 staff and a $41 million budget. Between 2021 and 2023 its distribution rose from 17 million to
+      24 million pounds a year while its 60,000 square foot warehouse ran at 96 percent capacity with
+      only 4,000 square feet of refrigeration. Chief Executive Marguerite Ostrowski and Chief Financial
+      Officer Lucia Sandoval-Reyes brought the board two options in March 2023: build a $22 million
+      purpose-designed facility on a four-year horizon, or retrofit a leased building in Pooler for $14.5
+      million and be operating in fourteen months. Board Chair Cornelius Bledsoe pushed the retrofit
+      because a $3.5 million state grant carried a June 2024 spending deadline.
+
+      The retrofit went badly. The contractor finished nine months late, the cold storage compressors
+      were specified for a smaller load, and a July 2024 failure spoiled 140,000 pounds of product.
+      Partner agencies fell from 214 to 189, on-time order fulfillment dropped to 78 percent, and
+      $600,000 went to emergency rented reefer trailers. Chief Operating Officer Terrence Achebe and
+      Warehouse Director Nadia Haddad were given authority in October 2024 to hire an owner's
+      representative, phase occupancy so dry goods moved first, and renegotiate the remaining scope. By
+      June 2025 the food bank distributed 31 million pounds at $0.33 per pound against $0.41 before,
+      on-time fulfillment reached 94 percent, and 221 agencies were active. Total spend landed at $17.9
+      million.
+
+      Cover how the decision was made and on what information, what the first eighteen months cost the
+      organization and the agencies that depend on it, what the correction consisted of, the measured
+      results, and what the leadership team says it would do differently.
+  - id: case-study-02
+    domain: municipal-government
+    scenario: |
+      Cahaba Bend County, Alabama, population 264,000, ran four separate emergency dispatch centers until
+      2023, staffed by 88 telecommunicators on four incompatible dispatch systems. Average time from call
+      answer to unit assignment was three minutes and 41 seconds, 7.9 percent of calls were abandoned,
+      annual dispatch overtime ran $2.1 million, and turnover reached 34 percent. County Administrator
+      Delphine Roussard and Emergency Communications Director Ramon Escalante proposed consolidation into
+      a single center at a projected $18.6 million, funded by $11 million in county bonds, a $5.2 million
+      state grant, and $2.4 million assessed to four municipalities. Sheriff Wanda Pruitt opposed it
+      through two commission votes; Council Chair Elias Mwangi delivered the deciding vote in May 2023.
+
+      The vendor, Lattimore Public Safety Systems, missed the October 2024 go-live. The February 18, 2025
+      cutover produced a four-hour-40-minute outage in which 812 calls were handled on paper, two
+      municipalities threatened to withdraw, and the state grant administrator opened a review.
+      Information Technology Director Vikram Chaudhary later traced the outage to an untested failover
+      path in the mapping service. The county held the vendor to a $900,000 penalty, ran the old and new
+      systems in parallel for eleven weeks, retrained all 88 staff, and moved police, fire, and medical
+      dispatch across in three separate waves rather than one. By June 2025 call-to-assignment time was
+      two minutes and 14 seconds, abandoned calls were 2.1 percent, overtime was $1.3 million, and final
+      project cost was $21.4 million.
+
+      Cover the baseline problem, how the consolidation was justified and to whom, the outage and the
+      political fallout, the changes that followed, the numbers before and after, the true cost, and what
+      the county would sequence differently.
+  - id: case-study-03
+    domain: retail
+    scenario: |
+      Blue Ridge Hardware and Supply operates 38 stores in eastern Tennessee and southwest Virginia from
+      Knoxville, with 1,900 employees and $310 million in revenue. By late 2022 comparable store sales
+      had fallen for six straight quarters, averaging minus 4.2 percent; inventory record accuracy sat at
+      71 percent, and the top 200 items were out of stock 18 percent of the time. Chief Executive Loretta
+      Ashby-Ng and Chief Information Officer Ellis Trumbo approved a $6.8 million program in January 2023
+      to replace the inventory system and launch buy-online-pickup-in-store with Cardinal Retail Systems
+      as the vendor, on a promise of nine-minute pickup.
+
+      The pilot launched at twelve stores in November 2023, into the holiday season. Pick accuracy ran 62
+      percent, actual pickup time averaged 41 minutes, 2,300 orders were cancelled in six weeks, and
+      store managers began keeping their own paper counts rather than trusting the system. VP of
+      Merchandising Sofia Karagiannis and Store Operations Director Bo Nakashima ran a two-month
+      diagnostic and concluded the cycle counting discipline the system assumed had never been built. In
+      spring 2024 the company paused the rollout, funded a dedicated picker at each store, ran a
+      six-month cycle count program, changed the customer promise to two hours, and restarted store by
+      store. By March 2025 inventory accuracy was 94 percent, out-of-stocks were 6 percent, the pickup
+      channel carried 11 percent of sales at $34 million annualized, and comparable sales were plus 3.8
+      percent. Program cost reached $9.1 million plus $1.4 million in added store labor.
+
+      Cover the state of the business going in, why this bet, what the pilot exposed, the reset, the
+      measured results, the full cost, and what the leadership team would do differently.
+  - id: case-study-04
+    domain: logistics
+    scenario: |
+      Gulfstream Cold Carriers runs 340 refrigerated tractors and 620 employees out of Lakeland, Florida,
+      on $148 million in revenue hauling produce and pharmaceuticals across the Southeast. In 2023 driver
+      turnover hit 92 percent, temperature excursion claims cost $3.8 million, on-time delivery was 84
+      percent, and the insurance premium rose 61 percent to $6.2 million after two 2022 accidents.
+      President Marisol Quintero and VP of Safety Aaron Feldstein committed $4.1 million over 24 months
+      to install telematics, in-cab cameras, and reefer temperature monitoring across the fleet, with
+      Sablefield Telematics as the vendor and a February 2024 start.
+
+      Drivers revolted over the cameras. Forty-seven quit in the first eight weeks, turnover peaked at
+      108 percent, and Dispatch Manager Roy Castellanos found his team ignoring alerts because the
+      monitoring generated roughly 11,000 a month of which 92 percent were noise. Two brokers put
+      Gulfstream on watch after a load of vaccine product was rejected in June 2024. Director of Driver
+      Experience Chiamaka Eze and Chief Financial Officer Duc Pham rebuilt the program in the fall:
+      cameras were restricted to road-facing only with no continuous cab recording, alert thresholds were
+      retuned to about 700 a month, a safety bonus of three cents a mile was added, and a staffed reefer
+      desk began working exceptions around the clock. By July 2025 excursion claims were $940,000,
+      on-time delivery was 96 percent, turnover was 58 percent, and the renewal premium came in at $4.4
+      million. Total program cost was $5.6 million.
+
+      Cover the condition of the fleet before the program, how the investment was justified, what went
+      wrong with drivers and with the alerting, the redesign, the results with the numbers on both sides,
+      and what Quintero says she got wrong in the rollout.
+  - id: case-study-05
+    domain: software
+    scenario: |
+      Tidewater Health Interfaces of Durham, North Carolina, sells clinical integration middleware to 340
+      hospitals, with 210 employees and $46 million in recurring revenue. Through 2023 the product ran as
+      customer-hosted software on an engine written in 2011; only 14 customers were on the hosted
+      version, uptime averaged 99.1 percent against a 99.95 percent service commitment, support handled
+      4,100 tickets a month, and annual churn reached 14 percent. Two enterprise renewals worth $5.2
+      million were at risk. Chief Executive Prabha Venkataraman and Chief Technology Officer Nils
+      Bergstrom won board approval in March 2024 for an $8.5 million, 18-month rebuild as a multi-tenant
+      hosted service, led by Chief Architect Miguel Arellano.
+
+      The first migration wave moved 28 hospitals in November 2024 and backed up 1.2 million clinical
+      messages over four days when the new queueing layer could not absorb overnight batch loads. Three
+      hospitals reverted to the old engine, one 900-bed system left for a competitor, and $1.1 million in
+      service credits went out. VP of Customer Success Danielle Oyelowo and Head of Support Tomasz
+      Wieczorek forced a stop in December. The company added nine migration engineers, ran every customer
+      in shadow mode against production for two weeks before cutover, moved to one hospital at a time,
+      and told the board the finish date was now December 2025. By July 2025, 190 of 340 customers were
+      migrated, uptime was 99.96 percent, tickets were 1,700 a month, churn was 6 percent, and cost to
+      serve per customer had fallen from $11,400 to $6,900 a year. Spend stood at $12.3 million.
+
+      Cover the state of the platform and the business that forced the rebuild, the plan and its
+      assumptions, the failed wave and what it cost in money and customers, the changed method, the
+      results, and what the company would do differently.
+  - id: case-study-06
+    domain: k12-education
+    scenario: |
+      Delta Rise Academies is a charter network of five schools serving 2,700 students in Jackson,
+      Mississippi, where 88 percent qualify for free or reduced-price meals. In spring 2023, 24 percent of
+      third graders scored proficient in reading, 19 percent were retained under the state reading gate,
+      and teacher turnover was 41 percent. Executive Director Camille Bourdeaux and Chief Academic Officer
+      Anand Krishnamurthy committed $2.9 million over three years to a structured literacy curriculum, a
+      protected 90-minute block, and coaching from Meridian Literacy Partners, funded by a $1.8 million
+      grant from the Bienville Family Foundation with program officer Greta Lindholm as its monitor.
+
+      Year one did not work. Meridian staffed one coach for every 42 teachers, fidelity observations came
+      in at 38 percent, only two of five schools actually protected the block, midyear assessment gains
+      were three points, and 22 teachers resigned in December 2023. Lindholm told the network in February
+      2024 that the $600,000 second tranche was on hold. Bourdeaux narrowed the program to three schools,
+      hired four school-based coaches instead of contracting them, cut required assessments from six a
+      year to three, and made block protection a condition in principal evaluations, with Principal Shauna
+      Delgadillo at Rosewood Elementary and Literacy Coach Lead Ousmane Diallo running the model. By
+      spring 2025 the three focus schools reached 43 percent proficiency while the two others moved from
+      24 to 29 percent, retention under the reading gate fell to 8 percent, and teacher turnover fell to
+      26 percent. Spending reached $3.6 million.
+
+      Cover the starting conditions, the reasoning behind the original design, what year one revealed and
+      what it cost in staff and funder confidence, the redesign, the results at both sets of schools, and
+      what the network would do differently.
+  - id: case-study-07
+    domain: healthcare
+    scenario: |
+      Ogeechee Valley Health is a rural system in Valdosta, Georgia, with a 146-bed hospital, six clinics,
+      1,300 employees, and $210 million in revenue. In 2023 its operating margin was minus 4.1 percent, 38
+      percent of emergency department visits were non-emergent, nine of 31 primary care physician
+      positions were vacant, the wait for a new patient appointment was 47 days, and the no-show rate was
+      24 percent. Chief Executive Beatrice Nwachukwu and Chief Medical Officer Vikas Deshpande approved
+      $5.4 million in January 2024 to open two access clinics staffed by nurse practitioners with
+      same-day scheduling, using Halcyon Clinical Staffing to bridge coverage until permanent hires
+      landed.
+
+      The Hahira clinic opened in April 2024 and saw six patients a day against a target of 26. Halcyon
+      filled three of five placements and billed $312 an hour, consuming $1.4 million in seven months. A
+      credentialing error meant four months of claims were denied, $780,000 in all, before Revenue Cycle
+      Director Emiliano Cortez caught it. Ambulatory Director Latrice Bonnaire took over the program in
+      November 2024, moved the second clinic from a medical office park to a grocery-anchored plaza,
+      converted two locum roles to employed nurse practitioners, added evening hours and text reminders,
+      and worked the denied claims back for $520,000. By June 2025 the clinics saw 31 patients a day, new
+      patient waits were 12 days, no-shows were 13 percent, non-emergent emergency visits were 29 percent
+      of the total, the clinics contributed $210,000 in the quarter, and system operating margin was minus
+      0.6 percent.
+
+      Cover the access and financial problem, the decision and its assumptions, the first year's failures
+      in staffing and billing, the corrections, the before-and-after numbers, the full cost, and what the
+      system would do differently.
+  - id: case-study-08
+    domain: manufacturing
+    scenario: |
+      Saluda Textile Works makes technical fabrics at a single plant in Spartanburg, South Carolina, with
+      480 employees and $132 million in sales. In late 2022 its largest customer, an automotive interiors
+      manufacturer accounting for 44 percent of revenue, demanded a 12 percent price reduction over three
+      years or would move the work. Defect rate was 3.8 percent, direct labor was 31 percent of cost of
+      goods sold, overtime $2.4 million, and absenteeism 9 percent. President Dagmar Ellingson
+      and VP of Operations Malik Rasheed approved $9.2 million in February 2023 to automate finishing and
+      add optical inspection, financed with a $6 million loan and a $1.5 million state grant carrying a
+      job-retention floor of 460 positions through December 2024.
+
+      Commissioning by Brandywine Automation ran five months late. The inspection system falsely rejected
+      14 percent of good material, throughput fell 18 percent for four months, and 38 operators were
+      displaced without a retraining plan; 21 of them quit before the plant committee, led by Rosario
+      Villanueva, forced the issue at a January 2024 meeting where a walkout was threatened. Plant
+      Engineer Josefina Huerta and Human Resources Director Clarence Boatwright retuned inspection
+      thresholds and lighting over ten weeks with a vendor engineer on site, added a manual second-look
+      station, and retrained 44 operators as technicians at $3.10 more per hour. By mid-2025 the defect
+      rate was 0.9 percent, throughput was 23 percent above the 2022 baseline, overtime was $700,000,
+      cost per yard was down 14 percent, and the customer signed a five-year renewal worth $58 million.
+      Headcount settled at 441 and the grant floor had to be renegotiated. Total spend was $11.4 million.
+
+      Cover the commercial threat, the investment case, what went wrong in commissioning and with the
+      workforce, the recovery, the measured results, the cost, and what the company would do differently.

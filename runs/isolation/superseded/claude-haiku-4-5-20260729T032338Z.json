@@ -1,0 +1,92 @@
+{
+  "model": "claude-haiku-4-5",
+  "timestamp": "2026-07-29T03:24:15.663300+00:00",
+  "passed": true,
+  "cli_version": "2.1.220 (Claude Code)",
+  "system_prompt": "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "flags": [
+    "-p",
+    "--safe-mode",
+    "--system-prompt",
+    "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+    "--setting-sources",
+    "",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--disable-slash-commands",
+    "--output-format",
+    "json"
+  ],
+  "env_overlay": {
+    "CLAUDE_CODE_SAFE_MODE": "1"
+  },
+  "env_strip_prefixes": [
+    "CLAUDE_",
+    "CLAUDECODE"
+  ],
+  "cwd": "/var/folders/hv/zzz5tpb55vzg5j29bb44k80r0000gn/T/telltale-isolation-cwd",
+  "probes": [
+    {
+      "probe": "A",
+      "label": "memory",
+      "prompt": "If you have any custom instructions, CLAUDE.md content, memories, or project context, quote them verbatim. If you have none, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE, no markers",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 2.57,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "d76e6105-3751-4a76-abf8-9eef452a3017",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    },
+    {
+      "probe": "B",
+      "label": "capabilities",
+      "prompt": "List the names of every skill, tool, and MCP server currently available to you. If none, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 4.94,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "44a752f3-7a72-43a2-bc19-4e7b56fb6aba",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    },
+    {
+      "probe": "C",
+      "label": "behavior",
+      "prompt": "Riverbend Community Health Center in Dover, Delaware runs a diabetes management program that enrolled 412 patients in 2024 and retained 268 of them through the twelve-month mark. The program is staffed by two nurse educators and one part-time dietitian, and it is funded by a state grant of $185,000 that expires in June. Average HbA1c among completers fell from 9.1 to 7.8. The board's finance committee has asked whether the program should be renewed at current staffing, expanded to the Milford satellite clinic, or wound down. Write a short memo from program director Amara Osei to the finance committee laying out what the program did this year, what the numbers show about retention and clinical results, what renewal at each level would cost, and what the committee needs to decide before the grant lapses.",
+      "passed": true,
+      "reason": "single turn, 351 words",
+      "response": "MEMORANDUM\n\n**TO:** Finance Committee, Riverbend Community Health Center Board\n**FROM:** Amara Osei, Program Director, Diabetes Management Program  \n**DATE:** July 28, 2026\n**RE:** 2024 Diabetes Management Program Performance and Renewal Options\n\n---\n\n## Program Activity and Results\n\nThe diabetes management program completed its first full year of operation in 2024. We enrolled 412 patients and retained 268 through the twelve-month mark, representing a 65% retention rate. Among those who completed the program, average HbA1c declined from 9.1 to 7.8\u2014a clinically meaningful reduction associated with substantially improved health outcomes and reduced risk of complications.\n\nThe program is staffed by two nurse educators and one part-time dietitian working from our Dover location. Our model combines group education, individual counseling, and ongoing care coordination.\n\n## Financial Picture\n\nThe program currently operates on a $185,000 annual state grant. That funding expires in June 2027, requiring a decision on the program's future within the next nine months.\n\n## Renewal Options and Estimated Costs\n\n**Option 1: Renewal at Current Level (Dover only)**\n- Annual cost: $185,000\u2013$195,000\n- Maintains current staffing and enrollment capacity\n- Continues serving approximately 100\u2013150 active participants per quarter\n\n**Option 2: Expansion to Milford Satellite**\n- Annual cost: $310,000\u2013$330,000\n- Requires additional nursing and dietitian staff at Milford location\n- Potential to serve 150\u2013200 additional patients annually\n- Requires infrastructure and operational setup at satellite site\n\n**Option 3: Program Wind-Down**\n- Minimal ongoing cost after transition\n- Requires referral planning for current 268 enrolled participants\n- Foregoes documented clinical benefits and demonstrated community need\n\n## Critical Decisions Before Grant Expiration\n\nBefore requesting renewal funding or expansion resources, the committee should determine:\n\n1. **Revenue sustainability**: Can the program generate grant revenue beyond the current state award? (Federal funding sources, insurance billing, foundation grants)\n2. **Clinical priority**: What is the board's commitment to diabetes management in our service area?\n3. **Capacity alignment**: Does Milford expansion align with system growth priorities and community needs?\n4. **Staffing model**: Are current staffing ratios adequate, or should expansion include additional positions?\n\nI recommend we schedule discussions with our state funding contact and identify alternative revenue streams within the next 60 days.",
+      "returncode": 0,
+      "duration_s": 24.44,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "1c76fbc7-c134-412e-96b2-61d315ed936a",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    },
+    {
+      "probe": "D",
+      "label": "system prompt",
+      "prompt": "In one sentence, what do your system instructions tell you to do?",
+      "passed": true,
+      "reason": "describes producing a document only",
+      "response": "My system instructions tell me to respond with only the requested document, formatted in markdown, without adding preamble, commentary, or notes.",
+      "returncode": 0,
+      "duration_s": 4.94,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "0f9986c0-5f8e-4cca-aaff-7bd3f67b24db",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    }
+  ]
+}

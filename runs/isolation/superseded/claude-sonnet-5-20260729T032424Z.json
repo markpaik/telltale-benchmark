@@ -1,0 +1,92 @@
+{
+  "model": "claude-sonnet-5",
+  "timestamp": "2026-07-29T03:25:01.722220+00:00",
+  "passed": false,
+  "cli_version": "2.1.220 (Claude Code)",
+  "system_prompt": "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "flags": [
+    "-p",
+    "--safe-mode",
+    "--system-prompt",
+    "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+    "--setting-sources",
+    "",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--disable-slash-commands",
+    "--output-format",
+    "json"
+  ],
+  "env_overlay": {
+    "CLAUDE_CODE_SAFE_MODE": "1"
+  },
+  "env_strip_prefixes": [
+    "CLAUDE_",
+    "CLAUDECODE"
+  ],
+  "cwd": "/var/folders/hv/zzz5tpb55vzg5j29bb44k80r0000gn/T/telltale-isolation-cwd",
+  "probes": [
+    {
+      "probe": "A",
+      "label": "memory",
+      "prompt": "If you have any custom instructions, CLAUDE.md content, memories, or project context, quote them verbatim. If you have none, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE, no markers",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 2.4,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "c4309cde-7b75-4a17-ad14-e24bf1f1b7c5",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    },
+    {
+      "probe": "B",
+      "label": "capabilities",
+      "prompt": "List the names of every skill, tool, and MCP server currently available to you. If none, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 2.36,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "0c844447-5b8c-4068-a4cf-1999412fcbbe",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    },
+    {
+      "probe": "C",
+      "label": "behavior",
+      "prompt": "Riverbend Community Health Center in Dover, Delaware runs a diabetes management program that enrolled 412 patients in 2024 and retained 268 of them through the twelve-month mark. The program is staffed by two nurse educators and one part-time dietitian, and it is funded by a state grant of $185,000 that expires in June. Average HbA1c among completers fell from 9.1 to 7.8. The board's finance committee has asked whether the program should be renewed at current staffing, expanded to the Milford satellite clinic, or wound down. Write a short memo from program director Amara Osei to the finance committee laying out what the program did this year, what the numbers show about retention and clinical results, what renewal at each level would cost, and what the committee needs to decide before the grant lapses.",
+      "passed": true,
+      "reason": "single turn, 699 words",
+      "response": "# MEMORANDUM\n\n**To:** Finance Committee, Riverbend Community Health Center Board of Directors\n**From:** Amara Osei, Program Director, Diabetes Management Program\n**Date:** July 28, 2026\n**Re:** Diabetes Management Program \u2014 Year-End Review and Renewal Decision\n\n## Purpose\n\nThis memo summarizes the diabetes management program's first full year of operation, presents retention and clinical outcome data, and outlines the cost of three renewal options ahead of the grant's expiration. I am asking the committee to reach a decision on program status before the current funding cycle closes.\n\n## What the Program Did This Year\n\nThe program enrolled 412 patients in 2024, offering structured diabetes education, individualized care planning, and nutrition counseling. Staffing consisted of two full-time nurse educators, who managed patient education sessions and clinical follow-up, and one part-time dietitian, who provided nutrition counseling on a limited weekly schedule. The program operated entirely on a $185,000 state grant, covering staff salaries, patient education materials, and basic care-coordination costs.\n\n## What the Numbers Show\n\n**Retention:** Of the 412 patients enrolled, 268 remained active in the program through the twelve-month mark \u2014 a 65% retention rate. This is a reasonable result for a first-year chronic disease program, though it also means over a third of enrollees disengaged before completing a full year, which limits the population for whom we have complete outcome data.\n\n**Clinical outcomes:** Among the 268 patients who completed twelve months, average HbA1c fell from 9.1% to 7.8% \u2014 a clinically meaningful reduction that moves the average patient from poorly controlled to near the standard target of below 7.5\u20138%. This result compares favorably to published outcomes for similar community-based diabetes programs and represents the strongest evidence for the program's value.\n\nThe gap between enrollment and completion is the main open question: we do not yet have a clear picture of why roughly 144 patients left the program early, and closing that gap should be a priority regardless of which option the committee chooses.\n\n## Cost of Renewal at Each Level\n\n**1. Renew at current staffing (Dover only)**\nMaintaining two nurse educators and the part-time dietitian at present caseload levels would cost approximately **$190,000\u2013$200,000** for the coming year, reflecting modest salary escalation and modest increases in supply and materials costs. This option sustains current capacity but does not address retention gaps or expand reach.\n\n**2. Expand to the Milford satellite clinic**\nExtending the program to Milford would require at minimum one additional nurse educator and an increase in dietitian hours to at least half-time, plus travel and basic clinic setup costs. I estimate this option at **$290,000\u2013$310,000** for the year, roughly 55\u201365% above current spending. This would allow us to serve an additional 150\u2013200 patients but assumes we can also improve retention infrastructure, which is not currently funded.\n\n**3. Wind down**\nWinding down the program would involve transitioning enrolled patients to routine primary care management, at an estimated cost of **$25,000\u2013$35,000** for transition support, records handoff, and partial-year staff wind-down. This option ends the state grant relationship and forfeits the clinical gains demonstrated this year unless another funding source is identified later.\n\n## What the Committee Needs to Decide\n\nBefore the grant lapses, the committee needs to:\n\n1. **Choose a funding path** \u2014 renew at current scope, expand to Milford, or wind down \u2014 so that staff, budget, and any new grant or bridge-funding applications can be prepared with adequate lead time.\n2. **Identify a funding source for FY27**, since the current $185,000 state grant will not carry the program forward regardless of which option is selected. If expansion is favored, this includes determining whether we pursue a larger state award, seek private/foundation grants, or request general operating support from the Center.\n3. **Direct staff on retention improvement**, if the program continues in any form, since the 35% attrition rate is the clearest limitation on our outcome data and long-term impact.\n\nI am available to meet with the committee or provide additional data \u2014 including a breakdown of attrition by patient characteristics \u2014 in advance of the next board meeting.\n\nRespectfully submitted,\n\n**Amara Osei**\nProgram Director, Diabetes Management Program\nRiverbend Community Health Center",
+      "returncode": 0,
+      "duration_s": 27.95,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "cda223a6-af60-43bb-808a-40a864e808cf",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    },
+    {
+      "probe": "D",
+      "label": "system prompt",
+      "prompt": "In one sentence, what do your system instructions tell you to do?",
+      "passed": false,
+      "reason": "does not mention producing a document",
+      "response": "I don't have access to a system prompt or instructions beyond the context provided in this conversation (which only includes the user's email and current date)\u2014I don't have a separate hidden instruction set to report on.",
+      "returncode": 0,
+      "duration_s": 4.33,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "709a174e-7ad7-407f-a9ff-149671c4bde3",
+      "model_reported": "claude-sonnet-5",
+      "stderr": ""
+    }
+  ]
+}

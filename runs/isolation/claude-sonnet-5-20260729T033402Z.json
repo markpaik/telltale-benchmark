@@ -1,0 +1,93 @@
+{
+  "model": "claude-sonnet-5",
+  "timestamp": "2026-07-29T03:34:32.530746+00:00",
+  "passed": true,
+  "cli_version": "2.1.220 (Claude Code)",
+  "system_prompt": "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "flags": [
+    "-p",
+    "--safe-mode",
+    "--system-prompt",
+    "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+    "--setting-sources",
+    "",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--disable-slash-commands",
+    "--output-format",
+    "json"
+  ],
+  "env_overlay": {
+    "CLAUDE_CODE_SAFE_MODE": "1"
+  },
+  "env_strip_prefixes": [
+    "CLAUDE_",
+    "CLAUDECODE"
+  ],
+  "cwd": "/var/folders/hv/zzz5tpb55vzg5j29bb44k80r0000gn/T/telltale-isolation-cwd",
+  "probes": [
+    {
+      "probe": "A",
+      "label": "memory",
+      "prompt": "If you have any custom instructions, CLAUDE.md content, memories, or project context, quote them verbatim. If you have none, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE, no markers",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 2.7,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "95b6a1d5-f332-4f52-a77a-31551ec43b7e",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    },
+    {
+      "probe": "B",
+      "label": "capabilities",
+      "prompt": "List the names of every skill, tool, and MCP server currently available to you. If none, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 3.2,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "9974e815-ad63-4891-bee2-a160d1c07947",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    },
+    {
+      "probe": "C",
+      "label": "behavior",
+      "prompt": "Riverbend Community Health Center in Dover, Delaware runs a diabetes management program that enrolled 412 patients in 2024 and retained 268 of them through the twelve-month mark. The program is staffed by two nurse educators and one part-time dietitian, and it is funded by a state grant of $185,000 that expires in June. Average HbA1c among completers fell from 9.1 to 7.8. The board's finance committee has asked whether the program should be renewed at current staffing, expanded to the Milford satellite clinic, or wound down. Write a short memo from program director Amara Osei to the finance committee laying out what the program did this year, what the numbers show about retention and clinical results, what renewal at each level would cost, and what the committee needs to decide before the grant lapses.",
+      "passed": true,
+      "reason": "single turn, 817 words",
+      "response": "# MEMORANDUM\n\n**To:** Finance Committee, Riverbend Community Health Center Board\n**From:** Amara Osei, Program Director, Diabetes Management Program\n**Date:** July 28, 2026\n**Re:** FY2024 Program Results and Funding Decision Ahead of June Grant Expiration\n\n---\n\n## Purpose\n\nThis memo summarizes the first-year performance of the Diabetes Management Program, presents the retention and clinical data the committee requested, outlines the cost implications of the three options under consideration \u2014 renewal at current staffing, expansion to the Milford satellite clinic, or wind-down \u2014 and identifies the decisions the committee needs to make before our state grant lapses in June.\n\n## Program Summary, 2024\n\nThe Diabetes Management Program launched in 2024 with a $185,000 state grant, staffed by two full-time nurse educators and one part-time registered dietitian. The program provided individualized education, glucose and medication management support, and quarterly HbA1c monitoring for adult patients with Type 2 diabetes referred from Riverbend's primary care panel. We enrolled 412 patients over the course of the year.\n\n## Retention and Clinical Outcomes\n\n- **Enrollment:** 412 patients\n- **Retained to 12 months:** 268 patients (65% retention)\n- **Average HbA1c, completers:** fell from 9.1% at intake to 7.8% at twelve months \u2014 a 1.3-point reduction\n\nThis drop moves the average completer from a high-risk range into a range associated with meaningfully lower long-term risk of diabetes-related complications. The retention rate of 65% is respectable for a first-year chronic disease program of this size, though it also means 144 enrollees (35%) did not complete the full twelve months. Our team's informal exit interviews point to transportation, work schedule conflicts, and limited appointment availability with our part-time dietitian as the most common reasons for drop-off. I flag this because it bears directly on the staffing question below: the current staffing model, particularly the limited dietitian hours, appears to be a retention constraint, not just a capacity constraint.\n\n## Cost Considerations for Each Option\n\n*(Figures below are program-office estimates based on current staffing costs and the Milford clinic's approximate patient volume; the Finance Committee should confirm exact figures with HR and the Milford clinic manager before finalizing a decision.)*\n\n**1. Renew at current staffing (Dover only)**\nMaintaining two nurse educators and one part-time dietitian at Dover, with no change in patient volume targets, would require funding roughly comparable to the original grant \u2014 an estimated $185,000\u2013$195,000 annually, accounting for standard salary step increases. This option sustains current outcomes but does not address the retention gap tied to limited dietitian access.\n\n**2. Expand to Milford satellite clinic**\nExtending the program to Milford would require, at minimum, one additional nurse educator and an increase in dietitian hours to at least full-time to serve both sites. A reasonable estimate is an additional $95,000\u2013$120,000 annually on top of the Dover renewal cost, bringing total annual program cost to roughly $280,000\u2013$315,000. This option would also require lead time to hire and onboard staff and to establish referral pathways with Milford primary care providers before the grant lapses, so a decision to expand needs to be made promptly.\n\n**3. Wind down**\nWinding down would avoid new funding obligations but would end care for patients currently enrolled and mid-treatment, including many of the 144 who have not yet completed twelve months and may be showing early progress. Wind-down would require a transition plan to hand off active patients to primary care or outside diabetes resources, and would likely need a short bridge budget (estimated $15,000\u2013$20,000) to fund an orderly close-out over 60\u201390 days.\n\n## Decisions the Committee Needs to Make\n\nBefore the grant lapses in June, I am asking the committee to determine:\n\n1. **Which of the three options** \u2014 renew at current staffing, expand to Milford, or wind down \u2014 the board wishes to pursue, given the cost ranges above.\n2. **Whether to authorize a new funding source** if state grant renewal is uncertain, including whether the Center should apply for a follow-on state grant, seek other grant funding, or absorb some cost into the operating budget.\n3. **Whether to increase dietitian hours** at Dover regardless of the Milford decision, given the apparent link between limited dietitian access and lower retention.\n4. **Timeline for hiring**, if expansion is approved, since recruiting and onboarding additional clinical staff typically takes 60\u201390 days and needs to begin well before the grant expiration to avoid a service gap.\n\nI'm happy to prepare a more detailed budget breakdown or attend the next Finance Committee meeting to walk through these options in person. Given the June deadline, I'd recommend the committee reach a preliminary decision within the next four to six weeks so we have time to act on staffing and grant applications accordingly.\n\nThank you for your continued support of this program and for the patients it serves.\n\nAmara Osei\nProgram Director, Diabetes Management Program\nRiverbend Community Health Center",
+      "returncode": 0,
+      "duration_s": 21.91,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "791672a5-a5a7-4601-9daa-d0182761f435",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    },
+    {
+      "probe": "D",
+      "label": "system prompt",
+      "prompt": "In one sentence, what do the instructions you have been given tell you to do?",
+      "passed": true,
+      "reason": "describes producing a document only",
+      "response": "Respond with only the requested document, formatted in markdown, without any preamble, commentary, or notes.",
+      "returncode": 0,
+      "duration_s": 2.57,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "528c655d-5fa4-4c5f-a9af-2ff85cf9c4be",
+      "model_reported": "claude-haiku-4-5-20251001",
+      "stderr": ""
+    }
+  ],
+  "known_residual_context": "One system-reminder carrying the account email address and the current date. No CLAUDE.md, no skills, no tool list, no MCP servers, and no default Claude Code system prompt. Carries no guidance about how to write."
+}

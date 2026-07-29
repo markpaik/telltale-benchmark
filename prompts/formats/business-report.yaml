@@ -1,0 +1,217 @@
+format: business-report
+bundle: false
+target_words: 5000
+min_words: 4500
+output_convention: |
+  One internal business report: a title block naming the report, period, author, and
+  audience, then sections that work through the material. Data belongs in tables where a table is the
+  clearer container and in prose otherwise.
+prompts:
+  - id: business-report-01
+    domain: nonprofit
+    scenario: |
+      Tidewater Opportunity Partners is a Norfolk, Virginia nonprofit with 214 staff, a $31.6 million
+      fiscal 2026 budget, and five program lines. Priscilla Nwachukwu, director of strategy and
+      performance, prepares the third-quarter operations report for the board's joint finance and
+      program committee, which meets May 12. Chief executive Roland Vasquez-Ortiz and chief financial
+      officer Meredith Blanchard have both asked that the quarter be presented in full rather than by
+      exception, because last quarter's report drew complaints from trustees who felt they learned
+      about problems late.
+
+      Youth workforce served 1,340 participants against a target of 1,800 and placed 47 percent into
+      jobs, down from 58 percent a year ago. Adult reentry employment held placement at 63 percent
+      across 410 participants but lost both senior case managers in February and now carries caseloads
+      of 71. Emergency housing spent $4.9 million against a $4.2 million budget after motel voucher
+      costs rose 34 percent, and average length of stay went from 41 nights to 66. Behavioral health
+      counseling billed $2.1 million in Medicaid revenue against $2.8 million projected, with 3 of 11
+      clinician positions vacant the whole quarter. Early literacy, the smallest line at $1.6 million,
+      met every target and enrolled 620 children, but its federal grant drops by $600,000 on October 1.
+      Agency-wide staff turnover ran 29 percent annualized, and the Petersburg site, run by Thuy Pham,
+      remains under a state corrective action plan after a January monitoring visit found 22 incomplete
+      case files.
+
+      The report must cover each of the five program lines with its own results and its own
+      explanation, the agency's financial position at three quarters, the staffing picture, the state
+      corrective action, and what the committee should understand about the fourth quarter and the
+      coming grant reduction.
+  - id: business-report-02
+    domain: municipal-government
+    scenario: |
+      Tuscarora County, Pennsylvania has 148,000 residents, 1,240 employees, and a general fund of $196
+      million for fiscal 2026. Budget director Elias Whitcomb prepares the mid-year operations and
+      financial report for the Board of Commissioners, which takes it up August 6. Chair Bernadette
+      Osei-Tutu has asked for department-by-department detail after a June audit letter flagged weak
+      grant reconciliation, and chief clerk Danielle Ferraro assembled the departmental submissions.
+
+      The sheriff's office, under Marvin Delgado, is $2.1 million over a $34 million budget on
+      overtime, with 31 of 214 deputy positions vacant and the jail averaging 388 inmates against a
+      rated capacity of 340. Roads and bridges spent 61 percent of its $27 million paving allocation
+      but completed only 38 percent of planned centerline miles after asphalt prices rose 14 percent
+      and a bridge on Route 4012 closed in April for emergency repairs now estimated at $3.8 million.
+      Human services drew $71 million in state and federal pass-through and carries $1.9 million in
+      unreconciled grant receivables, the item the auditors named. Tuscarora Manor, the county nursing
+      home run by administrator Sheila Rourke, held census at 142 of 180 beds and lost $4.6 million
+      against a budgeted $3.1 million loss, with agency nurses covering 27 percent of nursing hours.
+      The 911 center answered 214,000 calls with 9 of 46 dispatcher seats vacant and missed the state
+      ninety-second answer standard on 8 percent of them. The register of deeds recorded 11,400
+      documents, down 22 percent with mortgage volume, cutting fee revenue $940,000.
+
+      The report must cover each of these departments with its own numbers and its own explanation, the
+      county's overall position at mid-year against the adopted budget, the audit finding on grant
+      reconciliation, and what the commissioners face in the second half.
+  - id: business-report-03
+    domain: retail
+    scenario: |
+      Foxglove Home and Hearth operates 38 home furnishings stores in Kentucky, Ohio, Indiana, and West
+      Virginia plus an e-commerce channel, employs 2,600 people, and books $412 million in annual
+      revenue from a Lexington, Kentucky headquarters. Yusuf Adeyemi, director of financial planning
+      and analysis, writes the second-quarter fiscal 2026 report for the executive team and for the
+      private equity sponsor that bought the chain in 2023. Chief executive Marguerite Delacroix-Hall,
+      senior vice president of stores Curtis Yamamoto, and chief merchant Lena Ostrowski review it
+      before it reaches the sponsor's board observer, Devon Marsh, on August 18.
+
+      The Bluegrass region, 12 stores, comped up 2.1 percent at a 34.2 percent gross margin, though two
+      stores beside a closed department store anchor fell 9 percent. The Ohio Valley region, 10 stores,
+      comped down 3.4 percent and replaced 4 of its 10 store managers during the quarter. The Northern
+      region, 9 stores in Indiana, comped up 5.6 percent following $6.8 million of remodels at three
+      locations. The Appalachian region, 7 stores, comped down 6.2 percent, and its Charleston lease
+      expires in March with a 31 percent renewal increase on the table. E-commerce grew 18 percent to
+      $44 million but ran a negative 2.1 percent contribution margin on a carrier surcharge and a 21
+      percent return rate. Relocating the distribution center to Georgetown broke replenishment for six
+      weeks in May and June, leaving in-stock at 87 percent against a 96 percent standard, and a $9.4
+      million outdoor furniture buy sold through at 54 percent, forcing $2.8 million of markdown.
+
+      The report must cover each region and the e-commerce channel with its own results and
+      explanation, the distribution center transition, the outdoor furniture markdown, the margin and
+      inventory position, and what the back half of the year requires.
+  - id: business-report-04
+    domain: logistics
+    scenario: |
+      Wabash Crossing Logistics provides contract warehousing and transportation from five distribution
+      centers, employs 2,900 people, and generated $310 million in revenue last year out of Terre
+      Haute, Indiana. Sanjay Bhatt, director of network analytics, prepares the first-half fiscal 2026
+      network operations review for the executive committee and for a joint session with Beaumont Home
+      Brands, the housewares customer that accounts for 31 percent of revenue and placed one site on a
+      performance improvement plan in April. Chief operating officer Rhonda Piotrowski and vice
+      president of operations Cesar Villanueva are the internal audience.
+
+      Indianapolis, 610,000 square feet, shipped 41.2 million units at $0.42 per unit against a $0.39
+      budget, held order accuracy at 99.4 percent, and turned over 62 percent of its warehouse staff.
+      Groveport, Ohio, 900,000 square feet, shipped 28.7 million units but fell to 98.1 percent
+      accuracy against a 99.5 percent service level, drawing $214,000 in customer chargebacks.
+      Louisville, 450,000 square feet, ran at 96 percent of storage capacity with overtime at 18
+      percent of hours and refused two inbound trailers in June for lack of dock space. Carlisle,
+      Pennsylvania, 1.1 million square feet and run by general manager Tanya Broussard, is the site on
+      the improvement plan, shipping on time 91.3 percent against a 98 percent commitment while its
+      warehouse management system upgrade slipped from March to September. Winchester, Virginia, opened
+      in August 2025, is receiving 68 percent of contracted volume and losing about $180,000 a month.
+
+      The review must cover each of the five sites with its own volumes, cost, quality, and labor
+      picture, the Carlisle improvement plan and the delayed system upgrade, the Winchester volume
+      shortfall, the network's overall financial and safety results, and what the second half and peak
+      season demand.
+  - id: business-report-05
+    domain: software
+    scenario: |
+      Fairmount Software Group, headquartered in Baltimore, Maryland, owns six vertical software
+      businesses assembled through acquisition since 2019. It employs 780 people, carries $146 million
+      in annual recurring revenue against $310 million of debt, and must hold net leverage under 4.75
+      times to stay inside its credit agreement; it closed the last quarter at 4.61. Noor Haddad, vice
+      president of corporate strategy, writes the fiscal 2026 mid-year business review for the board
+      and the lender group. Chief executive Patrick Molnar and chief financial officer Simone Baptiste
+      review it first, and chief product officer Aaron Kleinfeld supplies the roadmap detail.
+
+      DentalPath, practice management software, holds $38 million of recurring revenue growing 6
+      percent at 91 percent gross retention. RxCounter, a pharmacy point-of-sale product, is flat at
+      $27 million and lost 340 of 4,100 pharmacy customers to a competitor that bundles wholesaler
+      ordering. CivicDesk, municipal permitting, grew 19 percent to $22 million but carries a
+      fourteen-month implementation backlog and ran services at a negative 4 percent margin. StoreVault,
+      self-storage management, reached $31 million on 11 percent growth, and its embedded payments
+      attach rate rose to 34 percent of tenants. Everlight, funeral home management, shrank 3 percent
+      to $16 million, runs on a framework whose vendor ends support in March 2027, and needs a rewrite
+      priced at $4.2 million; its founder, Warren Sikes, left in April and took two engineers with him.
+      VetLedger, acquired in November 2025 for $61 million, grew 27 percent to $12 million, but its
+      billing migration is four months behind and 190 practices are still invoiced by hand.
+
+      The review must cover each of the six businesses with its own results and its own problem, the
+      consolidated financial picture against the covenant, the Everlight rewrite decision, the
+      VetLedger integration, and what the second half looks like.
+  - id: business-report-06
+    domain: k12-education
+    scenario: |
+      Susquehanna Rising Charter Schools operates four campuses in Harrisburg, Pennsylvania, serving
+      3,120 students with 380 staff and a $47 million budget. Its charter comes up for renewal before
+      the authorizing district's board in October, and chief of staff Nasreen Qureshi is writing the
+      annual operations report that the board of trustees will adopt in August and submit with the
+      renewal packet. Chief executive Antoine Lemieux, chief financial officer Holly Steinmetz, and
+      board chair Cordell Bishop have all asked that the report not flatten the differences between
+      campuses.
+
+      Riverfront Elementary enrolled 780 students at 96 percent of target, held attendance at 92
+      percent, and reached 41 percent proficiency in third-grade reading against a 29 percent city
+      average. Cameron Street Middle fell from 720 students to 640, ran 22 percent chronic absenteeism,
+      and left 6 of its 44 teaching positions vacant from January through June, covering them with
+      long-term substitutes. Allison Hill Academy graduated 84 percent of its senior class, documented
+      postsecondary plans for 61 percent of graduates, and enrolled 210 students in dual credit, but
+      lost its only counselor to a district position in February. Steelton Prep, opened in 2023 under
+      principal Yesenia Duarte, enrolled 690 against a 970-student model, which drives a $2.3 million
+      operating deficit on a building that costs $1.4 million a year to lease. Systemwide the network
+      holds 38 days of cash, eliminated 14 positions funded by expiring federal relief money, and saw
+      teacher turnover of 31 percent.
+
+      The report must cover each campus with its own enrollment, staffing, attendance, and academic
+      results, the network's financial position and cash, the turnover picture, the Steelton Prep
+      shortfall, and what the trustees should understand going into the renewal hearing.
+  - id: business-report-07
+    domain: healthcare
+    scenario: |
+      Brandywine Medical Group is a physician-owned multispecialty practice with 26 sites in New Castle
+      County, Delaware, 310 providers, 1,900 employees, and $488 million in net patient revenue.
+      Camille Bourdeau, director of practice operations analytics, prepares the third-quarter fiscal
+      2026 operations report for the board's finance and quality committees, meeting jointly on
+      September 9. Chief executive Ravi Krishnamurthy, chief financial officer Peter Nordquist, and
+      chief quality officer Olamide Fashola set the agenda; the contract with the state's largest
+      commercial payer expires September 30 and remains unsigned.
+
+      Primary care, with 98 providers, handled 412,000 visits, carries panels averaging 2,180, sits at
+      22 days to the third next available appointment, and lost $4.2 million before referral
+      contribution. Orthopedics grew cases 9 percent to 6,100, moved 61 percent of them to the
+      ambulatory surgery center, and contributed $31 million. Cardiology lost three physicians
+      effective August 1, projects a 14 percent volume decline, and has an echocardiogram backlog of 31
+      days; division chair Stefan Marek attributes the departures to call coverage. Behavioral health
+      runs 41 clinicians with 9 vacancies, delivers 68 percent of visits by video, and books a 24
+      percent no-show rate. Imaging performed 218,000 studies across 11 sites at 74 percent magnetic
+      resonance utilization, with one Middletown scanner down six weeks on a helium compressor failure.
+      The April conversion to a new electronic health record pushed initial claim denials from 6.9
+      percent to 12.8 percent and days in accounts receivable from 41 to 58, leaving $19 million of
+      cash stuck behind it.
+
+      The report must cover each service line with its own volumes, staffing, and financial results,
+      the denial and receivables problem following the conversion, the payer negotiation, and where the
+      practice stands going into the fourth quarter.
+  - id: business-report-08
+    domain: manufacturing
+    scenario: |
+      Vandalia Industrial Group makes engineered polymer and coated metal components for heating
+      equipment and appliance manufacturers from four plants, employs 1,850 people, and posted $520
+      million in revenue last year from its headquarters in Huntington, West Virginia. Lisette
+      Charbonneau, vice president of manufacturing, prepares the first-half fiscal 2026 operations
+      review for the executive committee and, because of a March safety inspection, for the audit
+      committee as well. Chief executive Doreen Whitaker asked for plant-level detail, and environmental
+      health and safety director Malik Ferguson contributes the safety section.
+
+      The Huntington plant, 620 employees, ran overall equipment effectiveness of 61 percent against a
+      72 percent target after a press rebuild slipped eleven weeks and cost 340 hours of unplanned
+      downtime, with scrap at 4.9 percent. The Springfield, Ohio plant, 430 employees under manager
+      Hae-Won Jeong, drew three serious citations and an $84,600 proposed penalty from the March
+      inspection and reports a recordable injury rate of 4.8 against the company's 2.1. Muncie,
+      Indiana, 510 employees under Ruben Alcantara, learned in May that an appliance customer worth $28
+      million a year will move the business in January 2027, leaving that plant at 63 percent
+      utilization. Chambersburg, Pennsylvania, 290 employees, opened a $22 million coating line five
+      months late and holds first-pass yield at 78 percent against a 94 percent design target. Across
+      the company, resin costs rose 19 percent, overtime reached 14 percent of direct hours, and 121
+      production positions sit open.
+
+      The review must cover each plant with its own performance data and its own problem, the safety
+      findings and what they mean company-wide, the cost and staffing pressures, the Muncie customer
+      loss, and the Chambersburg launch.

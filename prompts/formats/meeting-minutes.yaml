@@ -1,0 +1,217 @@
+format: meeting-minutes
+bundle: true
+target_words: 5000
+min_words: 4500
+output_convention: |
+  Minutes for four consecutive meetings, presented in order, each with its own header
+  block (body, date, time, place, members present, members absent, others attending) followed by the
+  record of business in agenda order. Motions, seconds, votes, decisions, and action items are
+  attributed to named people with dates. Written in the past tense, as minutes are.
+prompts:
+  - id: meeting-minutes-01
+    domain: retail
+    scenario: |
+      Lake Superior Community Grocery Cooperative in Duluth, Minnesota, is a single-store natural
+      foods co-op with 6,400 member-owners, 112 employees, and $18.4 million in annual sales. Its
+      nine-member board of directors meets on the third Tuesday of each month in the store's
+      community room. President Aditi Ramanathan, a hospital pharmacist, chairs. The other officers
+      are Vice President Dwayne Okonkwo, a union carpenter; Treasurer Marta Kozlowski, a certified
+      public accountant; and Secretary Jae-Won Suh, a public radio producer. Directors Bernadette
+      Tallbear and Owen Fitzgerald, who owns commercial property on Superior Street, are the most
+      active of the remaining members. General Manager Nils Haugen staffs the board.
+
+      Fiscal 2025 closed with a $340,000 operating loss and gross margin down to 34.1 percent from
+      36.8 percent. At the January 20, 2026 meeting the board took up a second store in Superior,
+      Wisconsin, priced at $4.2 million, and tabled it pending a market study. On February 17
+      consultant Priya Venkataraman of Northern Tier Cooperative Advisors presented that study,
+      projecting break-even in year four; the motion to proceed failed five to four. On March 17
+      Haugen resigned effective May 1, and member-owners delivered a petition of 512 signatures
+      against any expansion, filling the whole public comment period. On April 21 the board named
+      an interim manager, suspended the patronage dividend, reworked the expansion into a
+      smaller-format proposal, and dealt with Fitzgerald's resignation and the vacancy it opened
+      ahead of the June election.
+
+      The minutes must carry the recurring financial and management reports, the motions and votes
+      with their counts, the public comment, the committee referrals, and the action items assigned
+      at each of the four meetings.
+  - id: meeting-minutes-02
+    domain: logistics
+    scenario: |
+      Rock River Logistics Group is a third-party logistics provider headquartered in Rockford,
+      Illinois, running six distribution centers in Illinois and Wisconsin with 1,150 employees and
+      $214 million in revenue. In 2024 it signed a $6.8 million contract with Meridian Yard Systems
+      for a new warehouse management system. The cutover steering committee meets every other
+      Thursday and is chaired by Chief Operating Officer Yolanda Brissette. Its members are Vice
+      President of Technology Sanjay Mirchandani, Janesville site director Tomas Escalante, Director
+      of Transportation Freya Lindqvist, and program manager Kwame Boateng. Rebecca Dziedzic, the
+      vendor's engagement lead, attends without a vote.
+
+      Go-live has slipped twice, from March to July to September. At the September 4, 2025 meeting
+      the Janesville pilot reported 62 percent pick accuracy against a 99.2 percent standard, 218
+      open defect tickets, and 14 temporary workers hired to cover manual workarounds; the committee
+      held the go-live. On September 18 it took up a disputed $410,000 change order and the
+      contract's cure and termination provisions. On October 2 the Eau Claire deployment was
+      deferred, and the company's largest customer, which accounts for 31 percent of revenue, issued
+      a $290,000 chargeback and put its contract on notice. On October 16, with the November 1
+      peak-season change freeze approaching, the committee voted five to two to issue a formal cure
+      notice, run the fourth quarter on the legacy system, and re-baseline scope for a February 2026
+      attempt; Escalante announced he was leaving the company in three weeks.
+
+      The minutes must carry the standing status report, the readiness and defect metrics, the
+      vendor's responses, the motions and votes, the closed session on contract remedies, and the
+      owners and due dates recorded for every action item at each meeting.
+  - id: meeting-minutes-03
+    domain: software
+    scenario: |
+      Huron Stack, Inc. is a developer platform company in Ann Arbor, Michigan, with 240 employees,
+      3,200 customers, and $41 million in annual recurring revenue. On August 12, 2025 a control
+      plane failure took deployments offline for nine hours and fourteen minutes for 1,880 of those
+      customers. The company stood up a reliability review board that meets Wednesday afternoons.
+      Vice President of Engineering Meilin Zhao chairs it. The members are principal site reliability
+      engineer Abdirahman Yusuf, director of support Gwen Petrosyan, staff security engineer Ivo
+      Radulescu, and customer success director Tanisha Whitfield. Chief Technology Officer Peter
+      Ostrowski attends as an ex officio member.
+
+      At the August 20 meeting the board walked the incident timeline, identified an expired
+      certificate rotation compounded by an unreviewed configuration change, and put an estimated
+      $1.2 million in service credits on the record. On August 27 a second incident of 47 minutes
+      traced to the same subsystem, and Zhao proposed an error budget freeze that would push the 4.0
+      release scheduled for October 6. On September 3 the outside auditor Kestrel Assurance flagged
+      a change management control gap in the SOC 2 Type II examination, two customers representing
+      $3.4 million in renewals invoked contractual exit language, and the board split over publishing
+      the postmortem. On September 10 it extended the freeze through October, adopted a revised
+      on-call compensation policy, moved 4.0 to December 1, and approved two reliability engineering
+      requisitions against a company-wide hiring freeze.
+
+      The minutes must record the standing incident and error budget review at each meeting, the
+      customer and audit reports, the debate and the votes on the release date and the postmortem,
+      the dissents, and the follow-up items with named owners.
+  - id: meeting-minutes-04
+    domain: k12-education
+    scenario: |
+      Pine Hollow Area School District serves 1,340 students in west central Minnesota, down from
+      1,910 in 2014, across four elementary buildings, a middle school, and a high school. Its
+      seven-member board of education meets the third Monday of the month at the high school media
+      center. Chair Rosalind Achterberg presides, with Vice Chair Hector Villalpando, Treasurer Grant
+      Halvorsen, and director Mai Xiong carrying most of the debate. Superintendent Terrence Baldacci
+      and Business Manager Nadia Kalinowski present to the board. The general fund is $23.6 million,
+      and the district projects a $2.9 million shortfall by June 2027 that would place it in
+      statutory operating debt.
+
+      On September 15, 2025 the board received the enrollment projection and the first reading of a
+      facilities study recommending consolidation, and seated a boundary committee. On October 20 it
+      heard the campaign report on the November 4 operating levy referendum and set a mediation date
+      in the teacher contract impasse, with the union seeking 4.5 percent and the district offering
+      1.75 percent. The referendum failed with 46.2 percent voting yes. On November 17 forty-two
+      speakers used three hours of public comment against closing Birchdale Elementary, which enrolls
+      187 students, and the board tabled the recommendation. On December 15 it voted three to two,
+      with one abstention and one member absent, to close Birchdale effective June 2026 and cut 14.5
+      full-time positions; Xiong resigned her seat at the end of that meeting.
+
+      The minutes must carry the consent agenda, the superintendent and finance reports, the public
+      comment at each meeting, the motions with their votes by name, the closed session on
+      negotiations, and the resignation and the process set for filling the vacancy.
+  - id: meeting-minutes-05
+    domain: healthcare
+    scenario: |
+      Prairie Gate Regional Health operates a 71-bed hospital and four clinics in Watertown, South
+      Dakota, with 940 employees. Its board committee on quality, safety, and compliance meets the
+      first Thursday of each month. Dr. Ingrid Solheim, a retired internist and board member, chairs.
+      Chief Nursing Officer Rochelle Amankwah, Chief Medical Officer Dr. Vikram Sethi, quality
+      director Bethany Ojeda, compliance officer Marcus Threadgill, and Chief Executive Danae
+      Lindstrom attend.
+
+      A federal validation survey in January 2026 cited immediate jeopardy in the emergency
+      department after a patient in labor was transferred without stabilization, along with a
+      condition-level finding on medication reconciliation. At the February 5 meeting the committee
+      reviewed the abatement that lifted the jeopardy finding, accepted the plan of correction, and
+      heard sepsis bundle compliance at 51 percent. On March 5 an outside mock survey returned 34
+      findings, two of the four obstetricians on staff gave notice, and travel nurse spending stood
+      at $4.7 million against a $1.9 million budget. On April 2 the committee forwarded a
+      recommendation to the full board on the obstetrics service line, which delivered 188 babies
+      last year; a community petition with 1,900 signatures and a malpractice claim arising from the
+      January transfer both went into the record. On May 7 the revisit survey closed out the
+      citations, the committee revised its charter and reporting calendar, and Threadgill announced
+      his resignation effective June 30.
+
+      The minutes must carry the standing quality dashboard and serious safety event review at each
+      meeting, the survey and correction plan status, the service line discussion and the votes,
+      the executive session on the claim, and the assignments made to named staff with dates.
+  - id: meeting-minutes-06
+    domain: manufacturing
+    scenario: |
+      Kettle Moraine Castings is a gray-iron foundry in West Bend, Wisconsin, with 430 employees and
+      $118 million in annual sales, supplying automotive and agricultural equipment customers. After
+      stack emission exceedances at two baghouses, the state environmental agency entered a consent
+      order in December 2025 carrying a $625,000 stipulated penalty and a schedule of capital
+      milestones. The company's capital and environmental compliance committee now meets monthly.
+      Vice President of Operations Dolores Katsaros chairs; the members are plant manager Ade Balogun,
+      environmental health and safety manager Cheyenne Fasthorse, quality director Rajeev Nambiar,
+      Chief Financial Officer Lena Stavrou, and maintenance superintendent Wesley Trombley.
+
+      On March 11, 2026 the committee opened three engineering bids for baghouse and cupola control
+      replacement ranging from $8.6 million to $11.2 million, with a 38-week lead time on the primary
+      equipment. On April 8 a fourth exceedance restarted penalty accrual at $2,500 a day, a losing
+      bidder filed a protest, and contractor selection was tabled. On May 13 the committee approved
+      the capital request four to one conditioned on financing, absorbed a $1.1 million warranty
+      claim after a part approval failure at a transmission customer, reviewed a scrap rate of 8.9
+      percent, and took up a grievance over mandatory Saturday overtime with the steelworkers
+      contract expiring September 30. On June 10 the agency granted a milestone extension to February
+      2027, the committee reforecast capital at midyear, Trombley announced his retirement, and a
+      near-miss investigation from the pouring floor came back.
+
+      The minutes must carry the consent order milestone tracker, the environmental and safety
+      reports, the bid and contractor decisions with their votes, the quality and labor items, and
+      every action item with the person accountable and the date it is due.
+  - id: meeting-minutes-07
+    domain: nonprofit
+    scenario: |
+      Cedar Valley Family Services in Waterloo, Iowa, runs a $9.2 million budget with 118 staff.
+      Hawkeye Youth Bridge in Cedar Falls runs $3.1 million with 41 staff. In late 2025 the two
+      boards seated a joint merger exploration committee of six that meets the second Wednesday of
+      each month, co-chaired by Delphine Marchetti, the Cedar Valley board chair and a retired
+      banker, and Obadiah Kimani, who chairs Hawkeye Youth Bridge. The other members are Cedar Valley
+      treasurer Sun-Hee Park, Cedar Valley chief executive Naomi Feldstein-Ruiz, Hawkeye founder and
+      executive director Roland Buchbinder, and Hawkeye board member Tariq Al-Rashid. The Black Hawk
+      Community Foundation has offered a $500,000 challenge grant contingent on a signed agreement by
+      June 30, 2026, and a shared $1.4 million state contract goes out for reprocurement in July.
+
+      On January 14, 2026 the committee adopted its charter and a due diligence scope, and
+      Buchbinder's motion to substitute the word affiliation for merger failed four to two. On
+      February 11 due diligence surfaced a $310,000 unrecorded pension withdrawal liability, a lapsed
+      building lease, and unfiled unrelated business income returns; a motion to pause the process
+      ended three to three and did not carry. On March 11 a staff town hall produced a letter signed
+      by 22 employees, Hawkeye's unrestricted reserves fell to 1.2 months, and the committee argued
+      over the surviving name. On April 8 it recommended a member substitution structure with a seven
+      to four board split and a $265,000 transition budget, and one member resigned from the
+      committee.
+
+      The minutes must carry the due diligence reports, the counsel and consultant presentations, the
+      motions and their vote counts, the staff and funder communications, and the recommendations
+      referred to each parent board.
+  - id: meeting-minutes-08
+    domain: municipal-government
+    scenario: |
+      The City of Willow Bend, Minnesota, population 34,700, has a seven-member planning commission
+      that meets the first Monday of the month in council chambers. Chair Beatriz Ocampo-Reyes
+      presides, with Vice Chair Douglas Wetherbee and commissioners Nnamdi Eze, Solveig Brandt, and
+      Hassan Farooqi taking the lead on most items. Planning director Erica Bakke presents the staff
+      reports. Halcyon Ridge Industrial Partners has applied to rezone 148 acres of farmland at the
+      eastern edge for a 1.1 million square foot food distribution warehouse, with a traffic study
+      projecting 640 truck trips a day and a tax increment request of $14.6 million. A residents'
+      group calling itself Neighbors for the Rural Edge has filed 1,300 petition signatures.
+
+      On February 2, 2026 the commission recommended a six-month interim ordinance on industrial
+      rezonings five to two while the comprehensive plan update ran nine months behind schedule, and
+      the applicant's attorney asserted vested rights and a sixty-day statutory deadline. On March 2
+      the public hearing drew 63 speakers over four hours, a resident engineer challenged the trip
+      generation figures, and the item was continued. On April 6 a revised site plan with a berm, a
+      routing agreement, and 320 fewer daily trips came back; a motion to recommend denial failed
+      three to four, and a motion to recommend approval with seventeen conditions carried four to
+      three. On May 4 the city council remanded the matter over a wetland delineation, Farooqi
+      recused himself because his employer had contracted with the applicant, and the commission
+      adopted its annual work plan and a housing overlay study.
+
+      The minutes must carry the staff reports, the applicant presentations, the sworn public
+      hearing testimony, the findings of fact, the motions and roll call votes, and the referrals
+      back to the council at each meeting.

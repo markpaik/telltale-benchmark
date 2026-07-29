@@ -1,0 +1,282 @@
+format: grant-proposal
+bundle: false
+target_words: 5000
+min_words: 4500
+output_convention: |
+  One grant application narrative organized under the funder's own required sections:
+  statement of need, project description, goals and measurable objectives, evaluation plan,
+  organizational capacity, sustainability, and budget narrative. Section headings match the labels the
+  funder uses.
+prompts:
+  - id: grant-proposal-01
+    domain: k12-education
+    scenario: |
+      Kings Basin Unified School District in Hanford, California enrolls 6,420
+      students across eleven schools. Seventy-four percent are Hispanic or
+      Latino, nine percent speak Punjabi at home, 82 percent qualify for free or
+      reduced-price meals, 36 percent are English learners, and twelve percent
+      are eligible for migrant education services. Third-grade English language
+      arts proficiency sits at 24 percent districtwide. The Aldous Renwick
+      Foundation has opened its Rural Readers Initiative, which awards $2.4
+      million over four years at up to $600,000 a year, requires a 25 percent
+      cash match, and closes December 12. The required sections are statement of
+      need, project description, goals and measurable objectives, evaluation
+      plan, organizational capacity, sustainability, and budget narrative, and
+      the foundation wants annual reporting on third-grade proficiency, DIBELS
+      composite growth, chronic absenteeism, teacher retention at participating
+      schools, and cost per student served.
+
+      Superintendent Priyanka Raghunathan and Director of Curriculum Elena
+      Vasquez-Ortiz would extend a coaching model that ran at three schools from
+      2019 to 2023 and lifted third-grade proficiency at those sites from 21
+      percent to 34 percent while the district stayed flat. Partners are the
+      county office of education for coach supervision, West Hills Community
+      College for a paraeducator-to-teacher pathway, and the county library for
+      a summer program. Two problems sit in the file: a prior $600,000 Delaney
+      Trust award lapsed in 2024 with only $410,000 drawn after the coaching
+      lead resigned, and the FY2024 single audit carried a finding on
+      time-and-effort certification for federally funded staff that Assistant
+      Superintendent of Business Kaori Tanabe has been correcting. Grants
+      Manager DeAndre Booker must answer how coaching continues after year four
+      with supplemental state funds already committed through 2030.
+
+      The narrative must cover every section the foundation names: the
+      district's data, the model, partner roles, the measures, the audit and
+      lapsed-grant history, the match, and sustainability.
+  - id: grant-proposal-02
+    domain: healthcare
+    scenario: |
+      Platte Meridian Community Health is a federally qualified health center
+      with six sites in central Nebraska, serving 28,400 patients with 214 staff
+      on a $41 million budget. Sixty-two percent of patients are Hispanic or
+      Latino, eleven percent Somali or Sudanese, 38 percent best served in a
+      language other than English, 44 percent at or below 138 percent of the
+      federal poverty level, and 27 percent uninsured. Prenatal patients grew
+      from 610 to 1,180 since 2021, but only 51 percent enter care in the first
+      trimester against a state average of 74 percent, and since Meadowlark
+      Regional closed its obstetrics unit in 2023 the nearest delivery room is
+      38 miles away.
+
+      The Ansel Brack Trust's Rural Maternal Health Access Program awards $3.75
+      million over five years, with a letter of intent due September 5 and the
+      full application November 14. Required sections are statement of need,
+      project description, goals and measurable objectives, evaluation plan,
+      organizational capacity, sustainability, and budget narrative; the Trust
+      scores first-trimester entry to care, postpartum visits within twelve
+      weeks, severe maternal morbidity, low birth weight, and cost per prenatal
+      episode. CEO Oluwaseun Adebayo and Director of Women's Health Yesenia
+      Padilla propose two midwives, four community health workers trained at a
+      community college, a doula contract, and evening hours at three sites.
+      Chief Medical Officer Karin Lindholm must explain a 2025 HRSA site visit
+      that produced two conditions, on credentialing and sliding fee
+      documentation, one open. Prairie Women's Health, the intended delivery
+      partner, withdrew its commitment in June after selling to investors. CFO Bao Tran and Grants Director Elias Mwangi must show
+      how the community health worker positions get billed after year five.
+
+      The application must address each required section with the center's
+      numbers, the partner arrangements as they stand, the site visit
+      conditions, and the funder's measures.
+  - id: grant-proposal-03
+    domain: manufacturing
+    scenario: |
+      The Arkansas River Valley Manufacturing Consortium in Fort Smith is the
+      nonprofit training arm of 34 member manufacturers, with nine staff, a $2.6
+      million budget, and a training center whose lease ends in 2028. It has
+      trained 1,240 people since 2017 in CNC machining, industrial maintenance,
+      and welding. Placement within 90 days was 79 percent in 2022 and fell to
+      58 percent in 2024. Forty-one percent of Sebastian County adults hold no
+      postsecondary credential, member firms report 310 unfilled production
+      openings, and roughly 1,300 people return to the region each year from
+      state custody.
+
+      The Dorsey-Vachon Foundation has opened its Skilled Trades Pipeline Fund
+      at $1.8 million over three years with a dollar-for-dollar match and a
+      March 20 deadline. Required sections are statement of need, project
+      description, goals and measurable objectives, evaluation plan,
+      organizational capacity, sustainability, and budget narrative, and the
+      foundation requires reporting on credential attainment, placement at 90
+      and 180 days, median wage at placement and twelve months, employer
+      retention, and cost per placement. Executive Director Margarethe
+      Ostrander and Training Director Jamal Whitfield propose to train 480
+      people over three years with paid work experience, transportation and
+      childcare stipends, and a reentry cohort. Partners are the University of
+      Arkansas at Fort Smith for credit articulation, the state workforce center
+      for referrals, and a reentry nonprofit for case management. Employer
+      Engagement Manager Rosa Delgadillo has to explain the placement drop,
+      which followed the closure of member firm Talbert Cordage and the loss of
+      its $250,000 match. Board chair Sung-Min Park and analyst Tomasz
+      Wierzbicki must also answer how the program continues when member dues
+      cover 30 percent of operating cost.
+
+      The proposal must work through each required section with the
+      consortium's outcome history, the match, the partner roles, and the
+      questions the last two years raise.
+  - id: grant-proposal-04
+    domain: nonprofit
+    scenario: |
+      Los Robles Family Resource Network in Merced, California supports
+      grandparents and other relatives raising children, with 38 staff and a
+      $6.1 million budget. Merced County has about 3,900 children in kinship
+      care. Among families served, 58 percent are Hispanic or Latino, fourteen
+      percent Hmong, nine percent Black, 64 percent of caregivers are over 60,
+      and 43 percent of households live below the poverty line. Last year the
+      network served 810 households, kept 88 percent of kinship placements
+      intact at twelve months against a county average of 71 percent, and
+      completed 210 guardianship petitions through its legal clinic.
+
+      The Wendell Ruthers Foundation's Kinship Families Initiative awards $1.25
+      million over three years, with a letter of inquiry due August 1 and the
+      full proposal October 10. It requires a statement of need, project
+      description, goals and measurable objectives, evaluation plan,
+      organizational capacity, sustainability, and budget narrative, and it
+      judges the work on placement stability at twelve and 24 months, caregiver
+      depression screening scores, school stability, guardianship completion,
+      and cost per family. Interim Executive Director Chue Vang Lor and Program
+      Director Antoinette Boudreaux would add Hmong-language support groups, a
+      respite fund, and two staff attorneys. Partners are the county human
+      services agency for referrals and data, a legal aid organization, a Hmong
+      community center, and UC Merced for evaluation. The organization is not in
+      an easy spot: an $850,000 federal earmark funding a third of the program
+      lapsed September 30, the founding executive director retired in January
+      after nineteen years, and the board has shrunk from thirteen members to
+      eight. Board chair Ravi Chandrasekaran and Development Director Siobhan
+      McAllister must also say how the legal clinic survives past year three.
+
+      The proposal must move through each required section with the network's
+      data, the partners, the leadership transition, and the funding gap.
+  - id: grant-proposal-05
+    domain: municipal-government
+    scenario: |
+      The City of Sorrel Creek in north-central Oklahoma, population 31,240, has
+      flooded twice in five years. The 2019 and 2023 events damaged 214
+      structures and produced $18.6 million in insurance claims. Downtown
+      vacancy is 29 percent and sales tax receipts are down 8 percent from 2019.
+      Twenty-four percent of residents are Native American, nineteen percent
+      live in poverty, and 32 percent of downtown businesses are minority-owned.
+
+      The Tallgrass Civic Trust has opened its Main Street Resilience Program at
+      $4 million over four years with a 20 percent local match, a concept paper
+      due June 6, and the full application August 22. The Trust requires a
+      statement of need, project description, goals and measurable objectives,
+      evaluation plan, organizational capacity, sustainability, and budget
+      narrative, and it measures structures removed from the 100-year
+      floodplain, reduction in flood insurance claims, downtown occupancy, sales
+      tax receipts, and jobs retained. City Manager Ingrid Sundberg and
+      Emergency Manager Hector Villalpando propose to acquire and demolish 34
+      repetitive-loss properties, build eleven acres of detention with a
+      floodable greenway, and elevate utilities on three downtown blocks.
+      Partners are county emergency management, a tribal environmental office
+      whose consultation is required for two parcels, a university engineering
+      extension, and the Main Street association for business relocation. Grants Coordinator Renata Duchamp has to disclose that FEMA
+      deobligated $1.1 million of a 2021 mitigation award after the city began
+      demolition before environmental review cleared. Public Works
+      Superintendent Otis Brumley's engineer position has been vacant fourteen
+      months, and Mayor Franklin Standing Bear's $800,000 match depends on a
+      bond issue going to voters in September, a month after the application is
+      due.
+
+      The application must cover each required section: the flood and economic
+      data, the acquisition and construction plan, the partner roles, the prior
+      deobligation, the match contingency, and how the greenway is maintained.
+  - id: grant-proposal-06
+    domain: retail
+    scenario: |
+      The Pine Bluff Community Grocery Cooperative in Arkansas has 1,840
+      member-owners, 31 employees, and $4.9 million in annual sales from a
+      single 12,000 square foot store opened in 2022. Its service area is 76
+      percent Black, 31 percent below poverty, and 22 percent of households have
+      no vehicle; county food insecurity is 21.4 percent. Sales grew 18 percent
+      last year, SNAP redemption reached $610,000, a produce incentive program
+      matched $88,000, and the co-op buys from 24 area farms.
+
+      The Delta Provisions Foundation's Food Access Enterprise Program offers
+      $2.2 million over four years, a $1.4 million grant plus an $800,000
+      program-related investment at 2 percent, closing February 28. It requires
+      a statement of need, project description, goals and measurable objectives,
+      evaluation plan, organizational capacity, sustainability, and budget
+      narrative, and it tracks households served, SNAP and produce-prescription
+      redemption, farm sales to the co-op, store-level operating margin, and a
+      food security score at twelve and 24 months. General Manager Bernadette
+      Okafor and Board President Curtis Yamashita would open a second store in a
+      tract of 12,400 residents with no full-line grocery since 2018, add a
+      shared refrigerated warehouse, and run a mobile market to six rural sites.
+      Partners are a regional hospital for produce prescription referrals, a
+      farmers alliance, a community development bank represented by loan officer
+      Nikhil Sundaram, and the county extension office. The history is not
+      clean: the co-op's first store, opened in 2019 in the same neighborhood,
+      closed after 22 months leaving $340,000 in vendor debt since repaid, and
+      Finance Manager Lorena Escamilla reports losses in two of the last four
+      quarters at 1.2 percent margin.
+
+      The application must address every required section, the market data, the
+      enterprise model, the partners, the prior closure, debt service on the
+      investment, and when the second store carries itself.
+  - id: grant-proposal-07
+    domain: logistics
+    scenario: |
+      The Cimarron Junction Rail District is a public port authority in
+      northwest Oklahoma owning 38 miles of short line, with four employees and
+      a $2.1 million annual budget. Fourteen miles carry 10 mile-per-hour slow
+      orders on 85-pound rail laid in 1948, and carloads fell from 3,400 in
+      2019 to 2,100 last year. It serves nine shippers, including two grain
+      elevators, a gypsum plant, and a wind-tower fabricator, and each carload
+      keeps 3.5 truckloads off US-270.
+
+      The Great Plains Infrastructure Trust has opened its Short Line
+      Revitalization Program at $6.5 million over three years against a 30
+      percent non-federal match, with a pre-application October 3 and the full
+      application January 16. Required sections are statement of need, project
+      description, goals and measurable objectives, evaluation plan,
+      organizational capacity, sustainability, and budget narrative, and the
+      Trust scores carloads, slow-order miles eliminated, truck vehicle-miles
+      avoided, shipper retention, and cost per carload. Executive Director
+      Ana-Lucia Ferreira and Chief Engineer Grigor Sarkisian propose to relay 22
+      miles with 115-pound rail, rebuild six timber bridges, raise capacity from
+      268,000 to 286,000 pounds per car, and build a 14-acre transload facility.
+      Partners are the county commission for road crossings, a regional economic
+      development district, and short-line operator Redbud Terminal Railway,
+      whose lease ends this year and which wants a 22 percent rate increase. Two things weigh on the file: an ethanol plant that pledged 900
+      carloads a year withdrew in April when its parent idled the plant, and
+      the district returned $260,000 unspent from a 2020 state program after
+      failing to close on right-of-way. Board chair Wilbur Hightower, Operations
+      Manager Dale Kittredge, and shipper representative Manuela Arreola must
+      show how track is maintained after the grant.
+
+      The application must cover each required section: the condition
+      assessment, the volume case, the match, the operator arrangement, and both
+      setbacks.
+  - id: grant-proposal-08
+    domain: software
+    scenario: |
+      Sunflower Civic Code, Inc. of Lawrence, Kansas is a nonprofit with 24
+      staff and a $4.3 million budget that builds open-source benefits screening
+      and court-date reminder tools used by 46 county agencies and seven legal
+      aid organizations in Kansas, Missouri, Nebraska, and Oklahoma. It ran
+      218,000 screenings last year, 61 percent on mobile phones, for users whose
+      median household income is $27,400. Across 14,000 hearings in three
+      pilot counties, its reminder tool cut failure-to-appear from 22 percent to
+      9 percent.
+
+      The Ardith Lammers Foundation has opened a Public Interest Technology Fund
+      awarding $3.1 million over three years, closing April 24. Required
+      sections are statement of need, project description, goals and measurable
+      objectives, evaluation plan, organizational capacity, sustainability, and
+      budget narrative, plus a technical appendix; reporting covers counties
+      onboarded, screenings completed, applications submitted and approved,
+      uptime, failure-to-appear rate, and cost per screening. Executive Director
+      Priscilla Ojeda proposes to rebuild the screener for Medicaid renewals
+      and SNAP recertification, add Spanish and Vietnamese, reach 30 more
+      counties, and stand up a paid support tier. Partners are a legal aid
+      organization for user testing, a state judicial office supplying hearing
+      data, and a university policy center led by Ramona Chee. The difficulty
+      is that this same foundation declined to renew a prior $900,000 grant in
+      2024 after the organization missed two reporting deadlines and restated
+      its outcome numbers; the chief technology officer left in November and
+      Zsofia Balogh has held the role since on an interim basis; and the
+      Nebraska human services department pulled out of a pilot in February.
+      Finance Director Hannah Steinmetz must explain how earned revenue reaches
+      $1.1 million by year three from $190,000.
+
+      The narrative must work through each required section: usage and outcome
+      data, the technical plan, the partners, the reporting history, the
+      leadership gap, and earned revenue.

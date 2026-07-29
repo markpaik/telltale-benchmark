@@ -1,0 +1,200 @@
+format: executive-summary
+bundle: true
+target_words: 5000
+min_words: 4500
+output_convention: |
+  Four standalone executive summaries, one per program, presented one after another.
+  Each names its subject and date, opens with the finding and the recommendation, and then gives the
+  evidence behind them. Prose carries the argument; a list appears only where a real summary would use
+  one.
+prompts:
+  - id: executive-summary-01
+    domain: logistics
+    scenario: |
+      Cumberland Freight Group is a third-party logistics provider headquartered in Memphis, Tennessee,
+      with 1,410 employees, eleven cross-dock facilities in six states, and $312 million in fiscal 2025
+      revenue. Its Program Review Office, run by Director of Program Review Marcus Oyelaran, has closed
+      the annual cycle covering July 1, 2024 through June 30, 2025. Findings go to the Executive
+      Committee, chaired by Chief Operating Officer Priya Raghunathan, before the August 14 budget lock.
+
+      Four programs were reviewed. The final-mile network serving Atlanta and Charlotte moved 2.4 million
+      parcels against a plan of 1.9 million, held cost per stop at $4.18 against a $4.75 target, and
+      finished at 97.2 percent on-time. The refrigerated pilot out of Nashville, launched in September
+      2024 on $6.8 million of capital, ran at 41 percent trailer utilization against a 70 percent
+      breakeven, lost $2.3 million, and lost two of its three anchor shippers. The Driver Academy, run by
+      Talent Director Yolanda Brissett, graduated 218 drivers at $9,400 each; fleet retention at twelve
+      months rose from 54 to 63 percent, but graduate turnover in the Birmingham lane held at 48 percent
+      and a company-wide pay increase took effect the same quarter. The Olive Branch automation retrofit,
+      sponsored by VP of Engineering Hasan Demirci, was approved at $14.2 million, has spent $19.6
+      million, and slipped from March to November 2025, though picks per labor hour in the live zone are
+      up 31 percent.
+
+      Each summary must say what was reviewed, what the evidence shows, what it asks the Executive
+      Committee to do, and what becomes of the money already committed.
+  - id: executive-summary-02
+    domain: software
+    scenario: |
+      Kestrel Payments Group, an Atlanta merchant-payments software company with 640 employees and $88
+      million in annual recurring revenue, runs a Portfolio Review Board that reports to the board of
+      directors each January. Director of Portfolio Strategy Bao Tran-Nguyen has just finished the review
+      of calendar 2025 for four product programs, with Chief Product Officer Simone Adeyinka and VP of
+      Engineering Gustavo Peralta as sponsors and Head of Compliance Deborah Yankelovich as a standing
+      reviewer.
+
+      The merchant onboarding service cut median onboarding from nine days to 31 hours, added 1,914
+      merchants, and returned net revenue retention of 118 percent on a $3.1 million build. The terminal
+      firmware modernization program missed three of five milestones; 22 percent of the 41,000 installed
+      terminals still run an unsupported build, and the payment-card attestation deadline of October 31,
+      2026 is now in doubt after the lead firmware vendor lost half its team. The self-serve developer
+      tier drew 12,400 signups but converted 380 to paid accounts against a 1,500 plan, spent $2.1
+      million, and produced a support load of 900 tickets a month that the paid tier subsidizes. The core
+      ledger migration was approved at $7.5 million, has spent $11.3 million, has moved 61 percent of
+      accounts, and produced eleven dual-write reconciliation breaks in the last quarter, two of which
+      required manual settlement of $1.4 million.
+
+      The four summaries must each state what the program was funded to do, what it actually delivered
+      against that, what the board is being asked to decide, and what the exposure is if the decision
+      waits another quarter.
+  - id: executive-summary-03
+    domain: k12-education
+    scenario: |
+      Piedmont Vale School District serves 23,800 students in 34 schools outside Greenville, South
+      Carolina, on a $291 million general fund. Its Office of Research and Accountability, led by
+      Director Rosalind Ferrer-Guzman, has closed the 2024-25 evaluation cycle on four grant-funded
+      initiatives. The findings go to Superintendent Imani Blackshear, Chief Financial Officer Petra
+      Lindqvist, and the Board Finance Committee on September 9, 2025, three weeks before two of the four
+      grants expire.
+
+      The K-2 structured literacy rollout reached 1,900 students across twelve schools on $2.4 million;
+      the share of students at or above the spring benchmark went from 41 to 58 percent, and first-grade
+      gains held across all four subgroups the office tracks. The online credit recovery program enrolled
+      1,240 high school students on $890,000; 46 percent completed a course and 31 percent of completers
+      passed the corresponding end-of-course exam, against 68 percent for the same courses taught in
+      person. The community school wraparound model at three sites cost $1.6 million and cut chronic
+      absenteeism by six points at Redbud Elementary while leaving the other two sites flat, with staff
+      turnover at one site running 44 percent. The one-to-one device refresh, managed by Grants Manager
+      Chandra Pillai, was approved at $5.9 million and has spent $8.4 million, with 19 percent breakage
+      in year one and deployment finishing seven months late.
+
+      Each summary must identify the initiative and the money behind it, lay out what the evaluation
+      found, state what the district should do before the grant deadlines, and account for what happens
+      to staff and students if a program stops.
+  - id: executive-summary-04
+    domain: healthcare
+    scenario: |
+      Vulcan Valley Health System operates four hospitals and 1,100 licensed beds across greater
+      Birmingham, Alabama, with 9,400 employees and $1.6 billion in net patient revenue. Its Office of
+      Clinical Program Evaluation, directed by Chief Quality Officer Aminata Sow, has completed reviews
+      of four programs covering January 2024 through March 2025. The reports go to the System Executive
+      Council and to the Quality Committee of the board on June 12, 2025.
+
+      The sepsis early-warning bundle moved three-hour bundle compliance from 61 to 88 percent and
+      in-hospital sepsis mortality from 18.4 to 12.9 percent across all four campuses on $1.9 million.
+      The hospital-at-home program, sponsored by Chief Medical Officer Julio Ferrante, enrolled 96
+      patients against a 400-patient plan, spent $4.2 million, and posted a 30-day readmission rate of
+      14.6 percent against 11.2 percent for a matched inpatient group; its payer waiver expires September
+      30, 2025. The community paramedic program for high-utilizing emergency department patients reached
+      212 patients, cut their emergency visits 34 percent, but enrolled only 40 percent of those referred
+      and has produced no measurable cost offset. The scheduling center consolidation, led by Nurse
+      Executive Bridget Nkemelu and Chief Financial Officer Meredith Tanaka-Bell, was budgeted at $6.1
+      million, has spent $9.7 million, handles 380,000 calls a quarter, and still abandons 17 percent of
+      them against a 5 percent target.
+
+      Each summary must name the program and the review window, give the finding and the recommendation
+      to the Executive Council, present the clinical and financial evidence behind it, and say what the
+      system is committed to for the coming fiscal year either way.
+  - id: executive-summary-05
+    domain: manufacturing
+    scenario: |
+      Tallapoosa Precision Components is a Tier 2 automotive supplier based in Tupelo, Mississippi, with
+      four plants, 2,100 employees, and $470 million in annual sales to six original equipment
+      customers. The Capital and Continuous Improvement Review Office, headed by Director Sanjay
+      Mirchandani, has finished its fiscal 2025 review of four plant programs for VP of Manufacturing
+      Ekaterina Novikova and the board's Operations Committee, which meets October 3, 2025.
+
+      The Tupelo preventive maintenance overhaul, sponsored by Plant Manager Dwayne Lockhart, cut
+      unplanned downtime from 11.4 to 4.1 percent, lifted overall equipment effectiveness from 62 to 78,
+      and took $3.1 million out of annual scrap cost on a $2.2 million investment. The robotic weld cell
+      at the Dothan, Alabama plant has absorbed $7.4 million, runs a 61-second cycle against a 42-second
+      specification, holds 81 percent first-pass yield against 96 percent for the manual line it
+      replaced, and has failed customer part approval twice. The apprenticeship pipeline with Northeast
+      Mississippi Community College enrolled 64 apprentices, graduated 41, and lost 15 of those within a
+      year, while skilled vacancies fell from 17 to 12 percent against a hiring market that also loosened.
+      The manufacturing execution system integration, overseen by Quality Director Fatoumata Camara, was
+      approved at $5.2 million, has spent $8.9 million, is live at three of four plants, holds inventory
+      accuracy at 87 percent against a 98 percent target, and has pushed the fourth plant from January to
+      September 2025.
+
+      Each summary must state the program, the money, the measured result, and the decision the
+      Operations Committee now faces, including what it costs to continue and what it costs to stop.
+  - id: executive-summary-06
+    domain: nonprofit
+    scenario: |
+      First Coast Community Trust is a community foundation in Jacksonville, Florida, holding $410
+      million in assets and granting about $19 million a year. Its Opportunity Portfolio, a $12 million
+      three-year commitment to four grantee initiatives, closes December 31, 2025. Evaluation Director
+      Hana Kobayashi has finished reviews of all four for President and Chief Executive Yvonne
+      Delacroix-Baptiste, Board Treasurer Lamar Etheridge, and the donor advisory council, which votes on
+      renewal at its November 6 meeting.
+
+      The workforce program at Northside Trade Collective enrolled 480 adults on $1.8 million, placed 71
+      percent into jobs, and raised median hourly wages from $13.10 to $21.40, with 64 percent still
+      employed at twelve months. The eviction prevention legal program served 610 households against a
+      1,500 target on $2.2 million, lost two of its four staff attorneys in nine months, and carries a
+      backlog of 340 open matters. The school-based youth mental health initiative, run with three
+      districts, completed 1,140 screenings on $1.5 million but converted only 38 percent of referrals
+      into a first appointment and cannot yet report outcomes because its data-sharing agreement was not
+      signed until March 2025. The housing predevelopment fund, championed by Chief Program Officer Omar
+      Zaidi, committed $4 million, has drawn $6.5 million, has permitted one of three sites, and has
+      prompted an anchor donor to put a $3 million pledge on hold pending this review.
+
+      Each summary must name the grantee and the grant, report what the money bought, give the
+      recommendation going to the council, and address what the foundation owes the grantee and its
+      participants if funding changes.
+  - id: executive-summary-07
+    domain: municipal-government
+    scenario: |
+      The City of Marston Bluff, Tennessee, population 141,000, runs a $394 million annual budget. City
+      Auditor Priscilla Vandermeer has completed the fiscal 2025 performance audit cycle on four
+      programs. Her reports go to Mayor Andre Toussaint and to the City Council's Budget and Finance
+      Committee, chaired by Councilmember Sylvia Rocha, at its October 21, 2025 hearing, where the
+      committee opens deliberations on next year's budget.
+
+      Street resurfacing, brought back in house in 2023 by Public Works Director Guadalupe Renteria,
+      completed 128 lane-miles against a 90 lane-mile plan at $61,000 per lane-mile, compared with
+      $84,000 under the prior contract, and pavement complaints fell 44 percent. The downtown outreach
+      program, delivered by a vendor on a $2.8 million contract, logged 1,900 street contacts but placed
+      47 people into housing against a 300 target, and the vendor has not filed the quarterly outcome
+      reports its contract requires since December 2024. The curbside composting pilot reached 3,400
+      households, diverted 610 tons, held participation at 22 percent, and runs an 18 percent
+      contamination rate that has twice triggered load rejection fees. The permitting system replacement,
+      sponsored by Chief Information Officer Kwame Boateng, was approved at $4.6 million, has spent $7.9
+      million across two vendors after the first was terminated in August 2024, and has seen residential
+      permit turnaround worsen from 21 to 34 days.
+
+      Each summary must identify the program, the audit period, and the finding, state what the auditor
+      recommends to the committee, present the cost and performance evidence, and note what management
+      says in response.
+  - id: executive-summary-08
+    domain: retail
+    scenario: |
+      Palmetto Fresh Markets runs 62 grocery stores across North Carolina, South Carolina, and southern
+      Virginia from a Raleigh headquarters, with 8,700 employees and $1.4 billion in sales. The Strategy
+      and Performance Office, led by Director Sun-Hee Park, has closed its review of four pilots run
+      through fiscal 2025, which ended February 1, 2025. The summaries go to Chief Merchandising Officer
+      Bettina Halloran, Chief Financial Officer Dimitri Andrakis, and the operating partner from the
+      chain's private equity owner, who sits in on the March capital meeting.
+
+      The four small-format urban stores opened in 2023 turned $912 in sales per square foot against a
+      chain average of $640 and reached store-level breakeven in 14 months. The third-party delivery
+      partnership handled 380,000 orders, carried a negative contribution margin of $1.9 million, and
+      produced baskets 22 percent smaller than in-store with a 31 percent substitution rate that drove
+      1,100 refund claims. Private label expansion, run by SVP of Operations Jamal Whitfield, lifted
+      penetration from 18 to 24 percent and gross margin by 140 basis points, but unit velocity fell in
+      dairy and frozen and nine items were discontinued inside a year. The remodel program approved 11
+      stores at $2.3 million each and has averaged $3.4 million, delivered a 6.1 percent comparable sales
+      lift against an 11 percent underwriting assumption, and has four remodels paused since January.
+
+      Each summary must name the pilot and the period, give the finding and the recommendation for the
+      capital meeting, show the numbers behind it, and state what the chain has already committed for
+      fiscal 2026.

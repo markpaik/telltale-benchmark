@@ -1,0 +1,271 @@
+format: project-proposal
+bundle: false
+target_words: 5000
+min_words: 4500
+output_convention: |
+  One proposal addressed to the body that has to approve it: what is proposed, why
+  now, what it costs, how it would be run and staffed, what could go wrong, and the specific decision
+  being requested. Budget detail may sit in a table.
+prompts:
+  - id: project-proposal-01
+    domain: municipal-government
+    scenario: |
+      The City of Ridgemark, California, a San Bernardino County city of 68,400,
+      is under a cease-and-desist order from the regional water board after four
+      sanitary sewer overflows in eighteen months, all traced to the 1971
+      headworks and clarifiers at the Bellota Road plant. City Manager Adaeze
+      Nwachukwu has asked Public Works Director Ruben Ontiveros to bring a
+      capital proposal to the City Council, which meets the second and fourth
+      Tuesday and takes the item March 10. The project replaces the headworks,
+      both clarifiers, and the influent pump station at $41.6 million over 34
+      months, run by a four-person owner's team with a construction manager at
+      risk, while Wastewater Superintendent Gerardo Quintanilla keeps the plant
+      on bypass through two wet seasons.
+
+      Finance Director Marta Kovalenko has assembled $33 million in State
+      Revolving Fund borrowing, $4.5 million from the sewer capital reserve, and
+      the balance from a rate increase of 9 percent a year for four years, which
+      triggers a Proposition 218 protest process in October. Councilmember
+      Dwight Shiraishi, who chairs the finance subcommittee, has said he will
+      not vote for another public works number he cannot trust: the 2021 Civic
+      Center parking structure was authorized at $9.2 million and finished at
+      $14.8 million. The order carries $10,000 a day in penalties starting July
+      1, 2027 if construction has not begun.
+
+      The proposal has to lay out the condition of the existing works and what
+      the order requires, the phased schedule and how the plant keeps treating
+      flow, the cost and funding with the rate impact on a median household, the
+      staffing and delivery method, the alternatives examined including
+      rehabilitation in place and a regional connection to a neighboring agency,
+      the risks and their mitigations, and the action asked of the Council on
+      March 10.
+  - id: project-proposal-02
+    domain: retail
+    scenario: |
+      Alvarado Family Markets runs 34 grocery stores across Tulare, Fresno, and
+      Kern counties from a headquarters in Visalia, California, employs 4,100
+      people, and did $538 million in sales last year. Same-store sales have
+      fallen for six straight quarters, most recently 3.1 percent, while two
+      discount chains opened eleven stores inside its trade areas. President
+      Yolanda Cepeda and Supply Chain Vice President Michael Achterberg are
+      bringing a $62.3 million proposal to the board of directors, which is
+      family-held and meets quarterly, next on May 21.
+
+      The plan converts eleven stores to a smaller prepared-foods format over 30
+      months, closes the Porterville and Lindsay distribution points, and
+      consolidates into a 240,000 square foot facility in Goshen where the lease
+      option expires August 1. CFO Tobias Renner would fund it with $40 million
+      from an expanded revolver and $22.3 million from a sale-leaseback on four
+      owned store sites. Store Operations Vice President Hyun-Woo Baek would add
+      19 kitchen managers and 240 hourly food-service positions while 61
+      warehouse jobs at Porterville go away, in the middle of a UFCW contract
+      that reopens in 2027. Board chair Estela Alvarado and her brother, both
+      children of the founder, have opposed the Porterville closure, and the
+      board remembers that a 2024 prepared-foods pilot at three stores lost $2.4
+      million in fourteen months before it was pulled.
+
+      The proposal needs to cover the state of the business and how the format
+      change answers it, what the pilot got wrong, the capital request and its
+      financing, the store and distribution schedule, the staffing changes on
+      both sides, the options weighed including standing pat and third-party
+      fulfillment, the risks with mitigations, and what the board is asked to
+      approve on May 21.
+  - id: project-proposal-03
+    domain: logistics
+    scenario: |
+      Prairie Gate Freight Systems is a less-than-truckload carrier based in
+      Wichita, Kansas, with eleven terminals across Kansas, Oklahoma, Nebraska,
+      and Missouri, 640 tractors, 1,850 employees, and $310 million in revenue.
+      On-time service has slid from 96.1 percent to 87.4 percent in two years,
+      driver turnover runs 94 percent, and Kesterson Ag Supply, 16 percent of
+      revenue, has put the carrier on a 90-day service watch under a contract
+      expiring June 30. CEO Sanjay Doshi has directed COO Fatima Bouzid and
+      Network Planning Vice President Deshawn Whitlock to bring a proposal to
+      the board's executive committee, which meets February 12.
+
+      The proposal is a $38.5 million rebuild of the southern network: a
+      112-door cross-dock in Oklahoma City, closure of the Ponca City and Enid
+      terminals, and a re-cut of 31 linehaul lanes over 22 months. That is $26
+      million for the facility, $7.5 million for dock and yard equipment, and $5
+      million for severance and relocation, financed by CFO Aaron Lindqvist with
+      a $30 million equipment-backed term loan and $8.5 million of cash. The
+      Enid lease runs through 2029 with no early termination, and Terminal
+      Manager Kathleen O'Rourke has 46 employees there, twelve of whom would
+      relocate. Teamsters organizers have been at the Salina and Enid docks
+      since March. The committee killed a smaller version of this plan in 2023
+      after the company overran a Springfield dock expansion by 41 percent.
+
+      The document has to establish the service and cost problem, describe the
+      facility and the network change, present the capital request and
+      financing, lay out the phasing and how freight keeps moving during the
+      cutover, cover staffing and labor exposure, address alternatives such as
+      leasing an existing Oklahoma City building or repairing service inside the
+      current footprint, set out risks and mitigations, and state the decision
+      sought February 12.
+  - id: project-proposal-04
+    domain: software
+    scenario: |
+      Meridian Ledger, Inc. of Omaha, Nebraska sells core settlement and
+      payments software to 340 community banks and credit unions in fourteen
+      states, employs 212 people, and carries $47 million in recurring revenue.
+      On December 27 a nine-hour outage delayed settlement for 118 institutions
+      and cost $2.1 million in credits. The last SOC 2 Type II came back with
+      two exceptions on change management. Four engineers understand the 2009
+      COBOL settlement engine, their average age is 58, and one retires in
+      April. CEO Rosalind Achebe and CTO Viktor Petrosyan are taking a $19.8
+      million rebuild proposal to the board on March 4.
+
+      The work moves settlement onto a supported platform and from one leased
+      data center in Council Bluffs to two, over 26 months, with a six-month
+      parallel run in which both engines process live volume. The cost splits
+      into $11.4 million of engineering, $3.6 million of infrastructure, $2.9
+      million for the parallel run, and $1.9 million of contingency. CFO Harold
+      Brantley would fund $12 million from operating cash and draw $7.8 million
+      on a growth facility whose covenant caps leverage at three times EBITDA.
+      Engineering Vice President Meiling Zhou needs 14 hires and would pull nine
+      people off the roadmap, deferring two committed features. Chief Risk
+      Officer Nadia Farouk notes that Cascade Prairie Bancorp, 11 percent of
+      revenue, renews October 1 and has demanded a remediation plan. The board
+      is wary because a 2022 modernization attempt was cancelled after $4.3
+      million with nothing shipped.
+
+      The proposal must set out the risk in the current stack, the target
+      architecture and migration approach, the staffing plan, the phased
+      schedule with what gets deferred, the cost and funding, the alternatives
+      weighed including buying a third-party settlement platform and continuing
+      to patch, the risks and mitigations, and the authorization sought March 4.
+  - id: project-proposal-05
+    domain: k12-education
+    scenario: |
+      Tule Bend Unified School District in Tulare County, California enrolls
+      9,760 students across fourteen schools, down 11 percent in five years, 78
+      percent socioeconomically disadvantaged and 31 percent English learners.
+      Its vendor, First Route Student Transportation, missed 1,140 runs last
+      year and logged 22 arrivals more than 45 minutes late in January alone.
+      Chronic absenteeism is 34.1 percent. Superintendent Guadalupe Serrato and
+      Chief Business Official Nathan Okonkwo are asking the Board of Trustees,
+      which meets the second Wednesday and takes the item April 8, to end the
+      contract and stand up a district-operated transportation department.
+
+      The proposal buys 46 buses, leases and retrofits a corporation yard, and
+      hires 58 drivers and six mechanics into a department Director of
+      Operations Wesley Frayne would build over eighteen months, with 22 routes
+      converting in August and the rest the following January. Capital is $14.2
+      million and operating cost is $6.9 million a year against the current $7.6
+      million contract. Funding is $9.1 million from capital facilities, $3.4
+      million from a state clean school bus allocation whose award letter has
+      not arrived, and $1.7 million from unrestricted reserve, dropping the
+      reserve to 4.2 percent against a 3 percent minimum. Board President
+      Leilani Kahananui and two trustees campaigned against spending reserves,
+      and CSEA chapter president Dolores Ybarra notes the proposed $24.10 driver
+      wage sits below the county average of $26.75. Without action by May 15 the
+      district must exercise a one-year extension at a 14 percent increase.
+
+      The document has to establish the service record and attendance effects,
+      describe the department and its staffing, present capital and operating
+      costs with funding and reserve impact, set out the schedule and driver
+      recruitment, treat alternatives including rebidding and a joint
+      arrangement with a neighboring district, address risks with mitigations,
+      and state the April 8 action requested.
+  - id: project-proposal-06
+    domain: healthcare
+    scenario: |
+      Cimarron Valley Health System runs a 186-bed hospital in Enid, Oklahoma,
+      six clinics, and Bison Ridge Critical Access Hospital 52 miles northwest.
+      System operating margin is negative 2.8 percent. Bison Ridge delivered 96
+      babies last year against a break-even volume of 240, two of its four
+      obstetricians leave when contracts end in June, and a March CMS validation
+      survey cited nurse staffing on the medical-surgical floor. The Enid
+      emergency department logged 1,400 psychiatric boarding hours last year,
+      averaging 31 hours a patient. CEO Marisol Trevino is bringing a $23.7
+      million proposal to the board finance committee on September 18 and the
+      full board on October 2.
+
+      The plan consolidates obstetrics onto the Enid campus, closes the Bison
+      Ridge unit, and builds a 14-bed inpatient behavioral health unit in the
+      vacated space, opening 26 months out. CFO Anders Blomqvist proposes $14
+      million in tax-exempt bonds, $6.2 million from a foundation campaign that
+      has only $2.1 million pledged, and $3.5 million from operations. Chief
+      Nursing Officer Danielle Kirkpatrick would redeploy 31 Bison Ridge nurses
+      and recruit 22 behavioral health staff, including a psychiatrist, into a
+      market whose nearest program is in Oklahoma City. Chief Medical Officer
+      Rajiv Mehrotra estimates 41 percent of the service area would then sit
+      over 45 minutes from a delivery room. Board chair Loretta Pahsetopah has
+      been handed petitions from the county commission and a citizens group
+      opposing the closure. Left alone, the Bison Ridge unit is projected to
+      lose $3.1 million next year.
+
+      The proposal must document volumes, finances, and the survey finding,
+      describe the consolidation and the new unit with staffing and licensure
+      steps, present capital and funding, phase the schedule, weigh alternatives
+      such as a freestanding birth center or telehealth obstetrics, address
+      access and community risk with mitigations, and state the October 2
+      approval sought.
+  - id: project-proposal-07
+    domain: manufacturing
+    scenario: |
+      Ozark Precision Components of Springfield, Missouri machines hydraulic
+      manifolds and valve bodies for agricultural and construction equipment,
+      employs 438 people, and books $126 million in revenue. Its largest
+      customer, Vantage AgWorks at 38 percent of sales, says the 2027 rebid will
+      require 6 percent annual price reductions for three years or it will
+      dual-source. Scrap runs 6.1 percent against a 2.5 percent target, OSHA
+      issued a $47,000 machine-guarding citation in February, the average
+      machinist is 54 with 61 retirement-eligible inside three years, and the
+      plant runs at 91 percent capacity with twelve-week lead times. Plant
+      Manager Yusuf Abdirahman and Operations Vice President Chelsea Nakagawa
+      are bringing an $18.9 million proposal to the capital committee of the
+      owner, Kestrel Bridge Holdings, which next meets November 6.
+
+      The project reorganizes the floor into five machining cells, adds nine CNC
+      machines and two robotic load stations, and opens a second shift of 84
+      people over 20 months, with the first two cells live in month seven.
+      Quality Director Ivan Bogdanov ties 60 percent of scrap to setup variation
+      the cells would remove. HR Director Tameka Sallis has costed the second
+      shift at $5.4 million a year and notes the local pipeline produced 34
+      machinists last year. Operating partner Philippa Wrenn has warned that the
+      committee has little patience for equipment requests after a $6.4 million
+      finishing line installed in 2023 has run at 40 percent utilization.
+      Financing is $14 million of holding-company debt and $4.9 million of plant
+      cash.
+
+      The proposal has to establish the commercial and operational problem,
+      describe the cell layout and equipment, lay out hiring and training, phase
+      installation against production commitments, present capital and financing
+      with the return, treat alternatives including outsourcing finishing and
+      conceding price out of margin, cover risks and mitigations, and state the
+      November 6 decision.
+  - id: project-proposal-08
+    domain: nonprofit
+    scenario: |
+      Vista Alta Community Development Corporation in San Bernardino,
+      California owns 340 affordable apartments, employs 62 people, and runs an
+      $11.4 million budget. Executive Director Ines Barrantes is asking the
+      board of directors, which meets October 9, to authorize the purchase and
+      conversion of the 96-room Palm Grove Inn into 88 units of permanent
+      supportive housing. Total development cost is $19.4 million: an $8.6
+      million county housing award reserved only through March 31, $4.2 million
+      in tax credit equity, a $3.5 million bank construction loan, $1.9 million
+      of federal block grant funds, and $1.2 million from the organization's own
+      reserve, which stands at 41 days of cash.
+
+      Real Estate Director Trevor Lindgren has a purchase agreement requiring a
+      nonrefundable $600,000 deposit at signing and closing by January 15, with
+      construction running fourteen months and lease-up starting in month
+      sixteen. Supportive Services Director Marcus Delahoussaye would hire 11
+      staff for a 24-hour front desk, case management at one to twenty, and a
+      part-time nurse; the state Medi-Cal pathway covers $780,000 of a $1.4
+      million annual services cost and the remaining $620,000 has no committed
+      source past year two. Board treasurer Wan-Chen Liu has reminded colleagues
+      that the 2023 Loma Verde rehabilitation finished eleven months late and
+      $1.8 million over budget; the council district representative has held two
+      town halls where neighbors spoke against the project. Without approval on
+      October 9 the purchase agreement lapses and the county award is
+      redirected.
+
+      The proposal must describe the site and the population it would house, the
+      development budget and sources with the reserve exposure, the construction
+      and lease-up schedule, the services model and staffing, the alternatives
+      considered including new construction on a city-owned parcel and passing
+      on the site, the entitlement, cost, and services-funding risks with
+      mitigations, and the authorization sought October 9.

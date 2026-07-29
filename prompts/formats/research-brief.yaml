@@ -1,0 +1,226 @@
+format: research-brief
+bundle: false
+target_words: 5000
+min_words: 4500
+output_convention: |
+  One research brief: a title, a statement of the question and what was found, then the
+  body covering data and methods, results, limitations, and implications. Numbers appear in the prose
+  or in a small table where a table is genuinely the clearer container. Figures are described rather
+  than drawn.
+prompts:
+  - id: research-brief-01
+    domain: manufacturing
+    scenario: |
+      Keystone Precision Forge runs two plants in Butler, Pennsylvania, employs 412 people, and
+      supplies forged hydraulic components to agricultural equipment makers. In March the plant
+      manager, Yolanda Brzezinski, asked the quality engineering group to explain a scrap rate that
+      climbed from 3.1 percent of units produced in January 2025 to 5.8 percent in February 2026 while
+      volume stayed flat. Senior quality engineer Devendra Ramaswamy ran the analysis for chief
+      operating officer Marcus Ellery, and continuous improvement director Ingrid Halvorsen reviewed
+      it.
+
+      The data come from the plant's manufacturing execution system, which logs every part by press,
+      die set, operator badge, shift, and steel heat lot. Coverage is complete for press lines 2
+      through 7 back to 2021, but line 1 was only instrumented in August 2025, and operator badge
+      capture is missing on roughly 14 percent of night-shift records because a scanner failed from May
+      to September. The working sample is 1.94 million parts. Night-shift scrap runs 7.4 percent
+      against 4.2 percent on days, but the night shift also draws 61 percent of its work from two heat
+      lots supplied by a new vendor, Allegheny Bar and Billet, whose certificates show sulfur at the
+      top of specification. Operators with under six months tenure, 38 percent of night headcount
+      after a turnover wave, scrap at 6.9 percent; the same operators on days scrap at 5.1 percent. A
+      $2.4 million die replacement is on the June capital agenda, and maintenance director Gerald
+      Tomczak has argued the dies are the cause.
+
+      The brief must set out the question, the records and how they were assembled, what the
+      comparisons across shift, tenure, heat lot, and die set show, what the missing badge scans and
+      the short history on line 1 do to the conclusions, and what it all means for the June capital
+      decision.
+  - id: research-brief-02
+    domain: nonprofit
+    scenario: |
+      Riverbend Community Table is a food-security nonprofit in Cincinnati, Ohio that runs a
+      twelve-site pantry network and, since March 2024, a medically tailored meal program for adults
+      with congestive heart failure or type 2 diabetes. The meal program is funded by a $3.8 million
+      three-year grant from a regional health conversion foundation, whose program officer, Renata
+      Kowal, has asked whether the meals reduced hospital use before the foundation decides on renewal
+      in September. Evaluation manager Adaeze Okoro carried out the work with graduate fellow Tomas
+      Villalobos-Reyes, at the direction of executive director Harriet Lindqvist-Moore.
+
+      Utilization data come from a data-use agreement with a partner health system covering 1,412 of
+      the 1,903 enrolled participants; the rest declined the linkage or get care elsewhere. Encounters
+      appear only at that system's four hospitals, so admissions at the county's two other hospitals
+      are invisible. The comparison group is 2,640 pantry clients with matching diagnoses who never
+      enrolled, drawn from the same referral lists. In the twelve months after enrollment, meal
+      recipients averaged 0.71 inpatient admissions against 0.94 in the comparison group, but the gap
+      concentrates: participants who received all 26 weeks of deliveries fell to 0.52, while the 38
+      percent who stopped before week 10 sat at 0.98. Participants over 70 showed almost no
+      difference, and the effect among people living alone was roughly twice the effect among those in
+      households of three or more. Deliveries in two zip codes stopped for eleven weeks in early 2025
+      when a refrigerated van failed.
+
+      The brief must lay out the question the foundation asked, the enrollment and linkage picture, how
+      the comparison group was built, results overall and by dose, age, and household size, what the
+      missing hospitals and the delivery interruption do to the findings, and what the foundation is
+      deciding.
+  - id: research-brief-03
+    domain: municipal-government
+    scenario: |
+      The Licking Valley Regional Water Authority is a public utility serving 96,400 connections
+      across three counties in central Ohio from offices in Newark, with 214 employees and a board
+      appointed by its member municipalities. Under a 2024 consent order the authority must file a
+      verified lead service line inventory with the state by December 31, 2026, and it holds $58
+      million in bond authority for replacements. Its records classify 31,200 connections as unknown
+      material. Over fourteen months crews potholed and verified 4,850 of them. Chief engineer Sun-Hee
+      Park asked data analyst Reginald Boateng to compare what the records predicted against what the
+      crews found before the board commits the next $19 million tranche in August; deputy director Alma
+      Restrepo commissioned the work after Heath council member Dale Hutchins alleged that crews had
+      been sent to wealthier streets first.
+
+      The records are three overlapping sources: a 1978 tap card file scanned in 2009 with 6 percent of
+      cards illegible, a permit database that begins in 1994, and meter replacement notes keyed by
+      hand. Among verified connections the records called unknown, 42 percent proved to be lead or
+      galvanized requiring replacement, but the rate ranged from 19 percent in areas platted after 1960
+      to 68 percent in the four oldest wards. Where the permit database said copper, crews still found
+      lead 9 percent of the time. Verification coverage is itself uneven: 71 percent of completed
+      potholes fall in three of eleven wards, and refusals for interior inspection reached 28 percent
+      on majority-renter blocks.
+
+      The brief must state the question, describe the three record sources and their gaps, report what
+      verification found overall and by ward and housing age, address the coverage and refusal
+      patterns, and explain what the results mean for the December filing deadline and the August
+      tranche.
+  - id: research-brief-04
+    domain: retail
+    scenario: |
+      Wexford Market Group runs 61 grocery stores across western Pennsylvania and eastern Ohio from a
+      headquarters in Cranberry Township, employs 7,900 people, and books about $1.4 billion in annual
+      sales. Since 2023 it has installed self-checkout banks in 24 stores. Chief financial officer
+      Rosalind Tan has budgeted $11.5 million to convert 20 more beginning in the third quarter, and
+      loss prevention director Walt Kowalczyk has objected that shrink at converted stores is climbing.
+      Chief operating officer Desmond Achebe asked the retail analytics group to settle the question
+      before the June capital review, and Nadia Farrukhzad, manager of retail analytics, ran the work.
+
+      Shrink is measured only at physical inventory, which happens twice a year, so each store
+      contributes four observations since the first installations, 244 store-half-years in all.
+      Converted stores show shrink of 1.94 percent of sales against 1.41 percent at unconverted stores,
+      but the conversions were not random: the 24 stores were picked for high volume and were already
+      running 1.62 percent shrink before any equipment arrived. Within converted stores the increase
+      concentrates in health and beauty and in fresh meat, and eleven of the 24 removed staffed express
+      lanes at the same time. Item-level scan data exist only from March 2025 forward. One store's May
+      2025 count was voided after a counting vendor error and left out entirely. Labor hours per
+      thousand dollars of sales fell 8 percent at converted stores, worth roughly $6.1 million a year.
+
+      The brief must state the question, describe the inventory and scan data and what they can and
+      cannot show, present the comparison of converted and unconverted stores with attention to how
+      stores were selected, break out the category and lane-configuration patterns, and connect the
+      findings to the capital decision in June.
+  - id: research-brief-05
+    domain: logistics
+    scenario: |
+      Sycamore Ridge Transport is a regional less-than-truckload carrier based in Fort Wayne, Indiana,
+      with 640 tractors, 1,100 employees, and terminals in Fort Wayne, Columbus, Louisville, and
+      Evansville. In March 2025 it converted regional drivers from mileage pay to an hourly rate of
+      $28.50 with guaranteed detention pay, at an added cost of $3.4 million a year. Chief financial
+      officer Terrence Whitlock wants to know whether the conversion actually cut turnover before the
+      board considers extending it to the 310-driver over-the-road fleet, which would cost another $6.2
+      million. Marisol Cabrera-Nunez, workforce analytics lead, ran the analysis; vice president of
+      driver recruiting Fatima Bensalem commissioned it, and Fort Wayne terminal manager Gene Prokop
+      supplied route context.
+
+      Annualized regional driver turnover fell from 51 percent in the twelve months before the change
+      to 33 percent in the twelve months after, across 742 drivers. Two other things happened at the
+      same time. A $2,500 referral bonus started in February 2025, and regional freight volumes fell 9
+      percent industry-wide, shrinking outside job openings. The over-the-road fleet, which got neither
+      the pay change nor the bonus, saw turnover fall from 68 percent to 57 percent over the same
+      window. Terminal results differ sharply: Fort Wayne went from 46 to 24 percent, Columbus from 44
+      to 41, Louisville from 58 to 30, and Evansville barely moved. Drivers with less than a year of
+      tenure account for 71 percent of all separations. Telematics detention records begin only in
+      April 2024, and 89 drivers changed terminals mid-period.
+
+      The brief must set out the question, the payroll and human resources records used and where they
+      run short, the before-and-after results with the referral bonus and the freight cycle addressed,
+      the differences by terminal and tenure, and what the board needs in order to decide on the
+      over-the-road fleet.
+  - id: research-brief-06
+    domain: software
+    scenario: |
+      Ledgerline Systems sells accounts payable automation to mid-market manufacturers and distributors
+      from offices in Pittsburgh, Pennsylvania, employs 246 people, and carries $41 million in annual
+      recurring revenue across 2,140 accounts. In January 2026 it repackaged its pricing, moving 39
+      percent of accounts from per-seat licensing to a per-document rate at renewal; the rest are
+      scheduled to convert in July. Gross churn in the first quarter came in at 9.7 percent annualized
+      against 5.2 percent a year earlier. Chief executive Diane Abernathy-Pruitt asked revenue
+      operations to determine what caused it before the July conversions proceed. Hyun-Woo Chang,
+      revenue operations analyst, did the work; chief revenue officer Samuel Oyelaran commissioned it
+      and vice president of customer success Beatriz Salgado supplied the exit interviews.
+
+      Two changes overlapped. Accounts were also being migrated off the legacy web portal onto a
+      rebuilt one, and product telemetry exists only for the new portal, which went live in September
+      2025, so usage before migration cannot be observed at all. Renewal dates cluster, with 38 percent
+      of the book renewing in January. Accounts under $12,000 of annual contract value churned at 14.2
+      percent while accounts above $50,000 churned at 4.1 percent. Accounts that migrated to the new
+      portal before they were repriced churned at 5.8 percent; those repriced first churned at 11.9
+      percent. Median first response time in support rose from 4 hours to 19 hours in February after 5
+      of 18 support staff resigned. Two of the largest departures were documented as acquisitions
+      rather than pricing decisions.
+
+      The brief must state the question, describe the billing, customer relationship, and telemetry
+      records and what they cannot show, present churn by account size, by sequence of migration and
+      repricing, and by renewal month, address the support backlog, and lay out what bears on the July
+      decision.
+  - id: research-brief-07
+    domain: k12-education
+    scenario: |
+      Monocacy Valley Public Schools serves 11,400 students in 17 schools around Frederick, Maryland.
+      In 2024 the district hired 22 part-time attendance mentors under a $1.9 million state grant that
+      expires in June 2027, assigning them to ninth graders at four high schools who had been
+      chronically absent the year before. Board member Lorraine Hovde asked at the April meeting
+      whether the program works, and superintendent Vikram Sethi directed the office of research and
+      evaluation to answer before the July vote on whether to absorb the mentors into local funds.
+      Imani Fitzgerald, research analyst, ran the study, with attendance records verified by director
+      of student services Andre Beauchamp and program rosters supplied by mentor coordinator Rosa
+      Iglesias.
+
+      The sample is 612 mentored students and 1,180 who met the same eligibility criteria but were
+      never assigned, drawn from the student information system for 2024-25 and 2025-26. Mentored
+      students improved attendance by 4.3 percentage points on average; the comparison group improved
+      2.6. But eligibility was defined by prior-year absence, so both groups were selected at their
+      worst. The gain concentrates among students whose prior-year absence rate fell between 10 and 19
+      percent, who improved 6.2 points, while students above 30 percent improved 1.1. The district also
+      changed its period-attendance coding rule in August 2025, which raised measured attendance
+      systemwide by roughly 1.5 points. One high school did not assign mentors until November, and 94
+      students moved between schools mid-year. English learners, 18 percent of the mentored group,
+      showed no measurable difference.
+
+      The brief must state the question the board asked, describe the attendance data and the coding
+      change, explain how the comparison group was formed and what that does to interpretation, present
+      results overall and by prior absence level, school, and student group, and connect them to the
+      July funding decision.
+  - id: research-brief-08
+    domain: healthcare
+    scenario: |
+      Mountain Laurel Health System operates three hospitals and 512 licensed beds around Beckley, West
+      Virginia, employs 4,200 people, and serves an area where 31 percent of residents are covered by
+      Medicare. In 2024 it launched a transitional care program for heart failure patients pairing a
+      pharmacist telephone review at 48 hours with a follow-up visit inside seven days. Chief medical
+      officer Kwabena Mensah has asked whether it lowered 30-day readmissions before the budget
+      committee decides September 15 on six additional care coordinator positions costing $840,000. The
+      system also faces a federal readmissions penalty of $1.2 million against next year's payments.
+      Senior clinical outcomes analyst Anjali Deshmukh ran the analysis; vice president of care
+      management Loretta Sizemore commissioned it and chief financial officer Grant Pelletier asked for
+      the cost side.
+
+      The sample is 2,308 index heart failure discharges between July 2024 and December 2025.
+      Readmissions inside the system come from the electronic record; those elsewhere appear only in a
+      state all-payer claims feed that lags five months, excludes several Medicare Advantage plans, and
+      covers about 78 percent of discharges. Enrollment was voluntary, and
+      coordinators skipped patients without a working telephone, 19 percent of the population. Enrolled
+      patients readmitted at 14.1 percent against 19.6 percent for the unenrolled, but restricted to
+      patients with a reachable phone the figures are 16.8 and 18.9. Patients living more than 45
+      minutes from a hospital showed no difference at all. Discharges to skilled nursing facilities, 22
+      percent of the total, were excluded from the program by design.
+
+      The brief must state the question, describe the record and claims sources and their coverage
+      gaps, explain how enrollment happened and what that does to the comparison, report results
+      overall and by phone access, distance, and discharge disposition, and connect them to the
+      September staffing decision and the penalty.

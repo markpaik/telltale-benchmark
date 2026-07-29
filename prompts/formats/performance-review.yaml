@@ -1,0 +1,231 @@
+format: performance-review
+bundle: true
+target_words: 5000
+min_words: 4500
+output_convention: |
+  Three complete annual performance reviews, one per employee, presented one after
+  another. Each carries the employee name, title, review period, and reviewer, then the narrative
+  assessment against the year's goals, ratings where the form calls for a rating, and goals for the
+  coming year. Where an employee's self-assessment is quoted or answered, it is distinguishable from
+  the manager's own text.
+prompts:
+  - id: performance-review-01
+    domain: software
+    scenario: |
+      Ocotillo Payments Group is a card-processing platform in Tempe, Arizona, with 260 employees and
+      1.4 billion dollars in annual processed volume across 8,700 merchants. Priya Raghunathan,
+      director of the Merchant Platform group, is writing annual reviews for three of her nine
+      engineers for the year ending June 30. Compensation has set a merit pool of 3.1 percent, a
+      distribution allowing at most two exceeds-expectations ratings in a group her size, and one
+      funded staff-engineer promotion for the entire 42-person engineering organization.
+
+      Tobias Ekwueme, senior engineer, four years in seat, led the tokenization vault rewrite that cut
+      authorization latency from 340 milliseconds to 96 and carried the December peak of 4.1 million
+      daily transactions without an incident. His self-assessment says Raghunathan called him the
+      obvious staff candidate in January, and that he has since taken two recruiter calls. Marisol
+      Ybarra, senior engineer with six years, beat her reliability goal with 22 minutes of unplanned
+      downtime against a 60-minute target, but she is the only approved reviewer for the settlement
+      service and her median pull-request turnaround grew from six hours to 3.4 days; two teammates
+      raised it in skip-level meetings and an integration for a 400-store grocery chain slipped five
+      weeks.
+
+      Fatoumata Diallo joined in September from embedded systems, shipped her first production change
+      in week seven against a ten-week ramp target, and asks in her self-assessment whether the March
+      14 outage, when she escalated 40 minutes late, will follow her. Two merchants named her in
+      support notes after a same-day fix during the May settlement backlog.
+
+      The reviews must cover each engineer's goals and the results against them, the incidents and the
+      feedback from teammates and merchants, the rating each receives, what each is told about pay and
+      advancement under this year's constraints, and goals for the coming year.
+  - id: performance-review-02
+    domain: k12-education
+    scenario: |
+      Saguaro Bend Middle School serves 740 students in the Canyon Vista Unified School District in
+      Tucson, Arizona; 62 percent qualify for free or reduced-price meals, and the school entered
+      targeted state support in the fall after three years of declining math proficiency. Principal
+      Nadia Haddad is writing annual evaluations for three teachers under a four-level state rubric, a
+      district instruction that no more than 20 percent of a building's teachers be rated highly
+      effective, and a projected 6 percent enrollment decline that will cost the school two positions
+      in the spring.
+
+      Jerome Castellanos has taught eighth-grade math for eleven years and chairs the department. His
+      students posted a median growth percentile of 68, highest in the district, and he ran a Saturday
+      academy serving 96 students. He applied for the assistant-principal residency stipend the board
+      froze in January, and told Haddad in April that he will look outside the district if there is no
+      path. Yolanda Begay, in her ninth year, teaches seventh-grade language arts and coordinates the
+      master schedule and state testing. Her observations were consistently effective, but she missed
+      the February materials order for the state assessment, forcing 210 students into a make-up
+      window, and three department chairs report waiting weeks for schedule corrections.
+
+      Dustin Marchetti is in his third year teaching science and completed an improvement plan in March
+      opened after two developing observations. His proficiency rate rose from 19 to 31 percent, a
+      parent complaint about grading went to the district in October, and he missed nine days in the
+      second semester.
+
+      The evaluations must cover last year's goals and what each teacher produced against them, the
+      observation record and the specific incidents, the rating on the state rubric, how the staffing
+      and stipend constraints bear on each person, and next year's goals.
+  - id: performance-review-03
+    domain: healthcare
+    scenario: |
+      Mesilla Valley Regional Medical Center is a 312-bed hospital in Las Cruces, New Mexico, with
+      2,400 employees. Adaeze Obi manages the 34-bed progressive care unit, where the registered-nurse
+      vacancy rate is 18 percent and travelers cover eleven of 62 budgeted positions. She is writing
+      annual reviews for three staff under a contract that ties step increases to a satisfactory
+      rating, a 2.4 percent merit pool for anything above satisfactory, and an October accreditation
+      finding on medication reconciliation that put the unit on monthly audit.
+
+      Rosa Elena Trujillo, charge nurse, fourteen years, ran the unit's response when the emergency
+      department boarded 40 patients over the Fourth of July weekend, precepted five new graduates, and
+      holds a critical care certification. She applied for clinical ladder level four and for the unit
+      educator post, and the educator line was cut in January. Her patient experience scores lead the
+      unit at the 84th percentile. Denise Kowalczyk has 22 years at the hospital and returned in March
+      from twelve weeks of leave. She had two medication events in the prior year, one involving a
+      heparin drip that triggered a rapid response, and finished a corrective action plan in June; her
+      documentation compliance moved from 71 to 94 percent, and two colleagues say she still avoids the
+      sickest assignments.
+
+      Sandeep Chaudhary started in January as a new graduate in the residency, took his own assignment
+      in week fourteen against a sixteen-week target, and was named twice in patient letters. He also
+      called out three shifts during the February surge and needed a second remediation on drip
+      titration.
+
+      The reviews must cover each nurse's goals and the results against them, the events and the feedback
+      from patients and colleagues, the rating, how the contract and budget limits apply to each, and
+      goals for the coming year.
+  - id: performance-review-04
+    domain: manufacturing
+    scenario: |
+      Caldera Extrusions runs an aluminum extrusion plant in Casa Grande, Arizona, with 410 employees
+      on three shifts, supplying racking to solar developers. Hector Salgado-Rey superintends second
+      shift, 96 people across four presses. The plant is under a customer corrective action after a
+      June parts submission failed at a Phoenix racking integrator worth 22 million dollars a year;
+      scrap ran 4.2 percent against a 2.5 percent target; and the merit budget is 2.6 percent with no
+      bonus, because the plant missed its on-time delivery gate two quarters running.
+
+      Wanda Chee has led press three for nineteen years and holds the plant's best overall equipment
+      effectiveness at 81 percent against a 72 percent goal. She trained six operators and caught the
+      die-temperature drift that stopped a 40,000-dollar scrap run in April. She interviewed for the
+      maintenance supervisor opening, which corporate eliminated in the same reorganization that pushed
+      two more presses onto her shift. Rick Dombrowski, shift mechanic with eight years, is finishing a
+      performance plan opened in February after a recordable hand injury tied to a skipped lockout step
+      and eleven attendance points against a twelve-point ceiling. Downtime on his presses fell from 46
+      to 29 hours a month since April, and the quality manager credits him with the fix that cleared
+      the extrusion defect the customer audit flagged.
+
+      Jaylen Booker entered the apprenticeship in October on a state workforce grant, qualified on
+      press two in five months against a six-month target, and had two quality escapes in May traced to
+      a gauge nobody had trained him on.
+
+      The reviews must cover the goals each person carried and the results, the safety, quality and
+      attendance record, the feedback from the customer audit and from peers, the ratings, what the pay
+      and staffing constraints mean for each, and goals for the coming year.
+  - id: performance-review-05
+    domain: nonprofit
+    scenario: |
+      Puente Community Services is a 68-staff nonprofit in El Paso, Texas, with an 11.4 million dollar
+      budget running housing navigation, workforce training and family case management. Renata Osei,
+      chief program officer, is writing annual reviews for three managers three weeks after the single
+      audit returned a material weakness on subrecipient monitoring and a 340,000 dollar federal grant
+      ended. The board froze salaries above 55,000 dollars and approved a 4 percent adjustment only
+      below that line.
+
+      Alonzo Ferrer supervises eight housing navigators. His team placed 214 households against a 180
+      target and cut average time to placement from 71 to 49 days, and he covered the vacant program
+      director role for five months without the title or the pay. He has told Osei twice that he needs
+      a decision by September, and a peer agency has interviewed him. Sunita Kapoor manages grants and
+      compliance and holds the only signature authority on federal reports. Four of nine quarterly
+      reports went in late, the audit finding names her area, and staff say budget questions sit for
+      two weeks; she also won a 600,000 dollar state award nobody expected.
+
+      Devon Pritchard supervises family case management, returned in November from eight weeks of
+      leave, and closed 41 of 90 targeted placements. His team's file documentation rate, which the
+      funder requires at 85 percent, finished at 62 percent, and two of his five case managers resigned
+      in the spring citing supervision. His clients rated him highest of any supervisor on the annual
+      participant survey.
+
+      The reviews must cover each manager's goals and what came of them, the audit and funder findings
+      that touch their work, the incidents and the feedback from staff and participants, the rating,
+      what the salary freeze means for each, and goals for the coming year.
+  - id: performance-review-06
+    domain: municipal-government
+    scenario: |
+      The City of Palo Duro, Texas, population 96,000, runs its own water and wastewater utility with
+      34,000 connections and 140 employees. Deputy director Kwame Boateng is writing annual reviews for
+      three staff under civil service rules in which completed evaluations are public records, a 2
+      percent across-the-board increase plus a 1 percent performance pool, a hiring freeze in its
+      fourteenth month, and an August notice of violation from the state environmental agency for
+      missed monthly disinfectant residual reports.
+
+      Lourdes Manzanares, utility billing supervisor with twelve years, stabilized the billing system
+      conversion that misbilled 4,100 accounts in its first cycle, cut call abandonment from 31 to 9
+      percent, and absorbed two vacant clerk positions. She applied for reclassification to billing
+      manager; council tabled the classification study until the 2027 budget. Gustavo Delgado-Marin,
+      plant operations lead with 22 years, is the only Class A licensed operator on staff. He met every
+      discharge permit limit for the year, but he declined to run the apprentice rotation a third time,
+      the plant logged 480 overtime hours in one quarter, and two operators waiting on license sign-off
+      have filed grievances.
+
+      Simone Achterberg was hired in February as environmental compliance analyst after the notice of
+      violation. She cleared fourteen months of backlogged sampling records in her first 90 days and
+      built the reporting calendar, then sent a March report to the state with the wrong laboratory
+      identifier, which required a corrected filing.
+
+      The reviews must cover each employee's goals and the results, the compliance history and the
+      specific incidents, the feedback from council members, coworkers and the public, the rating, how
+      the freeze and the pay structure apply to each, and goals for the coming year.
+  - id: performance-review-07
+    domain: retail
+    scenario: |
+      Zia Mercantile operates 22 home and hardware stores across New Mexico from a headquarters in
+      Albuquerque, with 1,900 employees and 218 million dollars in revenue. District manager Ximena
+      Robles oversees six stores and is writing annual reviews for three store managers. Chain
+      comparable sales fell 1.8 percent, the merit pool is 2 percent, the district bonus did not pay
+      because shrink finished at 2.4 percent against a 1.6 percent target, and two stores convert to a
+      smaller format in March, which removes one manager position.
+
+      Dev Ramchandani has run the Rio Rancho store for four years, posted comparable sales up 7.2
+      percent, the best in the district, and took the contractor sales desk pilot to 1.1 million
+      dollars in its first year. He applied for the one open regional operations manager job against
+      two other internal candidates and told Robles in May that he will not stay a store manager
+      another year. Pauline Villanueva-Estrada has nine years at the Santa Fe store, where sales were
+      flat and shrink hit 2.9 percent. She holds every hiring approval herself; time to fill runs 46
+      days against a 21-day standard, and two assistant managers who transferred out named her in exit
+      interviews. Her store leads the district on customer survey scores at 78.
+
+      Keisha Amankwaa was promoted from assistant manager in October to the Farmington store after the
+      prior manager resigned mid-season with 40 percent of positions open. She reached full staffing by
+      February, failed two of three quarterly safety walks, and finished the January inventory 84,000
+      dollars short.
+
+      The reviews must cover each manager's goals and results, the sales, shrink, staffing and safety
+      numbers, the incidents and the feedback from employees and customers, the rating, what the format
+      conversion and the missed bonus mean for each, and goals for the coming year.
+  - id: performance-review-08
+    domain: logistics
+    scenario: |
+      Caliche Freight Systems is a less-than-truckload carrier based in San Antonio, Texas, with 640
+      employees and eleven terminals. Hala Nasrallah manages the San Antonio hub: 118 employees, 2,400
+      shipments a day, 34 city drivers. A federal compliance review in September produced a conditional
+      safety rating tied to hours-of-service records and driver qualification files. Tonnage is down 9
+      percent year over year, a 90-store retail customer worth 3.8 million dollars put the terminal on
+      notice over 12 percent late deliveries, the wage pool is 2.5 percent, and corporate approved no
+      supervisor promotions.
+
+      Emmanuel Owusu-Bempah has supervised dispatch for six years, held on-time performance at 96.4
+      percent through a year of 68 percent driver turnover, and cut empty miles 11 percent by
+      rebuilding the city route plan. He applied for the operations manager job frozen in July and has
+      an offer from a competitor in New Braunfels. Marisela Quintanilla, safety supervisor with eleven
+      years, owns the driver qualification files the compliance review cited, 22 of 31 sampled files
+      incomplete. Her preventable accident rate fell from 3.1 to 1.9 per million miles, she is the only
+      person trained on the compliance system, and new hires wait nine days for a road test.
+
+      Jamal Whitfield became dock supervisor in October after his predecessor was terminated for
+      falsifying a manifest. Throughput rose from 14 to 19 bills per hour, damage claims on his shift
+      jumped 40 percent in the first quarter and fell back by June, and two senior dock workers
+      complained about how he assigns overtime.
+
+      The reviews must cover each supervisor's goals and results, the compliance findings and customer
+      escalations that touch their work, the specific incidents and the feedback from drivers, peers
+      and customers, the rating, what the frozen promotions and wage pool mean for each, and goals for
+      the coming year.

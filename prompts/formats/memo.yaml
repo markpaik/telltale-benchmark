@@ -1,0 +1,234 @@
+format: memo
+bundle: true
+target_words: 5000
+min_words: 4500
+output_convention: |
+  A packet of separate internal memos presented one after another, each with its own
+  TO / FROM / DATE / SUBJECT block followed by running prose. Each memo is dated so a reader can place
+  it in the sequence. Headings appear only where a real memo of that length would carry them; most of
+  the packet is paragraphs.
+prompts:
+  - id: memo-01
+    domain: healthcare
+    scenario: |
+      Merrimack Valley Health Partners runs a 214-bed community hospital in Lowell,
+      Massachusetts and a 68-bed campus in Haverhill, employing 3,900 people between them.
+      Births at Haverhill have fallen from 1,180 a year in 2019 to 690 in 2026, and the
+      obstetrics unit there lost $4.3 million last fiscal year. In January 2027 the system
+      decided to consolidate inpatient obstetrics onto the Lowell campus by October 1.
+      Massachusetts requires 120 days of advance notice to the Department of Public Health,
+      an essential services plan, and a public hearing, now set for April 9. Sixty-two
+      full-time positions are affected.
+
+      The decision is contested inside and outside the building. Haverhill patients would
+      travel an average of 14 additional miles, and the medical staff executive committee
+      voted 11 to 4 against the timeline, filing a written objection about transfer protocols
+      for precipitous deliveries. Two of the four obstetric hospitalists gave notice in
+      February. Nursing vacancy on the Lowell unit stands at 23 percent. The bid to expand
+      Lowell from 12 to 20 beds came back at $8.4 million, $2.9 million over the approved
+      capital line, and transition costs are running $1.9 million against a $2.6 million
+      contingency. The people involved are Dr. Anjali Ramaswamy, Chief Medical Officer;
+      Devon Okonkwo, Vice President of Operations; Marisol Vega-Ruiz, Chief Nursing Officer;
+      Aaron Lindqvist, Chief Financial Officer; and Latasha Greer, Director of Community
+      Benefits.
+
+      The packet must cover Ramaswamy's January 26 announcement to the medical staff,
+      Lindqvist's February revision of the capital and transition budget after the $8.4
+      million bid, Vega-Ruiz's memo to nursing leadership on redeploying the 62 affected
+      employees and running the March 15 bidding process, Okonkwo's status memo to the
+      executive team the week after the April 9 hearing, and Greer's answer to the medical
+      staff committee's written objection.
+  - id: memo-02
+    domain: manufacturing
+    scenario: |
+      Kearsarge Aerospace Components machines titanium and nickel-alloy structural parts in
+      Claremont, New Hampshire, with 340 employees and $96 million in 2026 revenue. In
+      November its largest customer, which accounts for 44 percent of sales, ran a supplier
+      audit and issued 11 nonconformances, four of them major, with a corrective action plan
+      due in 60 days and a hold on new part numbers until closure. Three weeks later the
+      outside shop that performs Kearsarge's five-axis roughing filed for bankruptcy
+      protection, stranding 2,200 pieces of work in process and pushing 38 percent of open
+      orders past their promise dates.
+
+      The response is to bring roughing in-house: $6.8 million for two five-axis machining
+      centers with a 34-week lead time, a rebuilt inspection cell, and a second shift of 28
+      machinists in a county where unemployment is 2.1 percent and the shop wage scale sits
+      $3.40 below the Springfield-area market. The board approved $4.5 million in October,
+      leaving the balance unfunded, and machinist turnover ran 27 percent last year. Hana
+      Ishikawa-Brennan, Vice President of Manufacturing, owns the plan. Rasheed Mansour,
+      Quality Director, owns the corrective action. Gail Dombrowski is Chief Financial
+      Officer, Eli Castellanos is Plant Manager, and Ingrid Halvorsen is Director of Human
+      Resources.
+
+      The packet must cover Ishikawa-Brennan's memo opening the insourcing program to plant
+      leadership, Mansour's memo to the quality and engineering staff laying out the 11
+      findings and the 60-day schedule, Dombrowski's revised capital request explaining the
+      $2.3 million gap and the effect on the FY28 forecast, Halvorsen's memo on the second
+      shift and the wage adjustment, and Castellanos's status memo at week 12 on the stranded
+      work in process and the recovery schedule.
+  - id: memo-03
+    domain: nonprofit
+    scenario: |
+      Riverbend Community Services is a Hartford, Connecticut human services agency with 180
+      employees and a $22 million budget, running refugee resettlement, adult literacy, and
+      eviction prevention across Hartford and Tolland counties. In March 2027 a federal
+      reimbursement change cut $3.1 million from its resettlement line with 90 days notice,
+      and the FY26 single audit came back with a material weakness in subrecipient
+      monitoring. In April the board voted 9 to 4 to absorb Sycamore Street Family Center, a
+      40-person Manchester agency two weeks from missing payroll, along with 620 active
+      clients, two leases running through 2030, and $480,000 in deferred payables.
+
+      Nothing about the absorption is settled. Sycamore's direct service staff are
+      represented by a union and Riverbend's are not. Riverbend must eliminate 14 positions
+      to close the gap, and development is $900,000 behind a $4.2 million annual goal with
+      four months left. Two Sycamore program directors have already resigned. The cast is
+      Ayesha Nkemelu, Executive Director; Miriam Rothstein, Board Chair; Hector Bonilla,
+      Chief Financial Officer; Sunny Trinh, Director of Programs; and Charlene Whitcomb,
+      Director of Development.
+
+      The packet must cover Nkemelu's April 20 memo to all staff announcing the board vote
+      and what happens to Sycamore's employees, Bonilla's revised FY28 budget memo showing
+      the $3.1 million loss, the 14 eliminated positions, and the assumed payables, Trinh's
+      memo to program managers on how 620 transferred cases will be assigned and what the
+      new subrecipient monitoring procedure requires, Whitcomb's memo to the development
+      committee on the campaign shortfall and the bridge request to three family foundations,
+      and Nkemelu's memo to the board answering the four dissenting members and the union's
+      letter about successorship.
+  - id: memo-04
+    domain: municipal-government
+    scenario: |
+      Ashmont Falls is a city of 41,200 in Orange County, New York, with a municipal water
+      utility serving 14,800 accounts. Its service line inventory, filed with the state in
+      October 2026, identified 6,140 lines of lead or unknown material against a planning
+      estimate of 2,800, which more than doubles the replacement obligation the federal
+      drinking water rule imposes through 2037. The first construction package went out to
+      bid in February and the low bid came in 38 percent above engineer's estimate, at
+      $14,900 per line. The city has an $18 million state revolving fund loan with $6.2
+      million in principal forgiveness, and Finance is proposing an 11 percent water rate
+      increase phased over two years.
+
+      The city council's public utilities committee is fighting the plan to bill property
+      owners for the private side of the connection, which averages $3,100. Twenty-nine
+      percent of affected addresses are rental properties, and the health department has
+      asked for prioritization by the 411 households with children under six. City Manager
+      Yolanda Priestley, Public Works Director Faisal Chaudhry, Finance Director Nadia
+      Petrosyan, Water Superintendent Grace Muriuki, and Councilman Warren DuBois, who chairs
+      the committee, are all in this.
+
+      The packet must cover Priestley's memo to department heads and the council opening the
+      replacement program and its schedule, Petrosyan's memo revising the rate and financing
+      plan after the bid opening, Chaudhry's memo setting the policy for obtaining property
+      owner consent and handling refusals, Muriuki's status memo after the first 400
+      replacements including the crew productivity and water quality sampling results, and
+      Priestley's memo answering DuBois's written objection to the private-side charge.
+  - id: memo-05
+    domain: retail
+    scenario: |
+      Larkspur Markets runs 28 grocery stores across western Massachusetts and southern
+      Vermont from a headquarters in Greenfield, with 3,100 employees and $610 million in
+      annual sales. Gross margin has fallen from 26.8 percent to 24.1 percent in two years,
+      and four stores lost money in every quarter of 2026. The company is replacing its
+      paper-circular promotional model with a digital loyalty and targeted-pricing program,
+      closing the four losing stores, and reopening two of them at 12,000 square feet under a
+      smaller format.
+
+      The vendor implementation slipped from March to August, the capital estimate rose from
+      $5.4 million to $7.9 million, and a six-store pilot moved average basket up 4.1 percent
+      while cutting vendor promotional funding by $1.2 million a year because fewer items
+      qualify for circular placement. The UFCW contract covering 2,400 employees reopens in
+      January, and the closures affect 310 people with recall rights at other stores. Two
+      landlords are demanding lease termination payments totaling $2.1 million. President
+      Deshawn Whitfield, Senior Vice President of Merchandising Yuki Tanabe-Ortiz, Chief
+      Financial Officer Padraig Malloy, Vice President of Human Resources Estelle Nwachukwu,
+      and Director of Store Operations Renata Kovalenko are running the work.
+
+      The packet must cover Whitfield's memo to store directors and the corporate staff
+      opening the program and naming the four closures, Malloy's memo revising the capital
+      plan and the FY28 margin forecast after the $2.5 million overrun and the lost vendor
+      funding, Nwachukwu's memo setting the transfer, severance, and scheduling policy for
+      the 310 affected employees, Tanabe-Ortiz's status memo reporting the pilot results
+      across the six stores, and Whitfield's memo answering the union local's formal
+      objection to the closure notice period.
+  - id: memo-06
+    domain: logistics
+    scenario: |
+      Meadowlands Freight Systems is a less-than-truckload carrier based in Carteret, New
+      Jersey, with 12 terminals, 940 drivers, and $284 million in 2026 revenue. Three hundred
+      ten of its drivers are owner-operators. In January the New Jersey Department of Labor
+      closed a three-year audit and assessed $2.4 million in back contributions, interest,
+      and penalties for worker misclassification, giving the company 45 days to respond and
+      signaling that a second audit period is open. The company has decided to convert all
+      310 owner-operators to employee drivers by January 1, which raises cost per mile by 19
+      cents and requires buying or leasing 218 tractors.
+
+      Two other things are happening at once. A national retail customer worth $31 million a
+      year has awarded volume contingent on a new Albany cross-dock opening by November 15
+      with a 98.5 percent on-time commitment, and driver attrition is running 31 percent
+      against an industry average near 24. The liability insurance renewal came in 24 percent
+      higher after two nuclear-verdict settlements in the region. Chief Operating Officer
+      Ousmane Diallo, Vice President of Human Resources Lorraine Petrucci, Chief Financial
+      Officer Sanjay Bhattacharya, Albany Terminal Director Tomasz Wisniewski, and General
+      Counsel Camille Beauregard are the principals.
+
+      The packet must cover Diallo's memo to terminal managers announcing the conversion and
+      the Albany opening, Beauregard's memo to the leadership team on the audit assessment
+      and the response deadline, Bhattacharya's revised operating budget memo showing the 19
+      cent impact and the tractor financing, Petrucci's memo setting pay, benefits, and
+      seniority rules for converting owner-operators, Wisniewski's status memo six weeks
+      before the Albany opening, and Diallo's memo answering the fleet managers who argued
+      the conversion should wait for the appeal.
+  - id: memo-07
+    domain: software
+    scenario: |
+      Quarry Street Systems, headquartered in Cambridge, Massachusetts, sells point-of-sale
+      and payments software to 4,100 independent restaurants across New England. It has 210
+      employees and $48 million in annual recurring revenue. Its card-present processor is
+      shutting down the legacy gateway on March 31, 2027, and 900 merchants still run
+      terminals that cannot take the firmware update, meaning they stop accepting cards that
+      day. A payment card industry assessment in October flagged seven gaps, including
+      encryption key rotation that has not run since 2023, with remediation due before the
+      next attestation in May.
+
+      Money is tight. The board approved a 14 percent staff reduction in November, 29
+      positions, including six of 22 merchant support agents, at the same time support volume
+      is expected to triple during the migration. Replacing the 900 terminals costs $2.6
+      million, or $1.5 million if the company commits to 3,000 units with the hardware vendor
+      by December 15. Migration is running at 40 merchants a week against the 75 needed. The
+      principals are Kwabena Asante, Vice President of Engineering; Dolores Kaminski-Lim,
+      Chief Product Officer; Nathan Rosenblum, Chief Financial Officer; Amara Bakr, Director
+      of Merchant Support; and Vikram Sethi, Head of Platform Reliability.
+
+      The packet must cover Kaminski-Lim's memo to the company opening the migration program
+      and the March 31 date, Rosenblum's memo revising the operating plan for the hardware
+      subsidy and the reduction in force, Bakr's memo setting the support escalation and
+      merchant outreach policy for the migration window, Sethi's memo to engineering on the
+      seven assessment findings and the key rotation schedule, and Asante's status memo in
+      January reporting migration pace and answering the account team's objection that the
+      subsidy should be spent on retention instead.
+  - id: memo-08
+    domain: k12-education
+    scenario: |
+      Saugatuck Hills Regional School District operates six schools in Fairfield County,
+      Connecticut, enrolling 4,190 students, down from 4,610 in 2020, with 620 employees and
+      a $103 million budget. It faces a $3.2 million shortfall for FY28. A February
+      referendum on a $46 million renovation bond failed 54 to 46 with 31 percent turnout. In
+      January the state Department of Education completed a special education monitoring
+      review and found 19 percent of sampled individualized education programs out of
+      compliance on transition planning and delivered service minutes, with a corrective
+      action plan due June 30 and a follow-up visit in the fall.
+
+      Administration is proposing to close Ashford Lane Elementary, which enrolls 218
+      students in a building at 54 percent capacity, redistrict 118 students across two
+      remaining elementary schools, and consolidate two self-contained special education
+      programs into hubs at Bridgemill and Hollow Road. Closure saves an estimated $1.9
+      million a year and displaces 31 staff, 14 of whom are non-tenured. Two board members
+      have said publicly they will vote no. The people involved are Superintendent Dr.
+      Chidinma Eze, Business Manager Marco Sanfilippo, Director of Special Services Hannah
+      Weissman, Board Chair Leticia Ramos-Byrd, and Ashford Lane Principal Odalys Marte.
+
+      The packet must cover Eze's memo to principals and central office staff opening the
+      consolidation study and its timeline, Sanfilippo's memo revising the FY28 budget with
+      and without the closure, Weissman's memo to special education staff on the corrective
+      action plan and the program hub moves, Marte's status memo to Eze on the Ashford Lane
+      community forums and staff placement, and Eze's memo to the board answering the written
+      objection from the two dissenting members about redistricting and class size.

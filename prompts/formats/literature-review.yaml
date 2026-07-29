@@ -1,0 +1,233 @@
+format: literature-review
+bundle: false
+target_words: 5000
+min_words: 4500
+output_convention: |
+  One literature review: an introduction framing the question and scope, a note on how
+  the literature was searched, then synthesis organized by theme with author-year citations in the
+  text, then gaps and implications, then a reference list. Studies are set against each other rather
+  than summarized one at a time.
+prompts:
+  - id: literature-review-01
+    domain: healthcare
+    scenario: |
+      Coronado Health Network runs four hospitals and 19 clinics around Tucson, Arizona, with 6,200
+      employees and 41,000 admissions a year. Federal readmission penalties cost the system 1.4 million
+      dollars last year, heart failure the largest contributor. The board has set aside 2.2 million
+      dollars for a transitional care program and wants the evidence by November. Yesenia Alcaraz,
+      director of clinical effectiveness, is writing the review; librarian Grant Peavey ran the
+      searches, and Dr. Obiageli Nwachukwu, chief of cardiovascular services, is the clinical reviewer.
+
+      Peavey searched PubMed, CINAHL, Embase, Cochrane CENTRAL and a trials registry for 2004 through
+      2025, screened 2,847 records, pulled 236 for full text and included 78 studies, among them 31
+      randomized trials, 22 quasi-experimental evaluations, 14 qualitative studies and eleven syntheses.
+      The extraction table of effect sizes, populations and risk-of-bias ratings sits in the shared
+      folder, and Alcaraz cites studies by author and year.
+
+      The literature splits several ways. Early nurse-led transitional care trials reported readmission
+      reductions of 25 to 40 percent, while three large pragmatic multi-site trials after 2016 found no
+      significant effect. Two meta-analyses reach opposite conclusions on nearly the same telemonitoring
+      trials. Pharmacist-led medication reconciliation, home visits, community health worker models and
+      structured post-discharge calls each carry their own contradictions, and cost estimates run from
+      2,900 dollars saved per patient to a net loss. Rural patients, Spanish-speaking patients and
+      patients without transportation appear in almost no trial, and follow-up past 90 days is rare.
+
+      The review must set out the question and its scope, how the search was run, what each strand shows
+      and where the studies contradict one another, the design differences that could account for that,
+      the populations and outcomes the evidence never reaches, and what it means for a system this size.
+  - id: literature-review-02
+    domain: manufacturing
+    scenario: |
+      The Southwest Advanced Manufacturing Institute in Chandler, Arizona, is a consortium of 38 member
+      plants employing 24,000 production workers. Three members are moving to twelve-hour rotating
+      shifts; a fourth reversed that change last year after its recordable injury rate rose from 2.9 to
+      4.6 per 100 workers. A fatality at a member foundry in April, in the eleventh hour of a night
+      shift, pushed the board to commission a review. Dr. Sofia Kuznetsova, research director, is
+      writing it with industrial hygienist Bernard Achebe-Lomax; operations council chair Doyle Ferris,
+      whose 700-person plant already runs twelve-hour schedules, says his crews would strike before
+      going back to eight.
+
+      The team searched Scopus, PsycINFO, MEDLINE and a federal occupational safety database from 1985
+      through 2025, screened 1,932 records, read 310 in full and included 94 studies: 39 field studies,
+      21 laboratory sleep and vigilance experiments, 18 surveys of preference and retention, and ten
+      meta-analyses. Effect sizes, shift patterns and exposure measures sit in the consortium database,
+      cited by author and year.
+
+      The evidence pulls in different directions. Laboratory work shows vigilance decrement after the
+      ninth hour, while several large field studies find no injury difference and two report fewer
+      injuries under fixed twelve-hour shifts. Meta-analyses from the 1990s and from 2019 disagree on
+      the same schedule types. Direction of rotation, nap policy, stacked overtime, summer heat and
+      quality escapes as distinct from injuries each carry partly conflicting findings. Survey
+      respondents overwhelmingly prefer the longer shifts for the days off. Workers over 55 barely
+      appear, and women are under a fifth of pooled samples.
+
+      The review must cover the question and the search, what the studies find and where they disagree,
+      the design and measurement differences behind that, the gaps in what has been studied, and what
+      follows for member plants choosing a schedule.
+  - id: literature-review-03
+    domain: nonprofit
+    scenario: |
+      The Alamo Basin Community Foundation in San Antonio, Texas, holds a 340 million dollar endowment.
+      Its board is weighing a six million dollar, three-year unconditional cash pilot for 500 households
+      in three zip codes where median household income runs under 32,000 dollars. County commissioner
+      Odalys Fuentes-Nabors will not back matching funds without evidence, and two donor-advised fund
+      holders have threatened to move their accounts. Dr. Tomas Iribarren, senior research officer, is
+      writing the review with research associate Chidinma Okorafor and program officer Landon Yazzie.
+
+      They searched EconLit, the Social Science Citation Index, PsycINFO and gray literature from twelve
+      pilot evaluations, 1997 through 2026. From 1,410 records they read 268 in full and included 63,
+      among them 14 randomized trials, 19 quasi-experimental studies, twelve qualitative studies, seven
+      cost analyses and eleven syntheses. Effect estimates, transfer amounts and follow-up windows sit
+      in the extraction workbook, cited by author and year.
+
+      The findings do not line up. Early city pilots reported gains in full-time employment and in
+      mental health measures; a three-year trial published in 2024 found a reduction of about 1.3 weekly
+      work hours and no change on several health outcomes. Housing stability effects hold steadier than
+      earnings effects. Infant brain-development work reports early differences that later waves have
+      not sustained. Studies differ on transfer size, duration, benefit offsets, and whether outcomes
+      came from self-report or administrative records. Mixed-status immigrant families, rural colonia
+      residents and households with a disabled adult are barely represented anywhere in the set.
+
+      The review must lay out the question and the search, show where the studies conflict, explain what
+      design differences drive the conflict, name the populations still unstudied, and say what the
+      evidence means for a foundation weighing a pilot this size.
+  - id: literature-review-04
+    domain: municipal-government
+    scenario: |
+      The City of Verde Springs, Arizona, population 118,000, recorded 19 traffic deaths in 2025 against
+      nine in 2021, fourteen of them pedestrians on five arterial corridors. Council allocated 6.5
+      million dollars for speed management and told the Office of Performance and Budget to review the
+      evidence before staff release the automated enforcement request for proposals. Anand Sundaresan,
+      principal management analyst, is writing the review with transportation planner Keiko Villalpando.
+      Councilmember Wynette Prosser calls cameras a revenue device, a state preemption bill sits in
+      committee, and the police chief has no officers to spare.
+
+      Sundaresan searched a transportation research database, Scopus, PubMed and the state
+      transportation agency report series for 1995 through 2026, screened 1,684 records, read 291 in
+      full and included 88 studies: 26 automated enforcement evaluations, 22 road diet studies, 17 speed
+      limit change studies and twelve traffic calming studies. Crash counts, exposure measures and
+      effect estimates sit in the extraction sheet, cited by author and year.
+
+      The studies do not agree. Before-and-after camera evaluations report injury crash reductions of 20
+      to 50 percent; studies using comparison sites and empirical Bayes correction report far smaller
+      effects, and several find crashes migrating to adjacent corridors. Rear-end collisions rise in
+      some camera studies and not others. Road diet results from small Iowa cities do not replicate on
+      six-lane arterials. Lowering a posted limit without changing the road yields one to three miles
+      per hour. Equity analyses of who gets cited and who gets struck reach different conclusions
+      depending on the denominator, and effects past three years go untracked.
+
+      The review must cover the question and the search, what the evidence shows for each intervention
+      and where it conflicts, the design differences behind the conflict, the gaps in what has been
+      studied, and what it means for a city this size.
+  - id: literature-review-05
+    domain: retail
+    scenario: |
+      Pinal Ridge Markets runs 61 grocery stores in Arizona and southern Nevada from an office in
+      Phoenix, employing 8,400 people, 61 percent of them part time. Turnover among front-end clerks hit
+      87 percent last year, and replacing one costs about 2,100 dollars. Chief people officer Delia
+      Marchbanks has proposed a twelve-store pilot with schedules posted two weeks ahead, a guaranteed
+      weekly core of hours and no on-call shifts. Chief financial officer Priyansh Bhatt projects 1.9
+      million dollars a year in added labor cost. Before the January capital meeting, the company
+      retained Dr. Hyun-Woo Chang, a labor economist at a Tempe research center; analyst Camille
+      Deschamps-Iyer pulled the internal data he works against.
+
+      Chang searched EconLit, a business research index, PsycINFO and the working papers of four labor
+      research centers for 1998 through 2026, screened 1,120 records, read 217 in full and included 59
+      studies: nine field experiments, 21 quasi-experimental evaluations of scheduling ordinances, 16
+      administrative data studies and seven qualitative studies. Effect sizes, outcome definitions and
+      firm sizes sit in his extraction file, cited by author and year.
+
+      The literature disagrees on nearly every practical question. One retail field experiment reported
+      sales up about 7 percent under stable scheduling; ordinance evaluations in two West Coast cities
+      report better notice and better sleep with mixed or null effects on turnover and hours. Several
+      studies find employers responding by cutting total hours. Cost estimates differ by an order of
+      magnitude, grocery behaves differently from apparel, and part-time workers with caregiving
+      obligations appear mostly in qualitative work.
+
+      The review must state the question and the search, set the studies against each other on turnover,
+      sales, cost and worker outcomes, explain which methodological differences account for the split,
+      name what has not been studied, and say what it supports for a chain this size.
+  - id: literature-review-06
+    domain: logistics
+    scenario: |
+      The Border Commerce Institute in Laredo, Texas, is a research center funded by 24 member carriers
+      operating 6,900 tractors. Member turnover among over-the-road drivers averaged 91 percent last
+      year, two members lost major customers after service failures, and the institute holds a
+      400,000 dollar state workforce grant that must fund an intervention before the fiscal year closes.
+      Dr. Ana Lucia Zepeda, director of research, is writing the review; analyst Fitzgerald Boakye built
+      the screening database, and member advisory chair Roseanne Kitcheyan, who runs a 210-truck fleet
+      in Deming, insists pay is the only variable that matters.
+
+      Zepeda searched a transportation research database, Scopus and federal motor carrier research
+      reports for 1990 through 2026, screened 2,105 records, read 264 in full and included 71 studies:
+      24 on compensation structure, 15 on detention and dwell time, twelve on electronic logging and
+      hours of service, and nine on safety climate. Effect estimates and driver segments sit in the
+      extraction workbook, cited by author and year.
+
+      The evidence contradicts itself. Pay increases produce retention gains that decay within nine to
+      fourteen months, though some studies find durable effects when pay comes with predictable home
+      time. Detention research links dwell time to both crash risk and quitting, but
+      detention is measured so differently that estimates run from 1.2 to 6.5 hours per stop. Logging
+      device studies report worsened crash rates at small carriers and improvement at large ones.
+      Economists arguing that no driver shortage exists sit against industry survey work claiming a gap
+      of 60,000 drivers. Owner-operators, women drivers and short-haul work are thin throughout.
+
+      The review must frame the question and the search, set the studies against each other on pay,
+      detention, scheduling and safety, explain why they disagree, name what the literature leaves
+      untouched, and say what it means for carriers this size.
+  - id: literature-review-07
+    domain: software
+    scenario: |
+      Ironwood Labs builds continuous integration tooling in Austin, Texas, with 430 employees.
+      Engineering has required two approving reviewers on every change since 2019. A platform group
+      proposal would drop that to one reviewer for changes under 200 lines, since median review latency
+      of 41 hours is the largest component of lead time. A severity-one outage on March
+      14 costing 900,000 dollars in service credits was traced to a two-line configuration change
+      approved by two reviewers in under four minutes. Vice president of engineering Oluwaseun Bamgbose
+      commissioned a review; Dr. Wen-Li Tsai, a staff research engineer, is writing it with three years
+      of review telemetry from developer experience lead Ingrid Vasquez-Thorne.
+
+      Tsai searched two computing digital libraries, Scopus and eight conference proceedings for 1976
+      through 2026, screened 1,540 records, read 249 in full and included 84 studies: 22 controlled
+      experiments, 31 repository mining studies, 13 industrial case studies and nine on pair
+      programming. Defect detection rates, review sizes and reviewer counts sit in the extraction sheet,
+      cited by author and year.
+
+      The literature does not settle it. Inspection studies from the 1980s report detection of 60 to 90
+      percent of defects, but their baselines and defect definitions do not transfer to modern
+      lightweight review. Repository studies find review participation correlates with fewer
+      post-release defects, while several report the second reviewer adds little beyond the first. Pair
+      programming experiments split by population, student samples showing effects professional samples
+      do not. Change size, author experience and rubber-stamping confound most observational work, and
+      almost nothing covers teams reviewing across time zones.
+
+      The review must state the question and the search, set the studies against each other on defect
+      detection, latency and reviewer count, explain the design differences behind the disagreement,
+      name the gaps, and say what it supports for a company weighing this change.
+  - id: literature-review-08
+    domain: k12-education
+    scenario: |
+      Tres Rios Preparatory Schools is a nine-campus charter network in Phoenix, Arizona, serving 6,400
+      students, 78 percent low-income. Chronic absence hit 34 percent last year, up from 19 percent in
+      2019, and the authorizer flagged attendance in a renewal review due in April. The board has 1.8
+      million dollars in state funds and three proposals before it: a mailed nudge campaign at 40
+      dollars per family, a mentoring model at 1,600 dollars per student, and attendance teams with
+      home visits at 210,000 dollars a campus. Dr. Thandiwe Mokoena, director of research and
+      accountability, is writing the review with data specialist Ernesto Palafox-Ruiz; high school
+      principal Corina Blackgoat doubts any of it holds past sixth grade.
+
+      Mokoena searched ERIC, PsycINFO, Web of Science and a federal evidence clearinghouse for 2000
+      through 2026, screening 1,760 records, reading 232 in full and including 67 studies: 18 randomized
+      trials, 24 quasi-experimental studies, 13 implementation studies and five cost analyses, with
+      effect sizes and baseline absence rates in her workbook, cited by author and year.
+
+      The results do not line up. Early nudge trials reported absence reductions of 10 to 15 percent for
+      a few dollars a family; replications after 2019 report half that or nothing, and one large trial
+      found effects only above a baseline absence threshold. Mentoring evaluations show larger effects
+      in elementary grades and inconsistent results in high school. Home visit studies are small and
+      rarely control for selection. Post-2020 baselines shifted so far that earlier effect sizes may not
+      transfer, and students in unstable housing rarely appear in the samples.
+
+      The review must set out the question and the search, put the studies against one another by
+      intervention and grade band, explain what drives the disagreement, name the populations the
+      evidence misses, and say what it means for the network's choice.

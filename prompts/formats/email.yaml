@@ -1,0 +1,215 @@
+format: email
+bundle: true
+target_words: 5000
+min_words: 4500
+output_convention: |
+  A single continuous email thread rendered as consecutive messages in chronological order.
+  Each message opens with plain From / To / Cc / Subject / Date lines, then the body, then whatever
+  sign-off that sender would use. Message bodies look the way people actually type at work: some are
+  two lines, some run long, some quote the message above them. No section headings or bullet
+  formatting unless a particular sender would really reach for a list.
+prompts:
+  - id: email-01
+    domain: k12-education
+    scenario: |
+      Cascade Ridge School District enrolls 6,200 students across nine schools in and around Bend,
+      Oregon. Enrollment has fallen 14 percent in six years and the draft 2026-27 budget carries an
+      $8.4 million shortfall against a $91 million general fund. On March 2, Superintendent Dr.
+      Marisol Quintanilla opens a thread with her cabinet and the board about consolidating
+      elementary schools. The April 20 board meeting is the last one that lets reduction-in-force
+      notices reach staff by the May 15 contractual deadline.
+
+      Chief Financial Officer Grant Hobbes has modeled three consolidation packages saving between
+      $1.9 million and $4.6 million, each carrying one-time moving and boundary costs of $600,000 to
+      $1.1 million. Four buildings are in play: Ponderosa Elementary at 317 students and 44 percent
+      utilization, Juniper Flat at 402 students and 61 percent, Sawyer Creek at 289 students and 51
+      percent, and Deschutes View at 511 students and 88 percent. Terrance Whitlow, principal at
+      Ponderosa, points out his school has the district's highest poverty rate at 68 percent and its
+      shortest bus rides. Board President Denise Achterberg says two members will not vote to close
+      Ponderosa under any version. Hana Sugiyama, who runs family and community engagement, has held
+      four listening sessions with 480 attendees.
+
+      On March 26 the state announces a $2.3 million facilities grant conditioned on the building
+      staying in service, and county projections revise the incoming kindergarten cohort up by 40.
+
+      The thread has to work through the numbers at each of the four buildings, the savings and
+      one-time costs of each package, what families said at the sessions, how the grant changes the
+      arithmetic, the transportation and boundary consequences, and what goes in front of the board
+      on April 20.
+  - id: email-02
+    domain: healthcare
+    scenario: |
+      Clark Fork Regional Medical Center is a 214-bed hospital in Missoula, Montana, with 1,900
+      employees and a 2.1 percent operating margin. On June 24 its contracted hospitalist group,
+      Rocky Summit Physician Partners, gives 90-day notice terminating the coverage agreement
+      effective September 30 unless the annual subsidy rises from $1.9 million to $4.6 million. The
+      group's managing partner, Dr. Wes Coburn, cites seven physicians covering an average daily
+      census of 118 and a market where nocturnist pay has moved to $2,400 a shift.
+
+      Chief Medical Officer Dr. Adaeze Nwachukwu starts the thread. Chief Financial Officer Sanjay
+      Bhatt has three numbers to compare: the counteroffer, direct employment at roughly $5.2 million
+      loaded for nine physicians plus two nurse practitioners, and a national locums vendor at $312
+      an hour with a 26-week minimum. Chief Nursing Officer Margarethe Lindqvist reports discharge
+      orders now land after 2 p.m. on 61 percent of days. Dr. Ruben Ocampo, the emergency department
+      medical director, says median boarding time has climbed to 6 hours 40 minutes and the hospital
+      diverted 14 times in May. Tamika Reeves in compliance flags that a CMS validation survey in
+      April cited a condition-level deficiency on discharge planning with a plan of correction due
+      August 1.
+
+      Two hospitalists take jobs elsewhere on July 8, which changes the arithmetic mid-thread. The
+      board finance committee meets August 12.
+
+      The thread needs to resolve which coverage model the hospital pursues, what happens between
+      October 1 and whatever start date is realistic, how the deficiency and the staffing question
+      connect, what the board committee is asked to approve, and who tells the medical staff.
+  - id: email-03
+    domain: manufacturing
+    scenario: |
+      Latah Precision Aerospace machines titanium and Inconel structural parts at a 240-person plant
+      in Spokane Valley, Washington, on $58 million of annual revenue. On September 9, Jae-won Park,
+      supplier quality manager at its largest customer Chelan Aerostructures, issues a stop-ship on
+      part number 4471-B after seven of sixty incoming brackets failed dimensional inspection at two
+      hole-position features. Chelan buys 4,100 brackets a year and represents 38 percent of Latah's
+      book.
+
+      Plant Manager Ofelia Barragan opens the thread. Quality Director Nils Hedstrom traces the
+      drift to a rotary table on the 5-axis cell that was last laser-calibrated 19 months ago against
+      a 12-month standard, and the same week a Nadcap chemical processing audit returns a major
+      nonconformance on anodize tank titration records covering 41 missing entries. Rebuilding the
+      rotary table takes the cell down 15 working days and pushes 1,400 parts past the October 31
+      delivery dates, exposing Latah to $340,000 in late penalties. The alternative is 100 percent
+      CMM inspection at an outside lab in Portland at $46 a part with a four-day turn. Controller
+      Colleen Fitzgerald notes the company has $2.4 million drawn on a $3 million line. Marcus
+      Ballard, the machinists' union steward, says a weekend recovery schedule needs 14 days notice
+      under the contract and the second shift is already short four operators.
+
+      On September 18 Chelan finds two suspect brackets already installed on assemblies in Renton.
+
+      The thread must settle containment, the recovery plan for the delivery schedule, who pays for
+      sorting and expedite, what Latah sends Chelan and Nadcap in writing, and what the second shift
+      is told.
+  - id: email-04
+    domain: nonprofit
+    scenario: |
+      High Desert Family Services runs housing, food access, and youth programs out of Boise, Idaho,
+      with 214 staff and a $19.7 million budget serving roughly 11,000 people a year. On May 5 the
+      FY2025 single audit lands with $612,000 in questioned costs on a HUD Continuum of Care grant,
+      almost all of it time-and-effort documentation for 31 employees whose salaries were split
+      across four funding streams. HUD's field office gives 45 days for a corrective action plan and
+      withholds the next $1.4 million draw in the meantime.
+
+      Executive Director Awa Diallo starts the thread. Finance Director Roberto Salgado says the
+      organization holds $2.1 million in unrestricted reserves, 39 days of cash, and payroll runs
+      $760,000 every two weeks. Grants Manager Nadia Petrosyan believes the auditor misread the
+      allocation methodology for 18 of the 31 positions. Program Director Kelvin Osei is running
+      shelter operations that serve 140 beds a night and says a furlough of case managers breaks
+      the housing contract's 1:22 caseload requirement. Board Treasurer Ellen Kaminski wants the
+      full board told before the June 18 meeting and asks whether the auditor's opinion changes the
+      covenants on the building loan.
+
+      On May 21 the Ostrander Family Foundation pauses a $750,000 pledge pending resolution. On May
+      29 the auditor revises questioned costs down to $388,000.
+
+      The thread has to reach agreement on what goes into HUD's corrective action plan, how payroll
+      is covered until the draw resumes, what the board and the foundation are told and when,
+      whether any positions are cut, and how the time-and-effort records get fixed going forward.
+  - id: email-05
+    domain: municipal-government
+    scenario: |
+      The City of Thornbury, Colorado, population 41,000, is under a state discharge permit that
+      requires nutrient removal at its wastewater plant with substantial completion by December 31,
+      2028. On February 11 the three construction bids open at $18.6 million, $19.4 million, and
+      $21.2 million against a $13.4 million engineer's estimate. The city has $9 million in a state
+      revolving fund loan already approved and $2.2 million in reserves.
+
+      City Manager Rosalind Deeb starts the thread. Public Works Director Hector Villalobos wants to
+      award to the low bidder before steel prices move again and notes the plant has had two permit
+      exceedances for total inorganic nitrogen since October. Finance Director Junko Maeda has run a
+      rate study showing the gap requires sewer rates to rise 9.5 percent a year for four years,
+      taking the average residential bill from $54 to $77 a month. Councilmember Bernard Toussaint,
+      who is up for election in November, wants a rebid and asks why the estimate was off by 39
+      percent. Priya Deshmukh of Two Rivers Engineering identifies $3.1 million of value
+      engineering, mostly deferring a third digester and a headworks canopy, and warns rebidding
+      costs 14 weeks and risks losing the low bidder's crew.
+
+      On February 27 the state health department answers the city's variance inquiry with a letter
+      declining to extend the compliance date and reminding the city that penalties accrue at $10,000
+      a day.
+
+      The thread must resolve what the council is asked to do at its March 17 meeting, how the gap
+      gets closed, what happens to the rate schedule, and what the city tells the state.
+  - id: email-06
+    domain: retail
+    scenario: |
+      Tamarack Outfitters sells outdoor gear through 22 stores across Oregon, Washington, Idaho, and
+      Montana plus a website, on $214 million of revenue and 1,150 employees, headquartered in
+      Eugene, Oregon. The 2025-26 winter came in the warmest on record for the Cascades and
+      snowsports sell-through finished at 41 percent against a plan of 68 percent, leaving $6.8
+      million at cost in hardgoods and apparel sitting in stores and the Springfield distribution
+      center. Spring receipts start arriving March 2 and the DC is at 94 percent of rack capacity.
+
+      CEO Lorena Bustamante opens the thread on February 9. VP of Merchandising Yusuf Abdulle wants
+      to pack and hold $3.4 million of evergreen hardgoods for next season. Freya Halvorsen, who runs
+      e-commerce, has a liquidation channel that can move $2 million in six weeks at 55 percent off,
+      which the vendor Snowline Alpine says violates its minimum advertised price policy. Snowline
+      offers $900,000 in markdown money only if Tamarack holds its 2027 preseason order at $4.2
+      million. Tanya Kowalczyk in the DC says pack and hold consumes 3,100 pallet positions she does
+      not have. DeShawn Hargrove, regional director for the eight Montana and Idaho stores, reports
+      those stores hold 46 percent of the snow inventory and the lowest spring traffic.
+
+      A borrowing-base certificate on the asset-based line is due March 31, and inventory older than
+      270 days gets a haircut.
+
+      The thread must land on a markdown and disposition plan across the channels, a decision on the
+      Snowline offer, what the DC does with the space, and what the lender sees.
+  - id: email-07
+    domain: logistics
+    scenario: |
+      Harborline Cold Chain operates a 410,000 square foot temperature-controlled facility in Kent,
+      Washington, with 180 employees, handling pharmaceutical and food accounts. On October 14 a
+      reefer trailer carrying eight pallets of a temperature-sensitive biologic for Kestrel Bio of
+      Bothell arrives with dataloggers showing product held between 12.4 and 15.1 degrees Celsius for
+      6 hours 20 minutes against a 2 to 8 degree specification. The shipment is valued at $1.4
+      million and represents 11 weeks of a clinical supply.
+
+      Chief Operating Officer Rashida Blackmon starts the thread. Quality Manager Vikram Chatterjee
+      pulls the trailer's download and finds the setpoint was changed manually at a fuel stop near
+      Ellensburg. Alejandro Ortiz, who holds the account, has Meilin Zhao, Kestrel's supply chain
+      director, asking for a root cause within five business days and a decision on whether product
+      is quarantined or destroyed. Warehouse Manager Petar Novak points out the dock's own logger
+      calibration is five months past its 12-month interval, which weakens the case that the
+      excursion happened on the road. Doug Vanterpool, VP of operations at the carrier Sublette
+      Transport, is looped in on October 17 and disputes the download, saying the trailer's own unit
+      logged no alarm.
+
+      A review of December records turns up a second unexplained 90-minute excursion on the same
+      lane, and Kestrel has a supplier audit scheduled for November 6 with a traceability compliance
+      date behind it.
+
+      The thread must resolve the root cause, the product disposition, who bears the $1.4 million,
+      what changes before the audit, and what Kestrel is told in writing.
+  - id: email-08
+    domain: software
+    scenario: |
+      Alderpoint Payments in Portland, Oregon, has 140 employees and processes $3.1 billion a year
+      for 2,400 merchants on a legacy authorization stack it has been migrating off since January. On
+      June 9 a failed database failover takes authorizations down for 6 hours 14 minutes across the
+      afternoon settlement window, declining an estimated 214,000 transactions.
+
+      CEO Simone Beauchamp starts the thread on June 10. CTO Arun Krishnamurthy says the migration is
+      five months behind, the platform team is down to 15 engineers from 19, and finishing it by
+      September needs every feature commitment on the roadmap frozen, including two integrations
+      already sold. Danielle Okafor, who runs risk and compliance, forwards a letter from the sponsor
+      bank, Cascadia Trust Bank, demanding a remediation plan within 21 days and warning it will
+      pause new merchant boarding, which is 90 to 130 accounts a month. Gabriel Mwangi in customer
+      success reports 38 merchants have asked about service credits and the contract caps them at 10
+      percent of monthly fees.
+
+      On June 16 Timberpine Supply Co., 8.4 percent of volume and $2.6 million of annual revenue,
+      sends a termination-for-cause notice with a 30-day cure period, and its CFO Hannah Ostrowski
+      joins the thread on June 19 asking for a specific commitment on redundancy. A hot-standby
+      environment would cost $780,000 a year and take 10 weeks.
+
+      The thread must resolve what goes to the sponsor bank, what Timberpine is offered, whether the
+      roadmap is frozen and what gets dropped, how the redundancy question is answered, and what
+      every other merchant hears.

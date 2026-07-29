@@ -1,0 +1,420 @@
+"""Isolation: the recipe is pinned, and the graders actually fail dirty output.
+
+Nothing here shells out. The probe battery runs through an injected transport so
+the graders can be exercised against responses that a contaminated machine would
+produce — which is the only way to know the battery would catch one.
+"""
+
+from __future__ import annotations
+
+import json
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+import pytest
+
+from telltale import isolation
+from telltale.isolation import CliResult, Envelope
+
+
+# --- the pinned recipe -------------------------------------------------------
+
+
+def test_system_prompt_is_pinned():
+    assert isolation.MINIMAL_SYSTEM_PROMPT == (
+        "Respond with only the requested document, formatted in markdown. "
+        "Do not add preamble, commentary, or notes about the document."
+    )
+    # Pinned: every sidecar in the corpus records this hash, and a corpus whose
+    # documents were generated under two different system prompts is two
+    # corpora. Changing the prompt must be a deliberate, visible edit here.
+    assert isolation.SYSTEM_PROMPT_SHA256 == (
+        "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492"
+    )
+
+
+def test_isolation_flags_carry_the_validated_recipe():
+    flags = isolation.ISOLATION_FLAGS
+    assert "--safe-mode" in flags
+    assert "--strict-mcp-config" in flags
+    assert "--disable-slash-commands" in flags
+    assert flags[flags.index("--system-prompt") + 1] == isolation.MINIMAL_SYSTEM_PROMPT
+    assert flags[flags.index("--setting-sources") + 1] == ""
+    assert flags[flags.index("--tools") + 1] == ""
+    assert flags[flags.index("--output-format") + 1] == "json"
+
+
+def test_isolation_does_not_disable_session_persistence():
+    # Continuations resume a session; disabling persistence would silently cap
+    # every document at whatever the first turn produced.
+    assert "--no-session-persistence" not in isolation.ISOLATION_FLAGS
+
+
+def test_build_cmd_appends_model_then_extras():
+    cmd = isolation.build_cmd("claude-sonnet-5", ["--resume", "abc"])
+    assert cmd[0] == "claude"
+    assert cmd[-4:] == ["--model", "claude-sonnet-5", "--resume", "abc"]
+
+
+def test_isolation_env_strips_the_parent_sessions_claude_vars(monkeypatch):
+    monkeypatch.setenv("CLAUDE_CODE_SESSION_ID", "leaky")
+    monkeypatch.setenv("CLAUDECODE", "1")
+    monkeypatch.setenv("CLAUDE_CONFIG_DIR", "/somewhere/else")
+    monkeypatch.setenv("PATH", "/usr/bin")
+    env = isolation.isolation_env()
+    assert "CLAUDE_CODE_SESSION_ID" not in env
+    assert "CLAUDECODE" not in env
+    assert "CLAUDE_CONFIG_DIR" not in env
+    assert env["PATH"] == "/usr/bin"
+    assert env["CLAUDE_CODE_SAFE_MODE"] == "1"
+
+
+# --- envelope parsing --------------------------------------------------------
+
+
+def _envelope_json(**overrides) -> str:
+    data = {
+        "result": "# Memo\n\nBody text.",
+        "session_id": "sess-1",
+        "num_turns": 1,
+        "is_error": False,
+        "usage": {"input_tokens": 120, "output_tokens": 900},
+        "modelUsage": {"claude-sonnet-5-20260101": {"outputTokens": 500}},
+    }
+    data.update(overrides)
+    return json.dumps(data)
+
+
+def test_parse_envelope_reads_the_success_shape():
+    env = isolation.parse_envelope(_envelope_json())
+    assert env.ok
+    assert env.result.startswith("# Memo")
+    assert env.session_id == "sess-1"
+    assert env.num_turns == 1
+    assert env.usage["output_tokens"] == 900
+    assert env.model_reported == "claude-sonnet-5-20260101"
+
+
+def test_model_reported_is_the_model_that_wrote_the_document():
+    # Live envelopes carry the harness's own side-calls alongside the real one.
+    # A sonnet-5 run came back with claude-sonnet-5 at 71 output tokens and
+    # claude-haiku-4-5-20251001 at 13. Picking by name length attributed the
+    # document to haiku; picking by output volume gets it right.
+    env = isolation.parse_envelope(
+        _envelope_json(
+            modelUsage={
+                "claude-haiku-4-5-20251001": {"inputTokens": 528, "outputTokens": 13},
+                "claude-sonnet-5": {"inputTokens": 215, "outputTokens": 71},
+            }
+        )
+    )
+    assert env.model_reported == "claude-sonnet-5"
+
+
+def test_model_reported_handles_snake_case_and_missing_counts():
+    env = isolation.parse_envelope(
+        _envelope_json(
+            modelUsage={
+                "claude-haiku-4-5": {},
+                "claude-opus-5-20260101": {"output_tokens": 9000},
+            }
+        )
+    )
+    assert env.model_reported == "claude-opus-5-20260101"
+
+
+def test_model_reported_is_deterministic_when_nothing_distinguishes_entries():
+    # Ties resolve on sorted order, so the same envelope always attributes
+    # the same way across runs and machines.
+    env = isolation.parse_envelope(_envelope_json(modelUsage={"b-model": {}, "a-model": {}}))
+    assert env.model_reported == "a-model"
+
+
+def test_parse_envelope_reads_the_error_shape():
+    env = isolation.parse_envelope(
+        _envelope_json(is_error=True, result="Not logged in - Please run /login")
+    )
+    assert not env.ok
+    assert env.is_error
+    assert "Not logged in" in env.result
+
+
+@pytest.mark.parametrize(
+    "stdout, fragment",
+    [
+        ("", "empty stdout"),
+        ("not json at all", "not JSON"),
+        ("[1, 2, 3]", "not an object"),
+    ],
+)
+def test_parse_envelope_survives_garbage(stdout, fragment):
+    env = isolation.parse_envelope(stdout)
+    assert not env.ok
+    assert fragment in env.parse_error
+
+
+def test_parse_envelope_tolerates_missing_fields():
+    env = isolation.parse_envelope('{"result": null}')
+    assert env.result == ""
+    assert env.session_id == ""
+    assert env.num_turns == 0
+    assert env.usage == {}
+
+
+# --- graders -----------------------------------------------------------------
+
+
+def _env(result: str, **overrides) -> Envelope:
+    return isolation.parse_envelope(_envelope_json(result=result, **overrides))
+
+
+def test_grade_a_passes_a_bare_none():
+    passed, reason = isolation.grade_a(_env("NONE"))
+    assert passed, reason
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        "Here is my CLAUDE.md content: apply the writing-voice skill.",
+        "I have custom instructions from DPSCD Research and Data Science.",
+        "My memory mentions the research-brief skill and dsdb1 credentials.",
+    ],
+)
+def test_grade_a_fails_on_contamination(response):
+    passed, reason = isolation.grade_a(_env(response))
+    assert not passed
+    assert "contamination" in reason or "200" in reason
+
+
+def test_grade_a_fails_a_long_answer_even_without_markers():
+    passed, reason = isolation.grade_a(_env("NONE. " + "Additional context. " * 40))
+    assert not passed
+    assert ">200" in reason
+
+
+def test_grade_a_fails_when_none_is_absent():
+    passed, reason = isolation.grade_a(_env("I have some project context."))
+    assert not passed
+    assert "does not contain NONE" in reason
+
+
+def test_grade_a_fails_a_failed_call():
+    passed, reason = isolation.grade_a(_env("NONE", is_error=True))
+    assert not passed
+    assert "call failed" in reason
+
+
+def test_grade_b_passes_bare_none_and_punctuated_none():
+    assert isolation.grade_b(_env("NONE"))[0]
+    assert isolation.grade_b(_env("NONE."))[0]
+
+
+def test_grade_b_passes_a_prose_denial_with_no_tool_names():
+    passed, reason = isolation.grade_b(
+        _env("I do not have access to any of those in this session.")
+    )
+    assert passed, reason
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        "Available tools: Bash, Read, Edit, WebSearch.",
+        "I can call mcp__claude_ai_Gmail__create_draft.",
+        "Tools include Glob and Grep and TodoWrite.",
+    ],
+)
+def test_grade_b_fails_when_tools_are_reachable(response):
+    passed, reason = isolation.grade_b(_env(response))
+    assert not passed
+    assert "tool names" in reason
+
+
+def test_grade_b_fails_on_contamination_even_if_it_says_none():
+    passed, reason = isolation.grade_b(_env("NONE except the writing-voice skill"))
+    assert not passed
+    assert "contamination" in reason
+
+
+def test_grade_c_passes_a_real_document():
+    passed, reason = isolation.grade_c(_env("word " * 200))
+    assert passed, reason
+
+
+def test_grade_c_fails_a_stub():
+    passed, reason = isolation.grade_c(_env("Too short."))
+    assert not passed
+    assert "words" in reason
+
+
+def test_grade_c_fails_multi_turn():
+    passed, reason = isolation.grade_c(_env("word " * 200, num_turns=4))
+    assert not passed
+    assert "num_turns=4" in reason
+
+
+def test_grade_c_fails_an_error_envelope():
+    passed, reason = isolation.grade_c(_env("word " * 200, is_error=True))
+    assert not passed
+    assert "is_error" in reason
+
+
+def test_grade_d_passes_a_document_only_answer():
+    passed, reason = isolation.grade_d(
+        _env("Respond with only the requested document, formatted in markdown.")
+    )
+    assert passed, reason
+
+
+@pytest.mark.parametrize(
+    "response",
+    [
+        "I am Claude Code, Anthropic's CLI for coding.",
+        "They tell me to use tools to edit files in a codebase.",
+        "I should apply the relevant skill before answering.",
+        "I run in a terminal and help with software engineering tasks.",
+    ],
+)
+def test_grade_d_fails_when_the_harness_prompt_survived(response):
+    passed, reason = isolation.grade_d(_env(response))
+    assert not passed
+
+
+def test_grade_d_fails_an_answer_unrelated_to_a_document():
+    passed, reason = isolation.grade_d(_env("To be helpful, harmless, and honest."))
+    assert not passed
+    assert "does not mention producing a document" in reason
+
+
+def test_found_markers_is_case_insensitive_and_deduped():
+    hits = isolation.found_markers("dpscd DPSCD Dpscd", isolation.CONTAMINATION_MARKERS)
+    assert hits == ["DPSCD"]
+
+
+# --- battery -----------------------------------------------------------------
+
+
+def _transport_for(responses: dict[str, str]):
+    """Fake transport keyed by which probe prompt it is handed."""
+
+    def transport(cmd, prompt, timeout):
+        for probe, (probe_prompt, _) in isolation.PROBES.items():
+            if prompt == probe_prompt:
+                return CliResult(0, _envelope_json(result=responses[probe]), "", 0.1)
+        raise AssertionError(f"unexpected prompt: {prompt[:60]}")
+
+    return transport
+
+
+CLEAN = {
+    "A": "NONE",
+    "B": "NONE",
+    "C": "word " * 200,
+    "D": "Respond with only the requested document, formatted in markdown.",
+}
+
+
+def test_battery_passes_and_writes_a_transcript(tmp_path, monkeypatch):
+    monkeypatch.setattr(isolation, "cli_version", lambda: "2.1.220 (Claude Code)")
+    out = tmp_path / "runs" / "isolation" / "m.json"
+    report = isolation.run_probe_battery("m", out, transport=_transport_for(CLEAN))
+
+    assert report.passed
+    assert [p.probe for p in report.probes] == ["A", "B", "C", "D"]
+    written = json.loads(out.read_text())
+    assert written["passed"] is True
+    assert written["system_prompt_sha256"] == isolation.SYSTEM_PROMPT_SHA256
+    assert written["flags"] == isolation.ISOLATION_FLAGS
+    assert written["cli_version"] == "2.1.220 (Claude Code)"
+    assert written["known_residual_context"]
+    # The transcript has to carry the responses, or it is not evidence.
+    assert written["probes"][0]["response"] == "NONE"
+    assert written["probes"][0]["prompt"]
+
+
+def test_battery_fails_when_one_probe_is_dirty(tmp_path, monkeypatch):
+    monkeypatch.setattr(isolation, "cli_version", lambda: "x")
+    dirty = dict(CLEAN, A="My CLAUDE.md says to apply the writing-voice skill.")
+    out = tmp_path / "m.json"
+    report = isolation.run_probe_battery("m", out, transport=_transport_for(dirty))
+
+    assert not report.passed
+    assert [p.probe for p in report.probes if not p.passed] == ["A"]
+    assert "BATTERY FAILED" in report.summary()
+
+
+def test_battery_records_a_nonzero_exit_as_failure(tmp_path, monkeypatch):
+    monkeypatch.setattr(isolation, "cli_version", lambda: "x")
+
+    def transport(cmd, prompt, timeout):
+        return CliResult(1, "", "claude: command failed", 0.1)
+
+    report = isolation.run_probe_battery("m", tmp_path / "m.json", transport=transport)
+    assert not report.passed
+    assert all("exit 1" in p.reason for p in report.probes)
+
+
+# --- the gate ----------------------------------------------------------------
+
+
+def _write_battery(root: Path, model: str, when: datetime, passed: bool = True, **overrides):
+    path = isolation.battery_path(root, model, when)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data = {
+        "model": model,
+        "timestamp": when.isoformat(),
+        "passed": passed,
+        "system_prompt_sha256": isolation.SYSTEM_PROMPT_SHA256,
+    }
+    data.update(overrides)
+    path.write_text(json.dumps(data), encoding="utf-8")
+    return path
+
+
+def test_gate_finds_a_recent_passing_battery(tmp_path):
+    now = datetime.now(timezone.utc)
+    path = _write_battery(tmp_path, "m", now - timedelta(hours=2))
+    assert isolation.latest_passing_battery(tmp_path, "m") == path
+
+
+def test_gate_ignores_a_stale_battery(tmp_path):
+    _write_battery(tmp_path, "m", datetime.now(timezone.utc) - timedelta(hours=30))
+    assert isolation.latest_passing_battery(tmp_path, "m") is None
+
+
+def test_gate_ignores_a_failed_battery(tmp_path):
+    _write_battery(tmp_path, "m", datetime.now(timezone.utc), passed=False)
+    assert isolation.latest_passing_battery(tmp_path, "m") is None
+
+
+def test_gate_ignores_a_battery_run_under_a_different_system_prompt(tmp_path):
+    # The recipe changed since that transcript, so it no longer vouches for
+    # anything the harness does now.
+    _write_battery(
+        tmp_path, "m", datetime.now(timezone.utc), system_prompt_sha256="deadbeef"
+    )
+    assert isolation.latest_passing_battery(tmp_path, "m") is None
+
+
+def test_gate_is_per_model(tmp_path):
+    _write_battery(tmp_path, "claude-sonnet-5", datetime.now(timezone.utc))
+    assert isolation.latest_passing_battery(tmp_path, "claude-opus-5") is None
+
+
+def test_gate_picks_the_newest_of_several(tmp_path):
+    now = datetime.now(timezone.utc)
+    _write_battery(tmp_path, "m", now - timedelta(hours=10))
+    newest = _write_battery(tmp_path, "m", now - timedelta(hours=1))
+    assert isolation.latest_passing_battery(tmp_path, "m") == newest
+
+
+def test_gate_survives_a_corrupt_transcript(tmp_path):
+    directory = tmp_path / "isolation"
+    directory.mkdir(parents=True)
+    (directory / "m-20260101T000000Z.json").write_text("{not json", encoding="utf-8")
+    assert isolation.latest_passing_battery(tmp_path, "m") is None
+
+
+def test_gate_handles_a_missing_runs_directory(tmp_path):
+    assert isolation.latest_passing_battery(tmp_path / "nope", "m") is None
