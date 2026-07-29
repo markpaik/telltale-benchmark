@@ -28,12 +28,13 @@ snippets:
     text: |
       SKELETON sample/report-01
       format: report
-      words: 640
+      words: 37
 
       OUTLINE
       H1: Pilot Summary
-      PARA: 58w | The pilot closed in June and came in under budget.   [this is the closing paragraph; it is printed in full below]
+      PARA: 19w | The pilot closed in June and came in under budget.
       H2: Findings
+      PARA: 15w | The findings are summarized in the table above.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The pilot closed in June and came in under budget. Nothing in the design changed after the second month.
@@ -55,12 +56,13 @@ snippets:
     text: |
       SKELETON sample/brief-01
       format: brief
-      words: 480
+      words: 42
 
       OUTLINE
       H1: Implementation Brief
-      PARA: 52w | Implementation runs twelve weeks from board approval.   [this is the closing paragraph; it is printed in full below]
+      PARA: 17w | Implementation runs twelve weeks from board approval.
       H2: Schedule at a glance
+      PARA: 19w | The schedule assumes no slippage in procurement.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Implementation runs twelve weeks from board approval. The contract has to be countersigned before the clock starts.
@@ -81,12 +83,13 @@ snippets:
     text: |
       SKELETON sample/memo-01
       format: memo
-      words: 590
+      words: 47
 
       OUTLINE
       H1: Why the October Count Moved
-      PARA: 61w | The certified October figure came in 212 students below the September file.   [this is the closing paragraph; it is printed in full below]
+      PARA: 19w | The certified October figure came in 212 students below the September file.
       H2: Contributing factors
+      PARA: 21w | None of the three factors is new this year.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The certified October figure came in 212 students below the September file. The gap is concentrated in three buildings.
@@ -109,12 +112,13 @@ snippets:
     text: |
       SKELETON sample/report-02
       format: report
-      words: 910
+      words: 40
 
       OUTLINE
       H1: Engagement Findings
-      PARA: 74w | Six listening sessions were held between January and March.   [this is the closing paragraph; it is printed in full below]
+      PARA: 16w | Six listening sessions were held between January and March, four of them in buildings under review.
       H2: What we heard
+      PARA: 19w | The themes were consistent across all six sessions.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Six listening sessions were held between January and March, four of them in buildings under review.
@@ -137,12 +141,13 @@ snippets:
     text: |
       SKELETON sample/update-01
       format: update
-      words: 420
+      words: 32
 
       OUTLINE
       H1: Migration Status
-      PARA: 47w | The extract workstream finished this week.   [this is the closing paragraph; it is printed in full below]
+      PARA: 15w | The extract workstream finished this week.
       H2: Status
+      PARA: 14w | The identifier decision is still the binding constraint.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The extract workstream finished this week. Transform and load are unchanged since the last update.
@@ -163,12 +168,13 @@ snippets:
     text: |
       SKELETON sample/proposal-01
       format: proposal
-      words: 780
+      words: 40
 
       OUTLINE
       H1: Consolidated Upload — Proposal
-      PARA: 66w | A single consolidated upload replaces the three monthly filings.   [this is the closing paragraph; it is printed in full below]
+      PARA: 15w | A single consolidated upload replaces the three monthly filings.
       H2: Summary of the change
+      PARA: 18w | The change removes about 1,100 clerk hours a year district-wide.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       A single consolidated upload replaces the three monthly filings. Nothing else about the process changes.
@@ -191,12 +197,13 @@ snippets:
     text: |
       SKELETON sample/white-paper-01
       format: white-paper
-      words: 1180
+      words: 45
 
       OUTLINE
       H1: Identifier Integrity
-      PARA: 82w | Three repair paths are available and none of them is cheap.   [this is the closing paragraph; it is printed in full below]
+      PARA: 19w | Three repair paths are available and none of them is cheap.
       H2: Options
+      PARA: 23w | All three options end in the same place.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Three repair paths are available and none of them is cheap. They differ mainly in who absorbs the disruption.
@@ -219,12 +226,13 @@ snippets:
     text: |
       SKELETON sample/memo-02
       format: memo
-      words: 500
+      words: 42
 
       OUTLINE
       H1: Grant Expiration
-      PARA: 54w | The state grant of $185,000 expires in June.   [this is the closing paragraph; it is printed in full below]
+      PARA: 18w | The state grant of $185,000 expires in June.
       H2: The number
+      PARA: 20w | The committee has one decision and six weeks to make it.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The state grant of $185,000 expires in June. There is no replacement application open at this time.
@@ -245,12 +253,13 @@ snippets:
     text: |
       SKELETON sample/case-study-01
       format: case-study
-      words: 860
+      words: 45
 
       OUTLINE
       H1: Riverbend — Program Overview
-      PARA: 78w | Riverbend serves roughly 8,000 patients across two sites.   [this is the closing paragraph; it is printed in full below]
+      PARA: 22w | Riverbend serves roughly 8,000 patients across two sites.
       H2: Program at a glance
+      PARA: 16w | The program's results were consistent with what similar programs report.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Riverbend serves roughly 8,000 patients across two sites. The management program is staffed by two nurse educators and one part-time dietitian.
@@ -273,12 +282,13 @@ snippets:
     text: |
       SKELETON sample/plan-01
       format: plan
-      words: 1020
+      words: 40
 
       OUTLINE
       H1: Facilities Plan — Risks
-      PARA: 71w | Four risks could move the savings estimate materially.   [this is the closing paragraph; it is printed in full below]
+      PARA: 17w | Four risks could move the savings estimate materially.
       H2: Risk register
+      PARA: 18w | The transportation risk is the largest of the four.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Four risks could move the savings estimate materially. None of them is fully within the district's control.
@@ -302,12 +312,13 @@ snippets:
     text: |
       SKELETON sample/report-03
       format: report
-      words: 720
+      words: 39
 
       OUTLINE
       H1: Utilization by Building
-      PARA: 64w | Utilization is calculated against program capacity, not building capacity.   [this is the closing paragraph; it is printed in full below]
+      PARA: 16w | Utilization is calculated against program capacity, not building capacity.
       H2: October count
+      PARA: 18w | No building under review has cleared the 65 percent policy threshold in any of the last four years.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Utilization is calculated against program capacity, not building capacity. Figures are from the certified October count.
@@ -332,12 +343,13 @@ snippets:
     text: |
       SKELETON sample/plan-02
       format: plan
-      words: 660
+      words: 37
 
       OUTLINE
       H1: Consolidation Timeline
-      PARA: 58w | The schedule has four fixed points between March and the board vote.   [this is the closing paragraph; it is printed in full below]
+      PARA: 21w | The schedule has four fixed points between March and the board vote.
       H2: Schedule
+      PARA: 13w | The May 15 notice deadline is the binding constraint behind all four dates.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The schedule has four fixed points between March and the board vote. Two are contractual and two are board calendar dates.
@@ -361,12 +373,13 @@ snippets:
     text: |
       SKELETON sample/memo-03
       format: memo
-      words: 690
+      words: 38
 
       OUTLINE
       H1: Savings by Category
-      PARA: 62w | Savings come from three categories and one of them is uncertain.   [this is the closing paragraph; it is printed in full below]
+      PARA: 19w | Savings come from three categories and one of them is uncertain.
       H2: Detail
+      PARA: 15w | The three-year total is $12.3 million against a first-year cost of $2.1 million.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Savings come from three categories and one of them is uncertain. Transportation assumes no change to the walk-zone policy.
@@ -390,12 +403,13 @@ snippets:
     text: |
       SKELETON sample/update-02
       format: update
-      words: 540
+      words: 32
 
       OUTLINE
       H1: Working Group Membership
-      PARA: 49w | The working group has seven members drawn from four departments.   [this is the closing paragraph; it is printed in full below]
+      PARA: 15w | The working group has seven members drawn from four departments.
       H2: Membership
+      PARA: 13w | The group meets weekly through April and then monthly.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The working group has seven members drawn from four departments. Two seats are still vacant.
@@ -420,12 +434,13 @@ snippets:
     text: |
       SKELETON sample/white-paper-02
       format: white-paper
-      words: 980
+      words: 47
 
       OUTLINE
       H1: Exception Code Crosswalk
-      PARA: 71w | The state codes and the district codes have never been aligned.   [this is the closing paragraph; it is printed in full below]
+      PARA: 21w | The state codes and the district codes have never been aligned.
       H2: Crosswalk
+      PARA: 22w | Two district codes have no state equivalent and are dropped at submission.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       The state codes and the district codes have never been aligned. The mapping below is the one the reconciliation script applies.
@@ -450,12 +465,13 @@ snippets:
     text: |
       SKELETON sample/compliance-01
       format: report
-      words: 830
+      words: 53
 
       OUTLINE
       H1: Title I Compliance Appendix
-      PARA: 66w | Appendix C is required by the state monitoring protocol.   [this is the closing paragraph; it is printed in full below]
+      PARA: 27w | Appendix C is required by the state monitoring protocol and must be filed in the prescribed format.
       H2: Appendix C — Required assurances
+      PARA: 18w | All six assurances are met for the current program year.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Appendix C is required by the state monitoring protocol and must be filed in the prescribed format. The wording of the assurances is fixed by the state.
@@ -481,13 +497,13 @@ snippets:
     text: |
       SKELETON sample/email-02
       format: email
-      words: 410
+      words: 56
 
       OUTLINE
       H1: Modeling window
-      PARA: 92w | Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27.
-      PARA: 78w | The board's last actionable meeting is April 20.
-      PARA: 64w | That gives us seven weeks to build something defensible.   [this is the closing paragraph; it is printed in full below]
+      PARA: 23w | Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27, and enrollment has fallen 14 percent over six years.
+      PARA: 8w | The board's last actionable meeting is April 20.
+      PARA: 23w | That gives us seven weeks to build something defensible.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27, and enrollment has fallen 14 percent over six years.
@@ -505,12 +521,13 @@ snippets:
     text: |
       SKELETON sample/report-04
       format: report
-      words: 1140
+      words: 45
 
       OUTLINE
       H1: Chronic Absenteeism by Grade
-      PARA: 74w | Chronic absenteeism is concentrated in ninth grade and kindergarten.   [this is the closing paragraph; it is printed in full below]
+      PARA: 20w | Chronic absenteeism is concentrated in ninth grade and kindergarten.
       H2: Rates by grade
+      PARA: 18w | The two-call protocol moved the ninth-grade number and nothing else.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Chronic absenteeism is concentrated in ninth grade and kindergarten. The analysis uses the certified daily attendance file through January 31.
@@ -536,12 +553,13 @@ snippets:
     text: |
       SKELETON sample/brief-04
       format: brief
-      words: 620
+      words: 39
 
       OUTLINE
       H1: Source System Inventory
-      PARA: 58w | Twelve source systems feed the warehouse and four of them write the identifier.   [this is the closing paragraph; it is printed in full below]
+      PARA: 19w | Twelve source systems feed the warehouse and four of them write the identifier.
       H2: Inventory
+      PARA: 16w | The two systems that neither normalize nor reject are the ones that generate the reconciliation work.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Twelve source systems feed the warehouse and four of them write the identifier. Only the first three normalize it.
@@ -566,12 +584,13 @@ snippets:
     text: |
       SKELETON sample/plan-03
       format: plan
-      words: 700
+      words: 42
 
       OUTLINE
       H1: Route Changes Under Package A
-      PARA: 63w | Eleven routes are redrawn under Package A.   [this is the closing paragraph; it is printed in full below]
+      PARA: 16w | Eleven routes are redrawn under Package A. Five of them lengthen by more than ten minutes.
       H2: Affected routes
+      PARA: 19w | No route in the redrawn set exceeds the forty-five minute policy maximum.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Eleven routes are redrawn under Package A. Five of them lengthen by more than ten minutes.

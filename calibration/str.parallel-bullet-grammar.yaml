@@ -573,13 +573,13 @@ snippets:
     text: |
       SKELETON sample/email-01
       format: email
-      words: 390
+      words: 63
 
       OUTLINE
       H1: Modeling window
-      PARA: 88w | Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27.
-      PARA: 74w | The board's last actionable meeting is April 20.
-      PARA: 66w | That gives us seven weeks to build something defensible.   [this is the closing paragraph; it is printed in full below]
+      PARA: 30w | Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27, and enrollment has now fallen 14 percent over six years with no sign of leveling off.
+      PARA: 8w | The board's last actionable meeting is April 20.
+      PARA: 23w | That gives us seven weeks to build something defensible.   [this is the closing paragraph; it is printed in full below]
 
       FIRST PARAGRAPH
       Grant's preliminary numbers put the general fund gap at $8.4 million for 26-27, and enrollment has now fallen 14 percent over six years with no sign of leveling off.

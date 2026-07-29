@@ -631,6 +631,9 @@ def _judge_rows(judge: Mapping[str, Any], df: pd.DataFrame) -> list[list[str]]:
     skipped = judge.get("tells_skipped") or {}
     hallucination = judge_hallucination_rate(df)
     rate = hallucination.get("rate")
+    disagreement = judge_disagreements(df)
+    d_rate = disagreement.get("rate")
+    flagged = disagreement.get("over_threshold") or []
 
     return [
         ["Judge model", f"`{judge.get('model', EM_DASH)}`"],
@@ -652,6 +655,16 @@ def _judge_rows(judge: Mapping[str, Any], df: pd.DataFrame) -> list[list[str]]:
             f"{hallucination.get('hallucinated', 0)} of "
             f"{hallucination.get('extracted', 0)} extracted"
             + (f" ({100.0 * float(rate):.1f}%)" if rate is not None else ""),
+        ],
+        [
+            "Judge/code disagreement",
+            f"{disagreement.get('total', 0)} of {disagreement.get('counted', 0)} counted spans"
+            + (f" ({100.0 * float(d_rate):.1f}%)" if d_rate is not None else "")
+            + (
+                " — over threshold: " + _cell(", ".join(f"`{t}`" for t in flagged))
+                if flagged
+                else ""
+            ),
         ],
     ]
 
@@ -751,6 +764,68 @@ def _judge_run_stats(backend: Any) -> dict[str, Any]:
     }
 
 
+#: Above this share of a tell's counted spans, judge-vs-code disagreement stops
+#: being noise and starts being a message about the rubric.
+DISAGREEMENT_WARN_RATE = 0.20
+
+
+def judge_disagreements(df: pd.DataFrame) -> dict[str, Any]:
+    """Where the judge's own verdict and the code's decision parted company.
+
+    Recorded per detection since M6 and rolled up here, because the per-row
+    number is the one nobody reads. The rate is the interesting quantity: a
+    judge that keeps saying "not an instance" about spans whose criteria are all
+    satisfied is telling us something the rubric has no letter for — it feels an
+    exclusion it cannot name. That is precisely the drift the calibration gate
+    cannot see, because the gate only asks whether the final answer was right on
+    twenty snippets someone wrote on purpose.
+
+    Denominator is counted spans, not extracted ones: a disagreement only
+    matters where it changed a number.
+    """
+    empty = {"total": 0, "counted": 0, "rate": None, "per_tell": {}, "over_threshold": []}
+    if df.empty or "detail" not in df.columns:
+        return empty
+
+    per_tell: dict[str, dict[str, Any]] = {}
+    for row in df.loc[df["method"] == "judge"].itertuples():
+        detail = row.detail
+        if not isinstance(detail, dict):
+            continue
+        entry = per_tell.setdefault(
+            str(row.tell_id), {"disagreements": 0, "counted": 0, "rate": None}
+        )
+        entry["disagreements"] += int(detail.get("judge_disagreements") or 0)
+        entry["counted"] += int(detail.get("adjudicated_true") or 0)
+
+    over: list[str] = []
+    for tell_id, entry in per_tell.items():
+        counted = entry["counted"]
+        entry["rate"] = (entry["disagreements"] / counted) if counted else None
+        if entry["rate"] is not None:
+            if entry["rate"] > DISAGREEMENT_WARN_RATE:
+                over.append(tell_id)
+        elif entry["disagreements"]:
+            # Nothing counted, yet the judge kept calling spans instances. The
+            # rate is undefined and the tell is the *most* suspect of all: a
+            # rubric whose criteria never quite close while the judge keeps
+            # saying yes. Reporting this as "no rate, no warning" would hide the
+            # pathological case behind a division it could not perform.
+            entry["rate"] = None
+            over.append(tell_id)
+
+    total = sum(e["disagreements"] for e in per_tell.values())
+    counted = sum(e["counted"] for e in per_tell.values())
+    return {
+        "total": total,
+        "counted": counted,
+        "rate": (total / counted) if counted else None,
+        "threshold": DISAGREEMENT_WARN_RATE,
+        "per_tell": dict(sorted(per_tell.items())),
+        "over_threshold": sorted(over),
+    }
+
+
 def judge_hallucination_rate(df: pd.DataFrame) -> dict[str, Any]:
     """Quotes the judge produced that were not in the text it was shown.
 
@@ -824,6 +899,7 @@ def score_run(
     if backend is not None:
         judge_section.update(_judge_run_stats(backend))
         judge_section["hallucination"] = judge_hallucination_rate(df)
+        judge_section["disagreements"] = judge_disagreements(df)
 
     pairing = scoring.pairing_summary(df)
     manifest = build_manifest(

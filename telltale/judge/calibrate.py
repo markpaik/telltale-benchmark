@@ -151,6 +151,79 @@ def load_snippets(tell_id: str, root: Path | None = None) -> list[Snippet]:
     return out
 
 
+def skeleton_parity_errors(text: str) -> list[str]:
+    """Ways a hand-written mini-skeleton could not have come from `skeleton_view`.
+
+    A structural snippet is an anchor for a doc-level tell, so it has to be the
+    shape a real document renders to — otherwise calibration measures the judge
+    against a representation the corpus never produces. Splicing labels onto a
+    malformed outline satisfies the letter of that and not the substance, which
+    is exactly what happened to `str.table-overuse`: nineteen of its twenty
+    snippets claimed a single paragraph in the outline while printing two
+    different ones in the trailer, a shape `doc_skeleton` cannot emit.
+
+    So the invariants checked here are the ones that tie the outline to the
+    trailer: the first `PARA:` line must open the FIRST PARAGRAPH, the last must
+    open the LAST PARAGRAPH, and the closing label must sit on the last one.
+    """
+    errors: list[str] = []
+    lines = text.split("\n")
+    if not lines or not lines[0].startswith("SKELETON "):
+        return ["does not start with a SKELETON header"]
+
+    para_lines = [(i, l) for i, l in enumerate(lines) if l.startswith("PARA:")]
+
+    def block(header: str) -> str:
+        for i, line in enumerate(lines):
+            if line.startswith(header):
+                out = []
+                for follow in lines[i + 1 :]:
+                    if not follow.strip() or follow.startswith(
+                        ("TABLES", "FIRST PARAGRAPH", "LAST PARAGRAPH")
+                    ):
+                        break
+                    out.append(follow)
+                return " ".join(out).strip()
+        return ""
+
+    first, last = block("FIRST PARAGRAPH"), block("LAST PARAGRAPH")
+    if not para_lines:
+        if first and first != "(none)":
+            errors.append("outline has no PARA lines but a FIRST PARAGRAPH is printed")
+        return errors
+
+    def opener(para_line: str) -> str:
+        body = para_line.split("|", 1)[1] if "|" in para_line else ""
+        return body.split(protocol.CLOSING_PARA_NOTE)[0].strip()
+
+    if first and not first.startswith(opener(para_lines[0][1])):
+        errors.append(
+            f"first PARA line {opener(para_lines[0][1])[:50]!r} does not open the "
+            f"FIRST PARAGRAPH {first[:50]!r}"
+        )
+    if last and not last.startswith(opener(para_lines[-1][1])):
+        errors.append(
+            f"last PARA line {opener(para_lines[-1][1])[:50]!r} does not open the "
+            f"LAST PARAGRAPH {last[:50]!r}"
+        )
+    if first and last and first != last and len(para_lines) < 2:
+        errors.append(
+            f"{len(para_lines)} PARA line(s) but FIRST and LAST PARAGRAPH differ"
+        )
+
+    labelled = [i for i, (_, l) in enumerate(para_lines) if protocol.CLOSING_PARA_NOTE in l]
+    if labelled != [len(para_lines) - 1]:
+        errors.append(
+            f"closing label sits on PARA line(s) {labelled}, expected only the last "
+            f"({len(para_lines) - 1})"
+        )
+    if protocol.LAST_PARAGRAPH_NOTE not in text:
+        errors.append("LAST PARAGRAPH header is not labelled")
+    if protocol._label_closing_paragraph(text) != text:
+        errors.append("not idempotent under the production labeller")
+    return errors
+
+
 def lint_snippets(tell: Tell, snippets: Sequence[Snippet]) -> list[str]:
     """Structural problems with a set, before any judge call is paid for."""
     errors: list[str] = []
@@ -170,6 +243,9 @@ def lint_snippets(tell: Tell, snippets: Sequence[Snippet]) -> list[str]:
             errors.append(f"{tell.id}/{snippet.id}: source {snippet.source!r}")
         if not snippet.text.strip():
             errors.append(f"{tell.id}/{snippet.id}: empty text")
+        if tell.judge_view == "skeleton":
+            for problem in skeleton_parity_errors(snippet.text):
+                errors.append(f"{tell.id}/{snippet.id}: {problem}")
     return errors
 
 

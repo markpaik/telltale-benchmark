@@ -1063,6 +1063,58 @@ def test_structural_snippets_match_what_production_renders(tell_id: str) -> None
         )
 
 
+@pytest.mark.parametrize("tell_id", ["str.summary-sandwich", "str.parallel-bullet-grammar",
+                                     "str.table-overuse"])
+def test_structural_snippet_outlines_agree_with_their_trailers(tell_id: str) -> None:
+    """The outline must describe the same document the trailer prints.
+
+    Splicing labels onto a malformed outline satisfies the label check and not
+    the parity claim. `str.table-overuse` shipped that way: nineteen snippets
+    claimed one paragraph in the outline while printing two different ones as
+    FIRST and LAST, which `doc_skeleton` cannot produce. A second, subtler case
+    hid in `str.parallel-bullet-grammar`, where a PARA line asserted a sentence
+    boundary the paragraph did not contain.
+    """
+    for snippet in calibration.load_snippets(tell_id):
+        assert calibration.skeleton_parity_errors(snippet.text) == [], snippet.id
+
+
+def test_the_parity_check_catches_a_malformed_outline() -> None:
+    good = protocol.skeleton_view(
+        doc_from("# T\n\nOpening sentence here.\n\n## S\n\nClosing sentence here.\n")
+    )
+    assert calibration.skeleton_parity_errors(good) == []
+
+    # One PARA line, two different paragraphs printed: the shape that shipped.
+    collapsed = "\n".join(
+        line for line in good.split("\n")
+        if not (line.startswith("PARA:") and protocol.CLOSING_PARA_NOTE not in line)
+    )
+    problems = calibration.skeleton_parity_errors(collapsed)
+    assert any("does not open the FIRST PARAGRAPH" in p for p in problems)
+
+    # A PARA line asserting a sentence break the paragraph does not have.
+    truncated = good.replace("Opening sentence here.", "Opening sentence.", 1)
+    assert any(
+        "does not open the FIRST PARAGRAPH" in p
+        for p in calibration.skeleton_parity_errors(truncated)
+    )
+
+
+def test_the_parity_check_catches_a_misplaced_closing_label() -> None:
+    good = protocol.skeleton_view(
+        doc_from("# T\n\nOpening sentence here.\n\n## S\n\nClosing sentence here.\n")
+    )
+    moved = good.replace(protocol.CLOSING_PARA_NOTE, "", 1)
+    lines = moved.split("\n")
+    for i, line in enumerate(lines):
+        if line.startswith("PARA:"):
+            lines[i] += protocol.CLOSING_PARA_NOTE
+            break
+    problems = calibration.skeleton_parity_errors("\n".join(lines))
+    assert any("closing label sits on PARA line(s)" in p for p in problems)
+
+
 def test_the_closing_paragraph_labeller_is_idempotent() -> None:
     """Applied twice it must not double-label; the snippets are stored labelled."""
     once = protocol.skeleton_view(doc_from("# T\n\nOpening.\n\n## S\n\nClosing line.\n"))
@@ -1186,6 +1238,129 @@ def test_an_audit_with_nothing_cached_says_so(tmp_path: Path, qa_tell: Tell) -> 
     assert "nothing to re-ask" in report.summary()
 
 
+# --- judge/code disagreement rollup ------------------------------------------
+
+
+def _judge_frame(rows: list[tuple[str, int, int]]):
+    """A minimal detection frame: (tell_id, disagreements, adjudicated_true)."""
+    import pandas as pd
+
+    return pd.DataFrame(
+        [
+            {
+                "tell_id": tell_id,
+                "method": "judge",
+                "detail": {"judge_disagreements": d, "adjudicated_true": t},
+            }
+            for tell_id, d, t in rows
+        ]
+    )
+
+
+def test_disagreements_roll_up_across_documents_and_tells() -> None:
+    from telltale import report as report_mod
+
+    roll = report_mod.judge_disagreements(
+        _judge_frame([("a", 1, 10), ("a", 2, 10), ("b", 0, 5)])
+    )
+    assert roll["total"] == 3
+    assert roll["counted"] == 25
+    assert roll["rate"] == pytest.approx(3 / 25)
+    assert roll["per_tell"]["a"] == {"disagreements": 3, "counted": 20, "rate": pytest.approx(0.15)}
+    assert roll["per_tell"]["b"]["rate"] == 0.0
+    assert roll["over_threshold"] == []
+
+
+def test_a_tell_over_the_threshold_is_named() -> None:
+    from telltale import report as report_mod
+
+    roll = report_mod.judge_disagreements(
+        _judge_frame([("noisy", 3, 10), ("quiet", 1, 10)])
+    )
+    assert roll["per_tell"]["noisy"]["rate"] == pytest.approx(0.30)
+    assert roll["over_threshold"] == ["noisy"]
+    assert roll["threshold"] == report_mod.DISAGREEMENT_WARN_RATE
+
+
+def test_the_threshold_is_strict_not_inclusive() -> None:
+    from telltale import report as report_mod
+
+    exactly = report_mod.judge_disagreements(_judge_frame([("t", 2, 10)]))
+    assert exactly["per_tell"]["t"]["rate"] == pytest.approx(0.20)
+    assert exactly["over_threshold"] == [], "at the threshold is not over it"
+    assert report_mod.judge_disagreements(_judge_frame([("t", 3, 10)]))["over_threshold"] == ["t"]
+
+
+def test_a_tell_that_counted_nothing_has_no_disagreement_rate() -> None:
+    from telltale import report as report_mod
+
+    roll = report_mod.judge_disagreements(_judge_frame([("t", 0, 0)]))
+    assert roll["per_tell"]["t"]["rate"] is None
+    assert roll["rate"] is None
+    assert roll["over_threshold"] == []
+
+
+def test_disagreements_with_nothing_counted_are_still_flagged() -> None:
+    """The pathological case: criteria that never close while the judge says yes.
+
+    The rate is undefined because the denominator is zero, and reporting that as
+    "no warning" would hide the most suspect rubric of all behind a division it
+    could not perform.
+    """
+    from telltale import report as report_mod
+
+    roll = report_mod.judge_disagreements(_judge_frame([("stuck", 4, 0)]))
+    assert roll["per_tell"]["stuck"]["rate"] is None
+    assert roll["per_tell"]["stuck"]["disagreements"] == 4
+    assert roll["over_threshold"] == ["stuck"]
+
+
+def test_the_cli_explains_an_undefined_disagreement_rate(capsys) -> None:
+    from telltale.cli import _warn_on_disagreement
+
+    _warn_on_disagreement(
+        {
+            "disagreements": {
+                "over_threshold": ["stuck"],
+                "threshold": 0.2,
+                "per_tell": {"stuck": {"disagreements": 4, "counted": 0, "rate": None}},
+            }
+        }
+    )
+    err = capsys.readouterr().err
+    assert "nothing counted at all — the criteria never close" in err
+
+
+def test_an_empty_frame_rolls_up_to_nothing() -> None:
+    import pandas as pd
+
+    from telltale import report as report_mod
+
+    roll = report_mod.judge_disagreements(pd.DataFrame())
+    assert roll["total"] == 0 and roll["rate"] is None and roll["per_tell"] == {}
+
+
+def test_the_cli_warns_only_when_a_tell_is_over_the_threshold(capsys) -> None:
+    from telltale.cli import _warn_on_disagreement
+
+    _warn_on_disagreement({"disagreements": {"over_threshold": [], "per_tell": {}}})
+    assert capsys.readouterr().err == ""
+
+    _warn_on_disagreement(
+        {
+            "disagreements": {
+                "over_threshold": ["rht.rule-of-three"],
+                "threshold": 0.2,
+                "per_tell": {"rht.rule-of-three": {"disagreements": 9, "counted": 20, "rate": 0.45}},
+            }
+        }
+    )
+    err = capsys.readouterr().err
+    assert "WARNING" in err
+    assert "rht.rule-of-three: 9 of 20 counted spans (45%)" in err
+    assert "needs an exclusion it does not have yet" in err
+
+
 # --- scoring integration -----------------------------------------------------
 
 
@@ -1271,6 +1446,16 @@ def test_score_with_judge_writes_judge_rows_and_a_manifest_section(
     assert len(judge["tells_scored"]) == len(protocol.RULES)
     assert judge["cache"]["misses"] >= 1
     assert judge["hallucination"]["rate"] == 0.0
+    # The canned judge answers only ever supply criteria (a) and (b), so the two
+    # tells whose rubrics require (a)+(b)+(c) reject a span the judge called an
+    # instance. That is a real disagreement and the rollup has to surface it —
+    # and since those tells counted nothing, it is the undefined-rate case.
+    disagreement = judge["disagreements"]
+    assert disagreement["total"] == 2
+    assert set(disagreement["over_threshold"]) == {"rht.rule-of-three", "rht.from-x-to-y"}
+    assert disagreement["per_tell"]["rht.rule-of-three"]["disagreements"] == 1
+    assert disagreement["per_tell"]["rht.rhetorical-qa"]["disagreements"] == 0
+    assert disagreement["per_tell"]["rht.rhetorical-qa"]["rate"] == 0.0
     assert judge["calibration"]["rht.rhetorical-qa"]["agreement"] == 0.95
 
     rows = [json.loads(line) for line in (run_dir / "scores.jsonl").read_text().splitlines()]
@@ -1282,6 +1467,7 @@ def test_score_with_judge_writes_judge_rows_and_a_manifest_section(
     card = (run_dir / "scorecard.md").read_text(encoding="utf-8")
     assert f"| Judge model | `{JUDGE_MODEL_DEFAULT}` |" in card
     assert "Hallucinated quotes" in card
+    assert "Judge/code disagreement" in card
     assert "The judge never rated anything" in card
 
 

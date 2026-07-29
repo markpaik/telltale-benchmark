@@ -269,6 +269,7 @@ def cmd_score(args: argparse.Namespace) -> int:
         )
         for tell_id, why in sorted(skipped.items()):
             print(f"  SKIPPED {tell_id}: {why}", file=sys.stderr)
+        _warn_on_disagreement(judge_info)
     else:
         print(
             f"scored {corpus['n_docs']} docs x {registry_info['n_scored']} tells "
@@ -276,6 +277,47 @@ def cmd_score(args: argparse.Namespace) -> int:
         )
     print(run_dir)
     return 0
+
+
+def _warn_on_disagreement(judge_info: dict) -> None:
+    """Say loudly when the judge kept disagreeing with the decision code.
+
+    A high rate is not a bug in either half. It is a rubric that has an
+    exclusion the judge can feel and cannot name, and it is invisible to the
+    calibration gate — the gate scores twenty snippets written to be
+    unambiguous, which is exactly where this would not show up.
+    """
+    disagreement = judge_info.get("disagreements") or {}
+    per_tell = disagreement.get("per_tell") or {}
+    flagged = disagreement.get("over_threshold") or []
+    if not flagged:
+        return
+    threshold = float(disagreement.get("threshold") or 0.20)
+    print(
+        f"\nWARNING: the judge's own verdict disagreed with the rubric's decision "
+        f"on more than {100 * threshold:.0f}% of counted spans for "
+        f"{len(flagged)} tell(s):",
+        file=sys.stderr,
+    )
+    for tell_id in flagged:
+        entry = per_tell.get(tell_id) or {}
+        rate = entry.get("rate")
+        share = (
+            f"({100.0 * float(rate):.0f}%)"
+            if rate is not None
+            else "(nothing counted at all — the criteria never close)"
+        )
+        print(
+            f"  {tell_id}: {entry.get('disagreements', 0)} of "
+            f"{entry.get('counted', 0)} counted spans {share}",
+            file=sys.stderr,
+        )
+    print(
+        "  The criteria are being satisfied on spans the judge does not think "
+        "are instances. That usually means the rubric needs an exclusion it "
+        "does not have yet; check the rationales in scores.jsonl.",
+        file=sys.stderr,
+    )
 
 
 def cmd_report(args: argparse.Namespace) -> int:
