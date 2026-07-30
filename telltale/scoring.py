@@ -150,6 +150,7 @@ def detect_all(
     progress: Any | None = None,
     workers: int = 1,
     controller: Any | None = None,
+    judge_docs: Any | None = None,
 ) -> pd.DataFrame:
     """Run every applicable tell over every document.
 
@@ -193,8 +194,18 @@ def detect_all(
 
         fatal = (CacheMiss,)
 
+    # Tier-1 always reads the whole corpus; Tier-2 may be restricted to a
+    # sample, because a judge tell costs a dozen subprocess calls per document
+    # and a regex costs microseconds. `judge_docs` is None for a full sweep.
+    judged = set(judge_docs) if judge_docs is not None else None
+
+    def judge_applies(detector: Any, doc: Doc) -> bool:
+        if not detector.applies_to(doc):
+            return False
+        return judged is None or doc.doc_id in judged
+
     totals = {
-        tell.id: sum(1 for d in ordered_docs if detector.applies_to(d))
+        tell.id: sum(1 for d in ordered_docs if judge_applies(detector, d))
         for tell, detector in detectors
         if tell.method == "judge"
     }
@@ -271,7 +282,7 @@ def detect_all(
         for tell, detector in detectors
         if tell.method == "judge"
         for doc in ordered_docs
-        if detector.applies_to(doc)
+        if judge_applies(detector, doc)
     ]
     if work:
         if workers > 1:

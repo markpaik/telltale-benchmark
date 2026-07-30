@@ -276,6 +276,13 @@ def cmd_score(args: argparse.Namespace) -> int:
         progress=_progress_printer() if args.judge else None,
         judge_workers=args.judge_workers,
         judge_ceiling=args.judge_ceiling,
+        judge_sample=args.sample,
+        judge_sample_seed=args.sample_seed,
+        judge_doc_list=(
+            __import__("telltale.judge.sampling", fromlist=["x"]).read_doc_list(args.doc_list)
+            if args.doc_list
+            else None
+        ),
     )
     manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
     corpus = manifest["corpus"]
@@ -389,6 +396,23 @@ def _add_score_parser(subparsers: argparse._SubParsersAction) -> None:
         type=int,
         default=4,
         help="concurrent judge measurements to start with (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--sample",
+        type=int,
+        default=None,
+        metavar="N",
+        help="restrict judge tells to a stratified sample of N documents "
+        "(Tier-1 still scores the whole corpus)",
+    )
+    parser.add_argument(
+        "--sample-seed", type=int, default=7, help="seed for the judge sample"
+    )
+    parser.add_argument(
+        "--doc-list",
+        type=Path,
+        default=None,
+        help="file of document ids, one per line, to judge instead of a sample",
     )
     parser.add_argument(
         "--judge-ceiling",

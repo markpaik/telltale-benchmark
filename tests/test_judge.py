@@ -1660,6 +1660,120 @@ def test_two_workers_produce_byte_identical_scores(
         assert outputs[1][name] == outputs[2][name], f"{name} differs between 1 and 2 workers"
 
 
+# --- stratified sampling ------------------------------------------------------
+
+
+def _corpus(models=("m1", "m2"), formats=("memo", "email", "report"), per_cell=6):
+    return [
+        Doc.from_text(doc_id=f"{m}/{f}-{i:02d}", model=m, fmt=f, text="# T\n\nBody text here.\n")
+        for m in models
+        for f in formats
+        for i in range(per_cell)
+    ]
+
+
+def test_the_sample_is_balanced_across_models_and_formats() -> None:
+    from telltale.judge import sampling
+
+    docs = _corpus()
+    sample = sampling.stratified_sample(docs, size=12, seed=7)
+    assert len(sample.doc_ids) == 12
+    assert sample.per_model == {"m1": 6, "m2": 6}
+    assert sample.per_format == {"memo": 4, "email": 4, "report": 4}
+
+
+def test_the_sample_is_deterministic_and_seed_sensitive() -> None:
+    from telltale.judge import sampling
+
+    docs = _corpus()
+    first = sampling.stratified_sample(docs, size=12, seed=7)
+    assert first.doc_ids == sampling.stratified_sample(docs, size=12, seed=7).doc_ids
+    assert first.doc_ids == sampling.stratified_sample(list(reversed(docs)), 12, 7).doc_ids
+    assert first.doc_ids != sampling.stratified_sample(docs, size=12, seed=8).doc_ids
+
+
+def test_the_remainder_goes_to_the_deepest_pools() -> None:
+    """13 per model over 3 formats is 4 each plus one; it must be reproducible."""
+    from telltale.judge import sampling
+
+    docs = [
+        Doc.from_text(doc_id=f"m1/{f}-{i:02d}", model="m1", fmt=f, text="# T\n\nBody.\n")
+        for f, n in (("memo", 10), ("email", 3), ("report", 5))
+        for i in range(n)
+    ]
+    sample = sampling.stratified_sample(docs, size=10, seed=7)
+    assert len(sample.doc_ids) == 10
+    # base is 3 per format; email only has 3, so the extra must come from memo
+    # (deepest) rather than from the stratum that is already exhausted.
+    assert sample.per_format["email"] == 3
+    assert sample.per_format["memo"] >= 4
+
+
+def test_a_thin_stratum_does_not_break_the_draw() -> None:
+    from telltale.judge import sampling
+
+    docs = [Doc.from_text(doc_id="m1/memo-01", model="m1", fmt="memo", text="# T\n\nBody.\n")]
+    sample = sampling.stratified_sample(docs, size=60, seed=7)
+    assert sample.doc_ids == ("m1/memo-01",)
+
+
+def test_an_explicit_document_list_is_honoured_and_reports_unknown_ids() -> None:
+    from telltale.judge import sampling
+
+    docs = _corpus()
+    sample = sampling.sample_from_list(docs, ["m1/memo-00", "m2/email-01", "nope/x-99"])
+    assert sample.doc_ids == ("m1/memo-00", "m2/email-01")
+    assert "not in this corpus" in sample.note
+
+
+def test_only_judge_tells_respect_the_sample(tmp_path: Path, registry: Registry) -> None:
+    """Tier-1 is free, so it always reads everything; Tier-2 obeys the sample."""
+    from telltale import scoring
+
+    docs = [
+        doc_from(E2E_DOC.replace("Consolidation", f"C{i}"), doc_id=f"m/doc-{i:02d}")
+        for i in range(4)
+    ]
+    tells = [registry.get("rht.rhetorical-qa"), registry.get("pnc.arrow-chain")]
+    df = scoring.detect_all(
+        docs, tells, judge=JudgeBackend(make_client(tmp_path, e2e_router)),
+        judge_docs=["m/doc-00", "m/doc-02"],
+    )
+    judged = df[df["method"] == "judge"]
+    deterministic = df[df["method"] != "judge"]
+    assert sorted(judged["doc_id"]) == ["m/doc-00", "m/doc-02"]
+    assert len(deterministic["doc_id"].unique()) == 4
+
+
+def test_a_sampled_run_records_the_sample_beside_its_scores(
+    tmp_path: Path, judged_corpus: Path, registry: Registry, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from telltale import report as report_mod
+    from telltale.judge import sampling
+
+    _install_fake_judge(monkeypatch, tmp_path)
+    runs = tmp_path / "runs"
+    _calibrate_all(runs, registry)
+    run_dir = report_mod.score_run(
+        corpus_root=judged_corpus, registry_path=REGISTRY_PATH, out_root=runs,
+        bootstrap_n=20, judge=True, judge_model=JUDGE_MODEL_DEFAULT, runs_root=runs,
+        judge_sample=1, judge_sample_seed=7,
+    )
+    recorded = json.loads((run_dir / sampling.SAMPLE_FILENAME).read_text(encoding="utf-8"))
+    assert recorded["n_selected"] == 1
+    assert recorded["seed"] == 7
+
+    manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["judge"]["sample"]["n_selected"] == 1
+
+    rows = [json.loads(l) for l in (run_dir / "scores.jsonl").read_text().splitlines()]
+    judged_docs = {r["doc_id"] for r in rows if r["method"] == "judge"}
+    all_docs = {r["doc_id"] for r in rows}
+    assert judged_docs == set(recorded["doc_ids"])
+    assert len(all_docs) == 2, "Tier-1 still scored the whole corpus"
+    assert "(n=1 docs)" in (run_dir / "scorecard.md").read_text(encoding="utf-8")
+
+
 # --- scoring integration -----------------------------------------------------
 
 

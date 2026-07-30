@@ -466,11 +466,17 @@ def _top_tells(
             unit = str(rows_for_tell["unit"].iloc[0])
             name = (meta.get(tell_id) or {}).get("name") or tell_id
             mark = " †" if (model, tell_id) in thin else ""
+            signal = _signal(unit, rows_for_tell)
+            # Judge tells may be measured on a sample while Tier-1 reads the
+            # whole corpus, so their n is not the corpus n and a reader
+            # comparing two rows in this table has to be told which is which.
+            if str(rows_for_tell["method"].iloc[0]) == "judge":
+                signal += f" (n={len(rows_for_tell)} docs)"
             rows.append(
                 [
                     f"`{tell_id}`{mark}",
                     _cell(str(name)),
-                    _cell(_signal(unit, rows_for_tell)),
+                    _cell(signal),
                     _fmt(series[tell_id], 3),
                     _cell(_exemplar(rows_for_tell)) or EM_DASH,
                 ]
@@ -655,6 +661,16 @@ def _judge_rows(judge: Mapping[str, Any], df: pd.DataFrame) -> list[list[str]]:
             f"{hallucination.get('hallucinated', 0)} of "
             f"{hallucination.get('extracted', 0)} extracted"
             + (f" ({100.0 * float(rate):.1f}%)" if rate is not None else ""),
+        ],
+        [
+            "Judge sample",
+            (
+                f"{(judge.get('sample') or {}).get('n_selected', 0)} of the corpus, "
+                f"seed {(judge.get('sample') or {}).get('seed')} — judge tells are "
+                "measured on these documents only"
+                if judge.get("sample")
+                else "whole corpus"
+            ),
         ],
         [
             "Judge/code disagreement",
@@ -867,6 +883,9 @@ def score_run(
     progress: Any | None = None,
     judge_workers: int = 1,
     judge_ceiling: int = 6,
+    judge_sample: int | None = None,
+    judge_sample_seed: int = 7,
+    judge_doc_list: Sequence[str] | None = None,
 ) -> Path:
     """Score a corpus and write the four outputs plus the manifest.
 
@@ -894,15 +913,27 @@ def score_run(
         runs_root=Path(runs_root) if runs_root is not None else _default_runs_root(out_root, run_dir),
     )
 
+    sample = None
+    if backend is not None and (judge_sample or judge_doc_list):
+        from telltale.judge import sampling
+
+        sample = (
+            sampling.sample_from_list(docs, judge_doc_list)
+            if judge_doc_list
+            else sampling.stratified_sample(docs, size=judge_sample, seed=judge_sample_seed)
+        )
+        judge_section["sample"] = {
+            k: v for k, v in sample.as_dict().items() if k != "strata"
+        }
+
     controller = None
     if backend is not None and judge_workers > 1:
         from telltale.judge.sweep import SweepController, SweepPolicy
 
         controller = SweepController(
             policy=SweepPolicy(workers=judge_workers, ceiling=judge_ceiling),
-            total=sum(
-                1 for t in tells if t.method == "judge"
-            ) * len(docs),
+            total=sum(1 for t in tells if t.method == "judge")
+            * (len(sample.doc_ids) if sample is not None else len(docs)),
             emit=progress or (lambda line: None),
         )
         # Without this the progress line reports "0 calls" forever: the counter
@@ -913,6 +944,7 @@ def score_run(
     df = scoring.detect_all(
         docs, tells, judge=backend, progress=progress,
         workers=max(1, judge_workers), controller=controller,
+        judge_docs=sample.doc_ids if sample is not None else None,
     )
     df = scoring.normalize(df, tells)
     judge_skipped = scoring.judge_tell_ids(tells) if backend is None else []
@@ -959,6 +991,11 @@ def score_run(
         run_dir = Path(out_root) / manifest["run_id"]
     run_dir = Path(run_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
+
+    if sample is not None:
+        from telltale.judge import sampling
+
+        sampling.write_sample(sample, run_dir)
 
     write_scores_jsonl(df, run_dir / SCORES_NAME)
     write_matrices(df, run_dir)
