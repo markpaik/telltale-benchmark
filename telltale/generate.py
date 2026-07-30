@@ -44,7 +44,21 @@ CONTINUE_PROMPT = (
     "repeat, or restart. Just continue."
 )
 
-MAX_CONTINUATIONS = 4
+#: Continuation rounds allowed before a document is accepted at whatever length
+#: it reached. Dropped 4 -> 2 on 2026-07-30. Under the length-tier design,
+#: delivered-against-requested is one of the things being measured, and hammering
+#: a model toward the floor converts that signal into seam artifacts: in the
+#: shakedown corpus Sonnet needed continuations on 77 of 112 documents against
+#: Opus's 3, so two thirds of one model's corpus was stitched across --resume
+#: boundaries while the other's was single-turn prose. Two rounds keeps a
+#: document usable; past that, the shortfall is the finding.
+#:
+#: Condition note for readers of the shakedown corpus: those 224 documents
+#: (2026-07-29/30, corpus_hash d827d5a5c146...) were generated under the old
+#: 4-round policy and their sidecars predate the `max_continuations` and
+#: `below_floor` fields. They were not rewritten — see the sidecar schema in
+#: generate_one.
+MAX_CONTINUATIONS = 2
 #: Four attempts, so all three escalating waits actually get used before a cell
 #: is written off. At three attempts the 900s step was unreachable.
 MAX_ATTEMPTS = 4
@@ -317,6 +331,15 @@ def generate_one(
     text = "\n\n".join(chunks)
     words = isolation.textstat_words(text)
 
+    # Zero output is the only length that fails. A short document is evidence
+    # about the model; an empty one is evidence about nothing, and writing it
+    # would put a 0-word file in the corpus that later passes would skip over.
+    if not text.strip():
+        notes.append("no text returned across all attempts")
+        return _record_failure(
+            corpus_root, model, spec.format, prompt.id, envelope, cli, notes, composed
+        )
+
     path = doc_path(corpus_root, model, prompt.id)
     path.parent.mkdir(parents=True, exist_ok=True)
     raw = text if text.endswith("\n") else text + "\n"
@@ -335,7 +358,19 @@ def generate_one(
         "target_words": effective.target_words,
         "min_words": effective.min_words,
         "met_floor": words >= effective.min_words,
+        # Retained, never deleted, and labelled. Under-delivery against the
+        # requested length is one of the measured quantities, so a short
+        # document is data — per-1k normalization absorbs the length difference.
+        # `below_floor` is the positive form of the same fact as `met_floor`,
+        # written out so a reader scanning sidecars for shorts does not have to
+        # invert a flag. Absent from the 2026-07-29/30 shakedown sidecars, which
+        # predate this field and carry only `met_floor`.
+        "below_floor": words < effective.min_words,
         "continuations": continuations,
+        # The policy in force for this document, so provenance travels with the
+        # record rather than living in a changelog. Shakedown docs were made
+        # under 4; see MAX_CONTINUATIONS.
+        "max_continuations": MAX_CONTINUATIONS,
         "continuation_boundaries": boundaries,
         "cli_version": cli_version or isolation.cli_version(),
         "doc_sha256": hashlib.sha256(raw.encode("utf-8")).hexdigest(),
@@ -481,9 +516,15 @@ def generate(
                 if limit is not None and produced >= limit:
                     return report
 
-                floor = spec.min_words if target_override is None else int(target_override * 0.9)
+                # A cell is done when a document exists, not when it clears the
+                # floor. The old rule regenerated short documents on every pass:
+                # nine Sonnet cells in the shakedown corpus had already spent the
+                # whole continuation ladder and still came in under 4,500 words,
+                # so each later pass spent five more calls to produce another
+                # short document, forever. Under-delivery is a measured quantity,
+                # not a failure to retry. `--force` is the way to regenerate.
                 have = existing_words(corpus_root, model, prompt.id)
-                if not force and have is not None and have >= floor:
+                if not force and have is not None:
                     report.cells.append(
                         CellResult(model, fmt, prompt.id, "skipped", words=have)
                     )

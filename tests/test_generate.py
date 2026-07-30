@@ -291,15 +291,40 @@ def test_second_run_skips_a_document_that_met_the_floor(bank_dir, runs_root, tmp
     assert len(second.calls) == 1
 
 
-def test_a_sub_floor_document_is_regenerated(bank_dir, runs_root, tmp_path):
+def test_a_sub_floor_document_is_kept_and_not_regenerated(bank_dir, runs_root, tmp_path):
+    # Was the opposite until 2026-07-30. Regenerating shorts meant nine Sonnet
+    # cells that had already spent the whole continuation ladder were rewritten
+    # on every pass, five calls apiece, producing another short document each
+    # time. Under-delivery is a measured quantity; a document that exists is
+    # done, and --force is the way to ask for a new one.
     corpus = tmp_path / "corpus"
     run(bank_dir, runs_root, tmp_path, Recorder([envelope("short. ")]), limit=1, corpus_root=corpus)
 
     second = Recorder([envelope(WORDS * 700)])
     report = run(bank_dir, runs_root, tmp_path, second, limit=1, corpus_root=corpus)
 
-    assert second.calls, "a document below the floor must not be treated as done"
-    assert len(report.written) == 1
+    # The short cell is skipped, so the run moves on to the next one instead of
+    # spending its calls rewriting a document it already has.
+    assert report.skipped[0].prompt_id == "memo-01"
+    assert report.written[0].prompt_id == "memo-02"
+    assert len(second.calls) == 1, "the only call should be for memo-02"
+
+    # And it is still on disk, labelled, with its text intact.
+    side = json.loads((corpus / "claude-sonnet-5" / "memo-01.json").read_text())
+    assert side["below_floor"] is True
+    assert side["met_floor"] is False
+    assert (corpus / "claude-sonnet-5" / "memo-01.md").is_file()
+
+
+def test_force_regenerates_a_short_document(bank_dir, runs_root, tmp_path):
+    corpus = tmp_path / "corpus"
+    run(bank_dir, runs_root, tmp_path, Recorder([envelope("short. ")]), limit=1, corpus_root=corpus)
+
+    second = Recorder([envelope(WORDS * 700)])
+    report = run(
+        bank_dir, runs_root, tmp_path, second, limit=1, corpus_root=corpus, force=True
+    )
+    assert second.calls
     assert report.written[0].words >= 4500
 
 
@@ -695,3 +720,82 @@ def test_auth_failure_is_still_not_retryable():
     )
     cli = CliResult(returncode=1, stdout="", stderr="", duration_s=1.0)
     assert not generate.is_retryable(env, cli)
+
+
+# --- M4e: shorts retention, continuation cap, zero-output ---------------------
+
+
+def test_the_continuation_cap_is_two():
+    # Dropped from 4 on 2026-07-30. Delivered-against-requested is a measured
+    # quantity under the length-tier design, and pushing a model to the floor
+    # turns that signal into seam artifacts: Sonnet needed continuations on 77
+    # of 112 shakedown documents against Opus's 3.
+    assert generate.MAX_CONTINUATIONS == 2
+
+
+def test_continuations_stop_at_the_cap(bank_dir, runs_root, tmp_path):
+    transport = Recorder([envelope("still short. ")] * 12)
+    report = run(bank_dir, runs_root, tmp_path, transport, limit=1)
+
+    # One opening call plus at most MAX_CONTINUATIONS resumes.
+    assert len(transport.calls) <= 1 + generate.MAX_CONTINUATIONS
+    side = json.loads(
+        (tmp_path / "corpus" / "claude-sonnet-5" / "memo-01.json").read_text()
+    )
+    assert side["continuations"] <= generate.MAX_CONTINUATIONS
+    assert side["max_continuations"] == generate.MAX_CONTINUATIONS
+    assert len(report.written) == 1, "a short document is still a document"
+
+
+def test_the_sidecar_labels_a_short_document_and_records_the_policy(
+    bank_dir, runs_root, tmp_path
+):
+    run(bank_dir, runs_root, tmp_path, Recorder([envelope("short. ")]), limit=1)
+    side = json.loads(
+        (tmp_path / "corpus" / "claude-sonnet-5" / "memo-01.json").read_text()
+    )
+    assert side["below_floor"] is True
+    assert side["met_floor"] is False
+    assert side["below_floor"] is not side["met_floor"]
+    # Provenance travels with the record: a reader can tell which continuation
+    # policy produced this document without consulting a changelog.
+    assert side["max_continuations"] == 2
+
+
+def test_a_full_length_document_is_not_labelled_below_floor(
+    bank_dir, runs_root, tmp_path
+):
+    run(bank_dir, runs_root, tmp_path, Recorder([envelope(WORDS * 700)]), limit=1)
+    side = json.loads(
+        (tmp_path / "corpus" / "claude-sonnet-5" / "memo-01.json").read_text()
+    )
+    assert side["below_floor"] is False
+    assert side["met_floor"] is True
+
+
+def test_zero_output_fails_the_cell_and_writes_no_document(
+    bank_dir, runs_root, tmp_path
+):
+    # The one length that is not data. An empty document would be skipped by
+    # every later pass as though the cell were done.
+    report = run(bank_dir, runs_root, tmp_path, Recorder([envelope("   ")]), limit=1)
+
+    assert not report.written
+    assert len(report.failed) == 1
+    corpus = tmp_path / "corpus" / "claude-sonnet-5"
+    assert not (corpus / "memo-01.md").exists()
+    assert not (corpus / "memo-01.json").exists()
+    failure = json.loads((corpus / "memo-01.failed.json").read_text())
+    assert any("no text returned" in note for note in failure["attempts"]), failure["attempts"]
+
+
+def test_an_empty_cell_is_retried_on_the_next_pass(bank_dir, runs_root, tmp_path):
+    corpus = tmp_path / "corpus"
+    run(bank_dir, runs_root, tmp_path, Recorder([envelope("  ")]), limit=1, corpus_root=corpus)
+
+    second = Recorder([envelope(WORDS * 700)])
+    report = run(bank_dir, runs_root, tmp_path, second, limit=1, corpus_root=corpus)
+
+    # Nothing on disk to skip, so the cell comes round again.
+    assert report.written[0].prompt_id == "memo-01"
+    assert report.written[0].words >= 4500
