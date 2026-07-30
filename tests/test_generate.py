@@ -650,3 +650,48 @@ def test_scan_contamination_picks_up_a_local_markers_file(tmp_path):
         repo_root=tmp_path,
     )
     assert hits == ["Wolverine Codename"]
+
+
+# --- connect-level retries (2026-07-30 ENOTFOUND incident) -------------------
+
+
+@pytest.mark.parametrize(
+    "message",
+    [
+        "API Error: Unable to connect to API (ENOTFOUND)",
+        "Error: connect ECONNREFUSED 160.79.104.10:443",
+        "getaddrinfo EAI_AGAIN api.anthropic.com",
+        "Error: socket hang up",
+        "connect ETIMEDOUT",
+        "network error while sending request",
+    ],
+)
+def test_connect_level_failures_are_retryable(message):
+    # A few seconds of network loss must not burn a corpus cell on attempt 1.
+    # "connection" did not cover these: ENOTFOUND says "connect", not
+    # "connection", and the substring match is literal.
+    env = isolation.Envelope(result=message, session_id="", num_turns=1, is_error=True)
+    cli = CliResult(returncode=1, stdout="", stderr="", duration_s=1.0)
+    assert generate.is_retryable(env, cli), message
+
+
+def test_a_structural_error_is_still_not_retryable():
+    # The widening must not turn permanent failures into 21 minutes of backoff.
+    env = isolation.Envelope(
+        result="Invalid model name: no such model", session_id="", num_turns=1, is_error=True
+    )
+    cli = CliResult(returncode=1, stdout="", stderr="", duration_s=1.0)
+    assert not generate.is_retryable(env, cli)
+
+
+def test_auth_failure_is_still_not_retryable():
+    # Backing off four times against an expired token helps nobody; the run
+    # should stop and ask for a login.
+    env = isolation.Envelope(
+        result="Failed to authenticate: OAuth session expired and could not be refreshed",
+        session_id="",
+        num_turns=1,
+        is_error=True,
+    )
+    cli = CliResult(returncode=1, stdout="", stderr="", duration_s=1.0)
+    assert not generate.is_retryable(env, cli)

@@ -66,6 +66,21 @@ RETRYABLE_MARKERS: tuple[str, ...] = (
     "econnreset",
     "temporarily unavailable",
     "usage limit",
+    # Connect-level failures. "connection" above does not cover them: the CLI
+    # reports a DNS blip as "Unable to connect to API (ENOTFOUND)", which
+    # contains "connect" but not "connection", so on 2026-07-30 a few seconds of
+    # network loss burned a corpus cell on attempt 1 with the whole 60/300/900s
+    # backoff never engaging. Over a multi-day unattended run that is the
+    # difference between a gap and a document.
+    "enotfound",
+    "econnrefused",
+    "eai_again",
+    "etimedout",
+    "ehostunreach",
+    "enetunreach",
+    "unable to connect",
+    "socket hang up",
+    "network error",
 )
 
 Sleeper = Callable[[float], None]
