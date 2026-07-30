@@ -1361,6 +1361,239 @@ def test_the_cli_warns_only_when_a_tell_is_over_the_threshold(capsys) -> None:
     assert "needs an exclusion it does not have yet" in err
 
 
+# --- sweep progress and error resilience -------------------------------------
+
+
+def test_detect_all_reports_judge_progress_per_tell(tmp_path: Path, registry: Registry) -> None:
+    from telltale import scoring
+
+    docs = [doc_from(E2E_DOC, doc_id=f"m/doc-{i:02d}") for i in range(3)]
+    tells = [registry.get("rht.rhetorical-qa"), registry.get("pnc.arrow-chain")]
+    lines: list[str] = []
+    scoring.detect_all(
+        docs, tells, judge=JudgeBackend(make_client(tmp_path, e2e_router)), progress=lines.append
+    )
+    assert lines == [
+        "JUDGE rht.rhetorical-qa 1/3 docs",
+        "JUDGE rht.rhetorical-qa 2/3 docs",
+        "JUDGE rht.rhetorical-qa 3/3 docs",
+    ], "one line per judge measurement, deterministic tells stay quiet"
+
+
+def test_a_failing_judge_call_does_not_take_the_sweep_down(
+    tmp_path: Path, registry: Registry
+) -> None:
+    """One bad call must not cost the other 3,000, but it must not be silent."""
+    from telltale import scoring
+
+    def flaky(prompt: str):
+        # Keyed on the passage, not a call counter: identical documents share a
+        # chunk hash and therefore a cache entry, so a counter would fire on
+        # whichever call happened to miss.
+        if "EXTRACTION ONLY" in prompt and "doomed" in passage_of(prompt):
+            raise JudgeError("judge call failed (exit 124): timed out")
+        return e2e_router(prompt)
+
+    docs = [
+        doc_from(E2E_DOC.replace("Consolidation", f"Consolidation {i}"), doc_id=f"m/doc-{i:02d}")
+        for i in range(3)
+    ]
+    docs[1] = doc_from(E2E_DOC.replace("Consolidation Options", "doomed"), doc_id="m/doc-01")
+    tells = [registry.get("rht.rhetorical-qa")]
+    lines: list[str] = []
+    df = scoring.detect_all(
+        docs, tells, judge=JudgeBackend(make_client(tmp_path, flaky)), progress=lines.append
+    )
+
+    assert len(df) == 2, "the failed document has no row at all, not a zero row"
+    assert set(df["doc_id"]) == {"m/doc-00", "m/doc-02"}
+    errors = df.attrs["judge_errors"]
+    assert len(errors) == 1
+    assert errors[0]["doc_id"] == "m/doc-01"
+    assert "timed out" in errors[0]["error"]
+    assert any("ERROR[other] rht.rhetorical-qa m/doc-01" in line for line in lines)
+
+
+# --- sweep concurrency --------------------------------------------------------
+
+
+def test_failure_classification() -> None:
+    from telltale.judge import sweep
+
+    assert sweep.classify_failure("HTTP 429 Too Many Requests") == sweep.THROTTLE
+    assert sweep.classify_failure("rate limit exceeded") == sweep.THROTTLE
+    assert sweep.classify_failure("Error 529: Overloaded") == sweep.OVERLOAD
+    assert sweep.classify_failure("Not logged in - Please run /login") == sweep.AUTH
+    assert sweep.classify_failure("401 unauthorized") == sweep.AUTH
+    assert sweep.classify_failure("timed out after 300s") == sweep.OTHER
+    # Auth wins when a message carries both, because a dead token makes every
+    # other diagnosis moot.
+    assert sweep.classify_failure("429 after oauth refresh failed") == sweep.AUTH
+
+
+def test_the_gate_limits_concurrency_and_can_shrink() -> None:
+    from telltale.judge.sweep import Gate
+
+    gate = Gate(capacity=2, ceiling=4)
+    gate.acquire()
+    gate.acquire()
+    assert gate.in_flight == 2
+    assert gate.set_capacity(9) == 4, "capacity never exceeds the ceiling"
+    assert gate.set_capacity(0) == 1, "capacity never drops below one"
+    gate.release()
+    gate.release()
+    assert gate.in_flight == 0
+
+
+def test_the_gate_blocks_a_worker_over_capacity() -> None:
+    import threading
+
+    from telltale.judge.sweep import Gate
+
+    gate = Gate(capacity=1, ceiling=4)
+    gate.acquire()
+    entered = threading.Event()
+
+    def second() -> None:
+        gate.acquire()
+        entered.set()
+
+    thread = threading.Thread(target=second, daemon=True)
+    thread.start()
+    assert not entered.wait(0.2), "the second worker must wait"
+    gate.release()
+    assert entered.wait(2.0), "and proceed once a permit frees"
+    thread.join(2.0)
+
+
+def test_a_429_halves_the_workers_immediately() -> None:
+    from telltale.judge.sweep import SweepController, SweepPolicy
+
+    lines: list[str] = []
+    controller = SweepController(
+        policy=SweepPolicy(workers=6, ceiling=6), total=10, emit=lines.append
+    )
+    assert controller.gate.capacity == 6
+    controller.record_failure("HTTP 429 rate limited")
+    assert controller.gate.capacity == 3
+    assert any(line.startswith("THROTTLE 3") for line in lines)
+    controller.record_failure("429 again")
+    assert controller.gate.capacity == 1
+    assert not controller.should_stop
+
+
+def test_overloads_halve_only_once_they_are_a_trend() -> None:
+    from telltale.judge.sweep import SweepController, SweepPolicy
+
+    controller = SweepController(
+        policy=SweepPolicy(workers=6, ceiling=6, overload_rate=0.02, min_overloads=3),
+        total=10,
+    )
+    for _ in range(200):
+        controller.record_ok()
+    controller.record_failure("529 overloaded")
+    controller.record_failure("529 overloaded")
+    assert controller.gate.capacity == 6, "two overloads in 200 calls is not a trend"
+    controller.record_failure("529 overloaded")
+    controller.record_failure("529 overloaded")
+    controller.record_failure("529 overloaded")
+    assert controller.gate.capacity == 3
+
+
+def test_an_auth_failure_stops_the_sweep() -> None:
+    from telltale.judge.sweep import SweepController
+
+    lines: list[str] = []
+    controller = SweepController(total=10, emit=lines.append)
+    controller.record_failure("Not logged in - Please run /login")
+    assert controller.should_stop
+    assert controller.stop_reason == "auth"
+    assert any(line.startswith("AUTH-LOST") for line in lines)
+    assert controller.gate.capacity > 0, "stopping is not throttling"
+
+
+def test_workers_step_back_up_after_a_quiet_stretch() -> None:
+    from telltale.judge.sweep import SweepController, SweepPolicy
+
+    now = [1000.0]
+    lines: list[str] = []
+    controller = SweepController(
+        policy=SweepPolicy(workers=6, ceiling=6, step_up_after_s=1800),
+        total=10,
+        emit=lines.append,
+        clock=lambda: now[0],
+    )
+    controller.record_failure("429")
+    assert controller.gate.capacity == 3
+
+    now[0] += 600
+    controller.maybe_step_up()
+    assert controller.gate.capacity == 3, "ten minutes is not a quiet stretch"
+
+    now[0] += 1300
+    controller.maybe_step_up()
+    assert controller.gate.capacity == 4, "one worker at a time, not straight back"
+    assert any(line.startswith("WORKERS 4") for line in lines)
+
+
+def test_the_progress_line_reports_rate_and_eta() -> None:
+    from telltale.judge.sweep import SweepController, SweepPolicy
+
+    now = [0.0]
+    lines: list[str] = []
+    controller = SweepController(
+        policy=SweepPolicy(progress_every_s=600),
+        total=100,
+        emit=lines.append,
+        clock=lambda: now[0],
+    )
+    for _ in range(60):
+        controller.record_call()
+    now[0] = 600.0
+    for _ in range(10):
+        controller._done += 1
+    controller.tick()
+    assert len(lines) == 1
+    assert "SWEEP 10/100 measurements, 60 calls, 6.0 calls/min" in lines[0]
+    assert "ETA 1.5h" in lines[0]
+
+
+def test_two_workers_produce_byte_identical_scores(
+    tmp_path: Path, judged_corpus: Path, registry: Registry, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The whole point of the concurrency: same evidence, same file, any width.
+
+    Row order in the frame is sorted before it becomes a DataFrame, so the
+    number of workers cannot reach the output. This is the test that says so.
+    """
+    from telltale import report as report_mod
+
+    outputs = {}
+    for workers in (1, 2):
+        scratch = tmp_path / f"w{workers}"
+        _install_fake_judge(monkeypatch, scratch)
+        runs = scratch / "runs"
+        _calibrate_all(runs, registry)
+        run_dir = report_mod.score_run(
+            corpus_root=judged_corpus,
+            registry_path=REGISTRY_PATH,
+            out_root=runs,
+            bootstrap_n=20,
+            judge=True,
+            judge_model=JUDGE_MODEL_DEFAULT,
+            runs_root=runs,
+            judge_workers=workers,
+            judge_ceiling=4,
+        )
+        outputs[workers] = {
+            name: (run_dir / name).read_text(encoding="utf-8")
+            for name in ("scores.jsonl", "matrix.csv", "matrix_by_format.csv", "scorecard.md")
+        }
+
+    for name in outputs[1]:
+        assert outputs[1][name] == outputs[2][name], f"{name} differs between 1 and 2 workers"
+
+
 # --- scoring integration -----------------------------------------------------
 
 

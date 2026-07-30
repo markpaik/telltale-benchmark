@@ -241,6 +241,24 @@ def cmd_prompts_show(args: argparse.Namespace) -> int:
 # --- scoring and reporting ---------------------------------------------------
 
 
+def _progress_printer():
+    """Timestamped progress lines on stdout, flushed, for a detached sweep.
+
+    Flushing matters: a judge sweep is redirected to a log someone is tailing
+    for hours, and Python's block buffering on a non-tty would hold the last
+    several minutes of it hostage.
+    """
+    import time
+
+    started = time.monotonic()
+
+    def emit(line: str) -> None:
+        elapsed = time.monotonic() - started
+        print(f"[{elapsed / 60:7.1f}m] {line}", flush=True)
+
+    return emit
+
+
 def cmd_score(args: argparse.Namespace) -> int:
     from telltale import report
 
@@ -255,6 +273,9 @@ def cmd_score(args: argparse.Namespace) -> int:
         judge=args.judge,
         judge_model=args.judge_model,
         runs_root=args.out,
+        progress=_progress_printer() if args.judge else None,
+        judge_workers=args.judge_workers,
+        judge_ceiling=args.judge_ceiling,
     )
     manifest = json.loads((run_dir / "manifest.json").read_text(encoding="utf-8"))
     corpus = manifest["corpus"]
@@ -362,6 +383,18 @@ def _add_score_parser(subparsers: argparse._SubParsersAction) -> None:
         "--judge-model",
         default=None,
         help="judge model id; default resolves the allowlist in order",
+    )
+    parser.add_argument(
+        "--judge-workers",
+        type=int,
+        default=4,
+        help="concurrent judge measurements to start with (default: %(default)s)",
+    )
+    parser.add_argument(
+        "--judge-ceiling",
+        type=int,
+        default=6,
+        help="most concurrent judge measurements to ever run (default: %(default)s)",
     )
     parser.set_defaults(func=cmd_score)
 

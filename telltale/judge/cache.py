@@ -22,6 +22,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import threading
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -70,12 +72,20 @@ def cache_key(
 
 @dataclass
 class CacheStats:
+    """Counters, safe to bump from several sweep workers at once."""
+
     hits: int = 0
     misses: int = 0
     writes: int = 0
+    _lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
+
+    def bump(self, field_name: str) -> None:
+        with self._lock:
+            setattr(self, field_name, getattr(self, field_name) + 1)
 
     def as_dict(self) -> dict[str, int]:
-        return {"hits": self.hits, "misses": self.misses, "writes": self.writes}
+        with self._lock:
+            return {"hits": self.hits, "misses": self.misses, "writes": self.writes}
 
 
 class JudgeCache:
@@ -94,12 +104,12 @@ class JudgeCache:
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError, UnicodeDecodeError):
-            self.stats.misses += 1
+            self.stats.bump("misses")
             return None
         if not isinstance(data, dict) or "payload" not in data:
-            self.stats.misses += 1
+            self.stats.bump("misses")
             return None
-        self.stats.hits += 1
+        self.stats.bump("hits")
         payload = data["payload"]
         return payload if isinstance(payload, dict) else None
 
@@ -114,10 +124,14 @@ class JudgeCache:
             "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "payload": payload,
         }
-        path.write_text(
-            json.dumps(envelope, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-        )
-        self.stats.writes += 1
+        payload_text = json.dumps(envelope, indent=2, ensure_ascii=False) + "\n"
+        # Written through a temp file in the same directory and renamed, because
+        # two workers can race the same key and a partially written entry must
+        # never be readable as a hit. os.replace is atomic within a filesystem.
+        temp = path.with_name(f".{path.name}.{os.getpid()}.{threading.get_ident()}.tmp")
+        temp.write_text(payload_text, encoding="utf-8")
+        os.replace(temp, path)
+        self.stats.bump("writes")
         return path
 
     def entries(self) -> list[Path]:
@@ -153,6 +167,10 @@ class JudgeClient:
     force: bool = False
     cache_only: bool = False
     stats: dict[str, int] = field(default_factory=lambda: {"live_calls": 0})
+    #: Called after every live judge call. The sweep uses it to count calls for
+    #: the progress line without the cache having to know a sweep exists.
+    on_call: Any = None
+    _stats_lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
     @property
     def model(self) -> str:
@@ -183,7 +201,10 @@ class JudgeClient:
             )
 
         payload = self.transport.ask(prompt)
-        self.stats["live_calls"] = self.stats.get("live_calls", 0) + 1
+        with self._stats_lock:
+            self.stats["live_calls"] = self.stats.get("live_calls", 0) + 1
+        if self.on_call is not None:
+            self.on_call()
         self.cache.put(
             key,
             {

@@ -864,6 +864,9 @@ def score_run(
     judge_tells: Sequence[str] | None = None,
     judge_cache_only: bool = False,
     runs_root: Path | None = None,
+    progress: Any | None = None,
+    judge_workers: int = 1,
+    judge_ceiling: int = 6,
 ) -> Path:
     """Score a corpus and write the four outputs plus the manifest.
 
@@ -891,7 +894,21 @@ def score_run(
         runs_root=Path(runs_root) if runs_root is not None else _default_runs_root(out_root, run_dir),
     )
 
-    df = scoring.detect_all(docs, tells, judge=backend)
+    controller = None
+    if backend is not None and judge_workers > 1:
+        from telltale.judge.sweep import SweepController, SweepPolicy
+
+        controller = SweepController(
+            policy=SweepPolicy(workers=judge_workers, ceiling=judge_ceiling),
+            total=sum(
+                1 for t in tells if t.method == "judge"
+            ) * len(docs),
+            emit=progress or (lambda line: None),
+        )
+    df = scoring.detect_all(
+        docs, tells, judge=backend, progress=progress,
+        workers=max(1, judge_workers), controller=controller,
+    )
     df = scoring.normalize(df, tells)
     judge_skipped = scoring.judge_tell_ids(tells) if backend is None else []
     scored = [t for t in tells if t.method != "judge" or backend is not None]
@@ -900,6 +917,17 @@ def score_run(
         judge_section.update(_judge_run_stats(backend))
         judge_section["hallucination"] = judge_hallucination_rate(df)
         judge_section["disagreements"] = judge_disagreements(df)
+        judge_errors = list(df.attrs.get("judge_errors") or [])
+        judge_section["errors"] = {
+            "count": len(judge_errors),
+            "sample": judge_errors[:20],
+        }
+        judge_section["concurrency"] = {
+            "workers_start": judge_workers,
+            "ceiling": judge_ceiling,
+            "workers_end": controller.gate.capacity if controller is not None else 1,
+            "stopped": controller.stop_reason if controller is not None else None,
+        }
 
     pairing = scoring.pairing_summary(df)
     manifest = build_manifest(

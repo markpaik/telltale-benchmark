@@ -30,6 +30,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import threading
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -147,12 +148,22 @@ def parse_json_reply(text: str) -> dict[str, Any]:
 
 @dataclass
 class TransportStats:
-    """What a run's judge traffic actually cost, in calls rather than dollars."""
+    """What a run's judge traffic actually cost, in calls rather than dollars.
+
+    Mutated from every sweep worker, so the counters take a lock. They are only
+    ever read for the manifest, but a torn count there would be a number nobody
+    could reproduce.
+    """
 
     calls: int = 0
     retries: int = 0
     failures: int = 0
     seconds: float = 0.0
+    _lock: "threading.Lock" = field(default_factory=lambda: threading.Lock(), repr=False)
+
+    def bump(self, field_name: str, amount: float = 1) -> None:
+        with self._lock:
+            setattr(self, field_name, getattr(self, field_name) + amount)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -190,26 +201,26 @@ class CliJudgeTransport:
                 return parse_json_reply(text)
             except JudgeError:
                 if attempt == 1:
-                    self.stats.failures += 1
+                    self.stats.bump("failures")
                     raise
-                self.stats.retries += 1
+                self.stats.bump("retries")
                 payload = f"{prompt}\n\n{RETRY_SUFFIX}"
         raise AssertionError("unreachable")  # pragma: no cover
 
     def _call(self, prompt: str) -> str:
         cmd = build_judge_cmd(self.model)
         result = self.transport(cmd, prompt, self.timeout)
-        self.stats.calls += 1
-        self.stats.seconds += float(result.duration_s or 0.0)
+        self.stats.bump("calls")
+        self.stats.bump("seconds", float(result.duration_s or 0.0))
         envelope = isolation.parse_envelope(result.stdout, requested_model=self.model)
         if envelope.model_mismatch:
-            self.stats.failures += 1
+            self.stats.bump("failures")
             raise JudgeError(
                 f"model mismatch: asked for {self.model}, modelUsage has "
                 f"{sorted(envelope.model_usage) or 'nothing'}"
             )
         if not envelope.ok:
-            self.stats.failures += 1
+            self.stats.bump("failures")
             detail = envelope.parse_error or (envelope.result or "")[:200]
             raise JudgeError(
                 f"judge call failed (exit {result.returncode}): {detail or result.stderr[:200]}"

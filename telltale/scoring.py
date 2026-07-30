@@ -34,7 +34,9 @@ comparable; the scorecard lists the dormant tells so the dilution is visible.
 from __future__ import annotations
 
 import math
+import threading
 import warnings
+from concurrent.futures import ThreadPoolExecutor
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Iterable
@@ -145,6 +147,9 @@ def detect_all(
     docs: Sequence[Doc],
     tells: Sequence[Tell],
     judge: Any | None = None,
+    progress: Any | None = None,
+    workers: int = 1,
+    controller: Any | None = None,
 ) -> pd.DataFrame:
     """Run every applicable tell over every document.
 
@@ -156,6 +161,17 @@ def detect_all(
 
     Judge tells are skipped unless a judge backend is supplied; the count lands
     in `df.attrs["judge_tells_skipped"]` and in the manifest.
+
+    `progress` is called with one status line per completed judge measurement.
+    It exists because a corpus-scale judge sweep is thousands of subprocess
+    calls over hours, and a run that prints nothing until it finishes is a run
+    nobody can tell apart from a hung one.
+
+    A judge measurement that raises is recorded and skipped rather than taking
+    the sweep down with it. The failure is not silent — it lands in
+    `df.attrs["judge_errors"]` and in the manifest — but three hours of paid
+    work should not be lost to one call that timed out. The row is simply
+    absent, which reads downstream as "not measured", never as a clean zero.
     """
     ordered_docs = sorted(docs, key=lambda d: d.doc_id)
     ordered_tells = sorted(tells, key=lambda t: t.id)
@@ -168,32 +184,109 @@ def detect_all(
             continue
         detectors.append((tell, build(tell, judge=judge)))
 
+    # A missing cache entry is not a flaky call, it is a missing input, and a
+    # replay that quietly scored 223 of 224 documents would be worse than one
+    # that stopped. Everything else about a judge call is recoverable.
+    fatal: tuple[type[BaseException], ...] = ()
+    if judge is not None:
+        from telltale.judge.cache import CacheMiss
+
+        fatal = (CacheMiss,)
+
+    totals = {
+        tell.id: sum(1 for d in ordered_docs if detector.applies_to(d))
+        for tell, detector in detectors
+        if tell.method == "judge"
+    }
+    done: dict[str, int] = {tell_id: 0 for tell_id in totals}
+    errors: list[dict[str, str]] = []
+
     rows: list[dict] = []
+    lock = threading.Lock()
+
+    def row_for(tell: Tell, detection: Any, doc: Doc) -> dict:
+        return {
+            "doc_id": doc.doc_id,
+            "model": doc.model,
+            "format": doc.fmt,
+            "words": doc.words,
+            "tell_id": tell.id,
+            "name": tell.name,
+            "category": tell.category,
+            "scope": tell.scope,
+            "status": tell.status,
+            "weight": float(tell.weight),
+            "method": detection.method,
+            "unit": detection.unit,
+            "raw": detection.raw,
+            "rate_per_1k": detection.rate_per_1k,
+            "matches": detection.matches,
+            "detail": detection.detail,
+        }
+
+    def measure(tell: Tell, detector: Any, doc: Doc) -> None:
+        """One (tell, document) measurement, safe to run from a sweep worker."""
+        if controller is not None and controller.should_stop:
+            return
+        gate = controller.gate if controller is not None else None
+        if gate is not None:
+            gate.acquire()
+        try:
+            detection = detector.detect(doc)
+        except fatal:
+            raise
+        except Exception as exc:  # noqa: BLE001 - recorded, not swallowed
+            note = f"{type(exc).__name__}: {exc}"
+            with lock:
+                errors.append({"tell_id": tell.id, "doc_id": doc.doc_id, "error": note[:300]})
+            kind = controller.record_failure(note) if controller is not None else "other"
+            if progress is not None:
+                progress(f"ERROR[{kind}] {tell.id} {doc.doc_id}: {note}"[:300])
+            return
+        finally:
+            if gate is not None:
+                gate.release()
+
+        with lock:
+            rows.append(row_for(tell, detection, doc))
+            done[tell.id] += 1
+            count = done[tell.id]
+        if controller is not None:
+            controller.record_ok()
+            controller.note_done()
+        if progress is not None:
+            progress(f"JUDGE {tell.id} {count}/{totals[tell.id]} docs")
+
+    # Deterministic tells first and inline: they are microseconds of pure CPU,
+    # and handing them to a thread pool would only add contention.
     for doc in ordered_docs:
         for tell, detector in detectors:
-            if not detector.applies_to(doc):
-                continue
-            detection = detector.detect(doc)
-            rows.append(
-                {
-                    "doc_id": doc.doc_id,
-                    "model": doc.model,
-                    "format": doc.fmt,
-                    "words": doc.words,
-                    "tell_id": tell.id,
-                    "name": tell.name,
-                    "category": tell.category,
-                    "scope": tell.scope,
-                    "status": tell.status,
-                    "weight": float(tell.weight),
-                    "method": detection.method,
-                    "unit": detection.unit,
-                    "raw": detection.raw,
-                    "rate_per_1k": detection.rate_per_1k,
-                    "matches": detection.matches,
-                    "detail": detection.detail,
-                }
-            )
+            if tell.method != "judge" and detector.applies_to(doc):
+                rows.append(row_for(tell, detector.detect(doc), doc))
+
+    # Work ordered (tell, doc) so a cache-warm resume walks contiguous ground
+    # rather than skipping about, which keeps the progress line legible.
+    work = [
+        (tell, detector, doc)
+        for tell, detector in detectors
+        if tell.method == "judge"
+        for doc in ordered_docs
+        if detector.applies_to(doc)
+    ]
+    if work:
+        if workers > 1:
+            with ThreadPoolExecutor(max_workers=workers) as pool:
+                list(pool.map(lambda item: measure(*item), work))
+        else:
+            for item in work:
+                measure(*item)
+        if controller is not None:
+            controller.tick(force=True)
+
+    # Sorted so the frame does not depend on how many workers produced it. The
+    # writers sort too, but a frame whose row order varied with concurrency
+    # would make every downstream byte-comparison a coin toss.
+    rows.sort(key=lambda r: (r["doc_id"], r["tell_id"]))
 
     df = pd.DataFrame(rows, columns=list(DETECTION_COLUMNS))
     df["raw"] = pd.to_numeric(df["raw"], errors="coerce")
@@ -201,6 +294,7 @@ def detect_all(
     df["weight"] = pd.to_numeric(df["weight"], errors="coerce")
     df.attrs["judge_tells_skipped"] = len(skipped)
     df.attrs["judge_tell_ids"] = skipped
+    df.attrs["judge_errors"] = errors
     return df
 
 
