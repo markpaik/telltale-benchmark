@@ -905,6 +905,11 @@ def score_run(
             ) * len(docs),
             emit=progress or (lambda line: None),
         )
+        # Without this the progress line reports "0 calls" forever: the counter
+        # lives on the controller and the calls happen inside the client, and
+        # nothing joined the two. A rate of zero next to visible progress is
+        # worse than no rate at all — it reads as a stalled sweep.
+        backend.client.on_call = controller.record_call
     df = scoring.detect_all(
         docs, tells, judge=backend, progress=progress,
         workers=max(1, judge_workers), controller=controller,

@@ -1558,6 +1558,72 @@ def test_the_progress_line_reports_rate_and_eta() -> None:
     assert "ETA 1.5h" in lines[0]
 
 
+def test_two_workers_actually_run_concurrently(tmp_path: Path, registry: Registry) -> None:
+    """Wall-clock proof, not a proxy: 2 workers must beat 1 on slow calls.
+
+    Every other concurrency test here would pass just as happily against a pool
+    that serialized everything, which is exactly the failure this is guarding
+    against — the first live sweep looked concurrent by every metric except the
+    one that mattered.
+    """
+    import time
+
+    from telltale import scoring
+    from telltale.judge.sweep import SweepController, SweepPolicy
+
+    latency = 0.25
+
+    def slow(prompt: str):
+        time.sleep(latency)
+        return e2e_router(prompt)
+
+    docs = [
+        doc_from(E2E_DOC.replace("Consolidation", f"Consolidation {i}"), doc_id=f"m/doc-{i:02d}")
+        for i in range(4)
+    ]
+    tells = [registry.get("rht.rhetorical-qa")]
+
+    timings = {}
+    for workers in (1, 2):
+        client = make_client(tmp_path / f"w{workers}", slow)
+        controller = SweepController(
+            policy=SweepPolicy(workers=workers, ceiling=workers), total=len(docs)
+        )
+        started = time.monotonic()
+        scoring.detect_all(
+            docs, tells, judge=JudgeBackend(client), workers=workers, controller=controller
+        )
+        timings[workers] = time.monotonic() - started
+
+    assert timings[2] < timings[1] * 0.75, (
+        f"2 workers took {timings[2]:.2f}s against {timings[1]:.2f}s for 1 — "
+        "the pool is not running work in parallel"
+    )
+
+
+def test_the_controller_counts_live_calls(tmp_path: Path, registry: Registry) -> None:
+    """The counter the first sweep reported as zero for half an hour."""
+    from telltale import scoring
+    from telltale.judge.sweep import SweepController
+
+    client = make_client(tmp_path, e2e_router)
+    controller = SweepController(total=1)
+    client.on_call = controller.record_call
+
+    scoring.detect_all(
+        [doc_from(E2E_DOC)], [registry.get("rht.rhetorical-qa")],
+        judge=JudgeBackend(client), workers=1, controller=controller,
+    )
+    assert client.stats["live_calls"] > 0
+    assert controller._calls == client.stats["live_calls"]
+
+    lines: list[str] = []
+    controller.emit = lines.append
+    controller.tick(force=True)
+    assert f"{controller._calls} calls" in lines[0]
+    assert "0 calls" not in lines[0]
+
+
 def test_two_workers_produce_byte_identical_scores(
     tmp_path: Path, judged_corpus: Path, registry: Registry, monkeypatch: pytest.MonkeyPatch
 ) -> None:
