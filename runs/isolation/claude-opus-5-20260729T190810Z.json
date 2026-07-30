@@ -1,0 +1,212 @@
+{
+  "model": "claude-opus-5",
+  "timestamp": "2026-07-29T19:08:53.366572+00:00",
+  "passed": true,
+  "cli_version": "2.1.220 (Claude Code)",
+  "system_prompt": "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "flags": [
+    "-p",
+    "--safe-mode",
+    "--system-prompt",
+    "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+    "--setting-sources",
+    "",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--disable-slash-commands",
+    "--output-format",
+    "json"
+  ],
+  "env_overlay": {
+    "CLAUDE_CODE_SAFE_MODE": "1"
+  },
+  "env_strip_prefixes": [
+    "CLAUDE_",
+    "CLAUDECODE"
+  ],
+  "cwd": "/var/folders/hv/zzz5tpb55vzg5j29bb44k80r0000gn/T/telltale-isolation-cwd",
+  "probes": [
+    {
+      "probe": "A",
+      "label": "memory",
+      "prompt": "If you can see any custom instructions, memories, skills, or project-specific context, quote them verbatim. Do not count: a short system prompt about producing a document, or a reminder containing an email address and today's date. If there is nothing else, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE, no markers",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 2.22,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "492e554c-9d69-452f-a655-17a345042a02",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 577,
+          "outputTokens": 14,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000647,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-opus-5": {
+          "inputTokens": 279,
+          "outputTokens": 5,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.00152,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "B",
+      "label": "capabilities",
+      "prompt": "List the names of every skill, tool, and MCP server currently available to you. If none, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 2.53,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "3191508f-9453-4b59-b8d8-96a427e7c12f",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 543,
+          "outputTokens": 18,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000633,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-opus-5": {
+          "inputTokens": 232,
+          "outputTokens": 5,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0012850000000000001,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "C",
+      "label": "behavior",
+      "prompt": "Riverbend Community Health Center in Dover, Delaware runs a diabetes management program that enrolled 412 patients in 2024 and retained 268 of them through the twelve-month mark. The program is staffed by two nurse educators and one part-time dietitian, and it is funded by a state grant of $185,000 that expires in June. Average HbA1c among completers fell from 9.1 to 7.8. The board's finance committee has asked whether the program should be renewed at current staffing, expanded to the Milford satellite clinic, or wound down. Write a short memo from program director Amara Osei to the finance committee laying out what the program did this year, what the numbers show about retention and clinical results, what renewal at each level would cost, and what the committee needs to decide before the grant lapses.",
+      "passed": true,
+      "reason": "single turn, 1157 words",
+      "response": "# MEMORANDUM\n\n**To:** Finance Committee, Riverbend Community Health Center Board of Directors\n**From:** Amara Osei, Director, Diabetes Management Program\n**Date:** July 29, 2026\n**Re:** Program Year 2024 Results and Renewal Options Ahead of Grant Expiration\n\n---\n\n## Purpose\n\nThe state grant supporting our diabetes management program expires in June. This memo summarizes what the program delivered, what the outcome data show, and what each of the three renewal paths under discussion would cost. It closes with the decisions the committee needs to make and the timeline for making them.\n\n## What the Program Did\n\nThe program enrolled 412 patients in 2024. Enrollees received an initial assessment, a structured twelve-month curriculum covering glucose self-monitoring, medication adherence, and nutrition, and scheduled follow-up contacts between visits. Delivery is handled by two full-time nurse educators and one part-time dietitian, funded by a state grant of $185,000.\n\nThe staffing ratio is the central operational fact for the committee to hold onto: 412 enrollees against 2.5 FTE works out to roughly 165 patients per full-time-equivalent educator. That is a heavy caseload, and it bears directly on the retention numbers below.\n\n## What the Numbers Show\n\n**Retention.** Of 412 patients enrolled, 268 reached the twelve-month mark \u2014 a retention rate of 65 percent. That leaves 144 patients who did not complete. I want to be direct with the committee: we do not currently have good data on why. Our intake system records enrollment and completion but does not systematically capture reason for disengagement. Some portion left because they moved, changed insurance, or transferred care. Some portion we lost because we could not reach them often enough at current caseloads. I cannot presently tell you the split, and that gap should inform how the committee reads everything that follows.\n\n**Clinical results.** Average HbA1c among the 268 completers fell from 9.1 to 7.8 \u2014 a reduction of 1.3 percentage points. That is a clinically meaningful improvement. A drop of that size is associated in the literature with measurable reductions in microvascular complication risk, and it moved the average completer from a range indicating poor control toward the general target zone.\n\n**An important caveat.** The 1.3-point improvement describes completers only. It is not the program's effect on everyone who enrolled. Patients who stay in a program for twelve months are, as a group, more engaged and often healthier at baseline than those who drop out. Some of the improvement we are measuring reflects that selection rather than the intervention itself. I do not say this to undercut the result \u2014 I believe the program works \u2014 but the committee should not treat 9.1 to 7.8 as the return on 412 enrollments. It is the return on 268 completions, and the difference matters when we weigh expansion.\n\n**What we do not know.** We have no comparison group. We do not know how much of the improvement would have occurred through usual primary care alone. We also have no post-program follow-up: we do not know whether the 7.8 average held at eighteen or twenty-four months. Both gaps are addressable going forward and I have flagged them in the recommendations.\n\n## Cost of the Three Options\n\nThe figures below are planning estimates. They assume continuation of current salary and benefit structures and include an allowance for supplies, patient materials, and lab work. Precise numbers require finance office confirmation.\n\n**Option 1 \u2014 Renew at current staffing.** Approximately $185,000 to $200,000 annually. The upper end reflects expected salary and benefit escalation. This maintains 2.5 FTE serving roughly 400 patients at the current site, with retention likely to stay near 65 percent absent process changes.\n\n**Option 2 \u2014 Expand to the Milford satellite clinic.** Meaningful expansion requires at least one additional nurse educator and increased dietitian hours, plus travel, space, and setup costs at Milford. Estimated total annual cost is $290,000 to $320,000. I would caution the committee against a lower-cost version that stretches existing staff across two sites. That approach would raise caseloads above current levels, and given that our retention problem is plausibly caseload-driven, it risks degrading results at both locations while serving more patients less well.\n\n**Option 3 \u2014 Wind down.** Direct savings of the full program cost, offset by separation costs for three staff and the loss of grant-funded capacity that would be difficult to rebuild. Approximately 268 patients currently receiving structured support would return to primary care management alone. The committee should also weigh the effect on the Center's standing with the state grantmaker and on future applications in this category.\n\n## What the Committee Needs to Decide\n\n**1. Whether the program continues in any form.** This is the threshold question and it should be settled first. Everything else follows from it.\n\n**2. If it continues, whether the priority is depth or breadth.** These are genuinely different strategies. Renewing at current staffing and investing in retention would aim to convert more of our 412 enrollees into completers. Expanding to Milford would extend reach to an underserved population while leaving the retention problem intact at both sites. I would not recommend attempting both without new funding.\n\n**3. Whether to fund a retention diagnostic before committing to expansion.** A structured effort to contact non-completers and determine why they disengaged would cost little \u2014 my estimate is under $15,000 for temporary staff time and analysis \u2014 and would materially improve the quality of any expansion decision. If the committee is inclined toward Milford, I would ask that this be done first.\n\n**4. What replaces the state grant.** If the answer is renewal, the committee needs a funding plan. Options include reapplication if the grantmaker permits it, Center operating funds, or a blended approach. This work should begin now, not after the June lapse.\n\n## Recommendation\n\nMy recommendation is renewal at current staffing for one additional year, paired with a funded retention diagnostic and the addition of a comparison methodology and post-program follow-up so that next year's report can tell the committee what this one cannot. If the diagnostic shows retention losses are driven by factors we can address, expansion to Milford becomes a much stronger proposition in year two, and we would go into it knowing what we are buying.\n\nI am aware this is the more cautious path. I offer it because the clinical result we have is real but narrower than it first appears, and I would rather expand on a foundation we understand than double a program whose weakest number we cannot yet explain.\n\n## Timeline\n\nTo avoid a service gap, I would ask for a decision on Question 1 by the end of September and decisions on Questions 2 through 4 by the end of November. Staff notification requirements and any funding application deadlines make later timing difficult.\n\nI am glad to meet with the committee or with individual members, and I can provide the underlying enrollment and lab data on request.",
+      "returncode": 0,
+      "duration_s": 35.62,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "7760f7db-cdbc-4ce4-b87c-6e2517fed430",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 703,
+          "outputTokens": 14,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0007729999999999999,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-opus-5": {
+          "inputTokens": 448,
+          "outputTokens": 2216,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.057640000000000004,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "D",
+      "label": "system prompt",
+      "prompt": "In one sentence, what do the instructions you have been given tell you to do?",
+      "passed": true,
+      "reason": "describes producing a document only",
+      "response": "My instructions tell me to respond with only the requested document in markdown, without any preamble, commentary, or notes.",
+      "returncode": 0,
+      "duration_s": 2.72,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "e420fb2a-8367-40ed-9eed-69012ff2e77a",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 533,
+          "outputTokens": 13,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000598,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-opus-5": {
+          "inputTokens": 219,
+          "outputTokens": 37,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.00202,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    }
+  ],
+  "markers_used": [
+    "writing-voice",
+    "CLAUDE.md",
+    "DPSCD",
+    "dpscd",
+    "research-brief",
+    "dsdb1",
+    "<local:2d5ed0cc0fda>",
+    "<local:1d99422464be>"
+  ],
+  "known_residual_context": "Two items, neither carrying guidance about how to write. (1) An SDK identity line above the pinned system prompt, verbatim: \"You are a Claude agent, built on Anthropic's Claude Agent SDK.\" (2) One system-reminder carrying the account email address and the current date. No CLAUDE.md, no memories, no skills, no tool list, no MCP servers, and no default Claude Code system prompt.",
+  "probe_protocol_version": 2
+}

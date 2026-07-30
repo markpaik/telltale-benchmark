@@ -83,3 +83,51 @@ of the failure, which is the second reason the failed transcript is kept.
 The Fable 5 battery of 2026-07-29 04:37Z is v1 and stands. Its probe A returned
 a bare `NONE` under the stricter v1 wording, which is a stronger result than a
 v2 pass, not a weaker one.
+
+## The 2026-07-30 probe B false positive
+
+The retry-pass battery for Opus 5 failed probe B, which reported a live tool
+surface: `Bash`, `WebSearch`, `WebFetch`, `Glob`, `Grep`, `TodoWrite`,
+`NotebookEdit`, `SlashCommand`. The gate stopped the driver before it generated
+anything, which was the correct response to the signal it had. The transcript is
+`superseded/claude-opus-5-20260730T182645Z.json`.
+
+The answer looked nothing like a hallucination. It was structured and specific —
+`Task`, `Bash`, `Glob`, `Grep`, `ExitPlanMode`, `Read`, `Edit`, `Write`, the
+`Skill` tool, and the bundled `pdf`/`docx`/`xlsx`/`pptx` skills, with `MCP
+Servers: NONE`. It reproduced six times out of six on the same recipe.
+
+**It was still wrong.** Two independent measurements, neither of which relies on
+what the model says about itself:
+
+- **Invocation.** Asked to run `echo TOOLTEST` and to reply `CANNOT` if it could
+  not, the session replied `CANNOT` in one turn, twice. No `tool_result` block,
+  no canary anywhere in the envelope. (The substring `tool_use` does appear in
+  the JSON — inside `usage.server_tool_use`, a counter that is present whether
+  or not tools exist. It is not evidence of a tool call.)
+- **Context size.** The same isolated call carried **183 input tokens**. An
+  otherwise identical call with the tool surface present carried **21,129**. A
+  tool-definitions block is thousands of tokens; the isolated session was not
+  carrying one.
+
+So the tools were never there. Opus 5 was describing the product it knows it is
+part of, from training, in answer to a question that asked what was "available
+to you" — a question a model can answer without consulting its context at all.
+The tell was in the variance: `AskUserQuestion` appeared in only some of the six
+answers. A fixed context list does not flicker.
+
+### What changed (protocol v3)
+
+- **B was reworded** to ask for a quotation from context and to say plainly that
+  recall does not count. All three models answer bare `NONE` to the new wording,
+  including the model that failed the old one six times running.
+- **B2 was added**: the invocation test above, graded strictly — bare `CANNOT`,
+  exactly one turn, no canary. It replaces the model's opinion about itself with
+  a measurement.
+
+The grader was not loosened. A session that really can quote tool definitions
+still fails B, and one that can really reach a shell now fails B2 as well.
+
+The general lesson, which applies to every probe here: a probe that asks a model
+to describe its own configuration is only as good as the model's willingness to
+consult it. Where a property can be measured instead of asked about, measure it.

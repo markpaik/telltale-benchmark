@@ -379,6 +379,7 @@ def _transport_for(responses: dict[str, str], model: str = "m"):
 CLEAN = {
     "A": "NONE",
     "B": "NONE",
+    "B2": "CANNOT",
     "C": "word " * 200,
     "D": "Respond with only the requested document, formatted in markdown.",
 }
@@ -390,7 +391,7 @@ def test_battery_passes_and_writes_a_transcript(tmp_path, monkeypatch):
     report = isolation.run_probe_battery("m", out, transport=_transport_for(CLEAN))
 
     assert report.passed
-    assert [p.probe for p in report.probes] == ["A", "B", "C", "D"]
+    assert [p.probe for p in report.probes] == ["A", "B", "B2", "C", "D"]
     written = json.loads(out.read_text())
     assert written["passed"] is True
     assert written["system_prompt_sha256"] == isolation.SYSTEM_PROMPT_SHA256
@@ -783,3 +784,76 @@ def test_elapsed_takes_the_larger_of_the_two_clocks(monkeypatch):
     # And a wall clock that jumps backwards must not extend a deadline.
     monkeypatch.setattr(isolation.time, "time", lambda: 900.0)
     assert isolation._elapsed(90.0, 1_000.0) == pytest.approx(10.0)
+
+
+# --- probe B v3 + B2 (2026-07-30 recall false positive) ----------------------
+
+
+def test_probe_b_asks_for_context_not_recall():
+    # v1/v2 asked what was "available to you", which Opus 5 answered from
+    # training: six confident tool inventories in a row from a session whose
+    # context provably held no tool definitions.
+    prompt = isolation.PROBES["B"][0]
+    assert "quote verbatim" in prompt.lower()
+    assert "do not list tools you know of from training" in prompt.lower()
+    assert prompt.rstrip().endswith("NONE")
+
+
+def test_probe_b2_is_an_invocation_test_not_a_question():
+    prompt = isolation.PROBES["B2"][0]
+    assert isolation.B2_CANARY in prompt
+    assert prompt.rstrip().endswith(isolation.B2_EXPECTED)
+    assert isolation.PROBE_LABELS["B2"] == "tool invocation"
+
+
+def test_grade_b2_passes_a_bare_cannot():
+    passed, reason = isolation.grade_b2(_env("CANNOT"))
+    assert passed, reason
+    assert "no canary" in reason
+
+
+def test_grade_b2_fails_when_the_canary_comes_back():
+    # The unambiguous signal: a shell ran.
+    passed, reason = isolation.grade_b2(_env("TOOLTEST"))
+    assert not passed
+    assert "canary" in reason
+
+
+def test_grade_b2_fails_when_a_tool_call_took_extra_turns():
+    passed, reason = isolation.grade_b2(_env("CANNOT", num_turns=3))
+    assert not passed
+    assert "num_turns=3" in reason
+
+
+def test_grade_b2_fails_a_description_instead_of_a_refusal():
+    passed, reason = isolation.grade_b2(
+        _env("I would run echo TOOLTEST for you, but I have no Bash tool.")
+    )
+    assert not passed
+
+
+@pytest.mark.parametrize("blank", ["", "   ", "\n"])
+def test_grade_b2_fails_a_blank_response(blank):
+    passed, reason = isolation.grade_b2(_env(blank))
+    assert not passed
+    assert "empty response" in reason
+
+
+def test_b2_would_have_caught_a_real_tool_surface():
+    # The case B alone could not distinguish from recall: tools actually present.
+    passed, _ = isolation.grade_b2(_env("I ran it. Output:\nTOOLTEST", num_turns=3))
+    assert not passed
+
+
+def test_recalled_tool_list_still_fails_probe_b_grader():
+    # The grader was never the problem and is not loosened: if a session really
+    # does quote tool definitions, B still fails. The fix is in the question.
+    passed, reason = isolation.grade_b(
+        _env("**Tools**\n- Task\n- Bash\n- Glob\n- Grep\n- WebSearch")
+    )
+    assert not passed
+    assert "tool names present" in reason
+
+
+def test_protocol_version_records_the_probe_change():
+    assert isolation.PROBE_PROTOCOL_VERSION == 3

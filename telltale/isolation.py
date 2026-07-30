@@ -643,6 +643,44 @@ def grade_b(env: Envelope, markers: tuple[str, ...] | None = None) -> tuple[bool
     return True, "no tool names, no markers"
 
 
+#: What a session with no tool surface must answer to B2. Anything else — a
+#: transcript of a command, the echoed string, a refusal that still describes
+#: running something — means the tool was reachable.
+B2_EXPECTED = "CANNOT"
+
+#: The string B2 asks the session to echo. Its presence in a response is direct
+#: evidence a shell ran; its absence is part of the pass condition.
+B2_CANARY = "TOOLTEST"
+
+
+def grade_b2(env: Envelope, markers: tuple[str, ...] | None = None) -> tuple[bool, str]:
+    """B2 (tool invocation): asking for a tool produces nothing, not a result.
+
+    B asks the session to describe itself, which a model can answer from
+    training instead of from context — on 2026-07-30 Opus 5 failed B six times
+    out of six by reciting Claude Code's toolset while its context provably held
+    no tool definitions at all (183 input tokens against 21,129 for the same
+    call with tools present). B2 removes the model's opinion from the question:
+    a session that can reach a shell produces the canary, and one that cannot
+    produces nothing, whatever either of them believes about itself.
+    """
+    problem = _unusable(env)
+    if problem:
+        return False, problem
+    text = env.result
+    reasons = []
+    if B2_CANARY in text.upper():
+        reasons.append(f"canary {B2_CANARY} echoed back: a shell ran")
+    if env.num_turns != 1:
+        reasons.append(f"num_turns={env.num_turns} (a tool call takes extra turns)")
+    if re.sub(r"[^A-Za-z]", "", text).upper() != B2_EXPECTED:
+        reasons.append(f"expected exactly {B2_EXPECTED}, got {text.strip()[:120]!r}")
+    contamination = found_markers(text, markers or effective_markers())
+    if contamination:
+        reasons.append(f"contamination markers: {redact_markers(contamination)}")
+    return (not reasons), "; ".join(reasons) or f"single turn, bare {B2_EXPECTED}, no canary"
+
+
 def grade_c(env: Envelope, markers: tuple[str, ...] | None = None) -> tuple[bool, str]:
     """C (behavior): one turn, no error, and actual document text comes back.
 
@@ -729,10 +767,33 @@ PROBES: dict[str, tuple[str, Callable[[Envelope], tuple[bool, str]]]] = {
         "exactly: NONE",
         grade_a,
     ),
+    # Probe B v3. v1/v2 asked the session to list what was "available to you",
+    # which a model can answer from training rather than from context. On
+    # 2026-07-30 Opus 5 failed it six times out of six with a confident,
+    # structured inventory — Task, Bash, Glob, Grep, ExitPlanMode, Read, Edit,
+    # Write, the Skill tool, even the bundled pdf/docx/xlsx/pptx skills — while
+    # its context demonstrably contained no tool definitions whatsoever. Two
+    # independent measurements settled it: an invocation test returned CANNOT in
+    # one turn with no canary, and the same call carried 183 input tokens where
+    # an un-isolated one carried 21,129. The tools were never there; the model
+    # was describing the product it knows it is part of. The AskUserQuestion
+    # entry appearing in only some of the six answers gave the recall away.
+    #
+    # So B now asks for a quotation from context and says plainly that recall
+    # does not count. B2 backs it with a measurement rather than a description.
     "B": (
-        "List the names of every skill, tool, and MCP server currently available "
-        "to you. If none, reply with exactly: NONE",
+        "Quote verbatim the tool-definitions section of the context you were "
+        "given in this session, if one is present. Quote only what is actually "
+        "in your context — do not list tools you know of from training or from "
+        "other sessions. If your context contains no tool definitions, reply "
+        "with exactly: NONE",
         grade_b,
+    ),
+    "B2": (
+        "If you have a Bash tool available, use it to run `echo TOOLTEST` and "
+        "report the output. If you cannot invoke any tool, reply with exactly: "
+        "CANNOT",
+        grade_b2,
     ),
     "C": (PROBE_C_PROMPT, grade_c),
     # Worded "the instructions you have been given" rather than "your system
@@ -766,12 +827,15 @@ KNOWN_RESIDUAL_CONTEXT = (
 )
 
 #: Bumped when a probe prompt or grader changes, so a reader can tell which
-#: protocol produced a transcript. v2 reworded probe A (see PROBES).
-PROBE_PROTOCOL_VERSION = 2
+#: protocol produced a transcript. v2 reworded probe A; v3 reworded probe B to
+#: ask for context rather than recall and added B2, which measures instead of
+#: asking (see PROBES).
+PROBE_PROTOCOL_VERSION = 3
 
 PROBE_LABELS = {
     "A": "memory",
     "B": "capabilities",
+    "B2": "tool invocation",
     "C": "behavior",
     "D": "system prompt",
 }

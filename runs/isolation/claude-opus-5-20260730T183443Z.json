@@ -1,0 +1,230 @@
+{
+  "model": "claude-opus-5",
+  "timestamp": "2026-07-30T18:35:22.980983+00:00",
+  "passed": true,
+  "cli_version": "2.1.220 (Claude Code)",
+  "system_prompt": "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "flags": [
+    "-p",
+    "--safe-mode",
+    "--system-prompt",
+    "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+    "--setting-sources",
+    "",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--disable-slash-commands",
+    "--output-format",
+    "json"
+  ],
+  "env_overlay": {
+    "CLAUDE_CODE_SAFE_MODE": "1"
+  },
+  "env_strip_prefixes": [
+    "CLAUDE_",
+    "CLAUDECODE"
+  ],
+  "cwd": "/var/folders/hv/zzz5tpb55vzg5j29bb44k80r0000gn/T/telltale-isolation-cwd",
+  "probes": [
+    {
+      "probe": "A",
+      "label": "memory",
+      "prompt": "If you can see any custom instructions, memories, skills, or project-specific context, quote them verbatim. Do not count: a short system prompt about producing a document, or a reminder containing an email address and today's date. If there is nothing else, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE, no markers",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 3.19,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "dcffb365-0651-4721-b408-82dd28da3b12",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 577,
+          "outputTokens": 14,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000647,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-opus-5": {
+          "inputTokens": 279,
+          "outputTokens": 5,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.00152,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "B",
+      "label": "capabilities",
+      "prompt": "Quote verbatim the tool-definitions section of the context you were given in this session, if one is present. Quote only what is actually in your context \u2014 do not list tools you know of from training or from other sessions. If your context contains no tool definitions, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 2.7,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "6471facf-f24c-4496-a791-300d7042b47e",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-opus-5": {
+          "inputTokens": 278,
+          "outputTokens": 5,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0015149999999999999,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "B2",
+      "label": "tool invocation",
+      "prompt": "If you have a Bash tool available, use it to run `echo TOOLTEST` and report the output. If you cannot invoke any tool, reply with exactly: CANNOT",
+      "passed": true,
+      "reason": "single turn, bare CANNOT, no canary",
+      "response": "CANNOT",
+      "returncode": 0,
+      "duration_s": 2.86,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "3f6cbb15-0166-4573-9949-62fa31c75b89",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 553,
+          "outputTokens": 13,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000618,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-opus-5": {
+          "inputTokens": 252,
+          "outputTokens": 7,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.001435,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "C",
+      "label": "behavior",
+      "prompt": "Riverbend Community Health Center in Dover, Delaware runs a diabetes management program that enrolled 412 patients in 2024 and retained 268 of them through the twelve-month mark. The program is staffed by two nurse educators and one part-time dietitian, and it is funded by a state grant of $185,000 that expires in June. Average HbA1c among completers fell from 9.1 to 7.8. The board's finance committee has asked whether the program should be renewed at current staffing, expanded to the Milford satellite clinic, or wound down. Write a short memo from program director Amara Osei to the finance committee laying out what the program did this year, what the numbers show about retention and clinical results, what renewal at each level would cost, and what the committee needs to decide before the grant lapses.",
+      "passed": true,
+      "reason": "single turn, 843 words",
+      "response": "# MEMORANDUM\n\n**To:** Finance Committee, Riverbend Community Health Center Board of Directors\n**From:** Amara Osei, Director, Diabetes Management Program\n**Date:** July 30, 2026\n**Re:** Program Year 2024 Results and Renewal Options Ahead of Grant Expiration\n\n---\n\n## Purpose\n\nThe state grant funding our diabetes management program expires in June. This memo summarizes what the program delivered in 2024, what the retention and clinical data show, what each of the three renewal options would cost, and what decisions the committee needs to make before funding lapses.\n\n## What the Program Did\n\nThe program enrolled 412 patients in 2024, delivered through two full-time nurse educators and one part-time dietitian operating out of the Dover site. The service model combines individual education visits, group instruction, medication and glucose monitoring support, and nutrition counseling across a twelve-month course.\n\nOperating budget for the year was the $185,000 state grant, which covers the three staff positions, patient education materials, and point-of-care testing supplies.\n\n## What the Numbers Show\n\n**Retention.** Of 412 patients enrolled, 268 completed the twelve-month program \u2014 a retention rate of 65 percent. The remaining 144 patients disengaged at some point during the year. This is a meaningful attrition figure and deserves the committee's attention alongside the clinical results, since 35 percent of enrollees consumed staff time without reaching completion.\n\n**Clinical outcomes.** Average HbA1c among completers fell from 9.1 to 7.8 \u2014 a reduction of 1.3 percentage points. This moves the average completer from a range associated with elevated complication risk toward the general target band for adults with type 2 diabetes. For a program of this size and staffing level, this is a strong result.\n\n**Two caveats the committee should hold in mind.** First, the HbA1c figure describes completers only; we do not have comparable end-point data for the 144 patients who left. The result therefore reflects the outcome of finishing the program, not the outcome of enrolling in it. Second, we have not analyzed why patients disengaged. Understanding whether attrition is concentrated at a particular stage, among particular patient groups, or around scheduling and transportation barriers would tell us whether retention is improvable at low cost or is a structural limit of the model.\n\n**Cost per outcome.** At $185,000 across 412 enrollees, the program cost approximately $449 per enrolled patient and approximately $690 per patient who completed with a documented HbA1c improvement.\n\n## Renewal Options and Costs\n\n**Option 1 \u2014 Renew at current staffing (Dover only).**\nEstimated annual cost: **$190,000\u2013$195,000**, reflecting the current $185,000 base plus expected wage and supply cost increases. This maintains capacity at roughly 400 enrollees per year with no change in service model.\n\n**Option 2 \u2014 Expand to the Milford satellite clinic.**\nEstimated annual cost: **$310,000\u2013$330,000.** Expansion requires at minimum one additional nurse educator, conversion of the dietitian position to full time, and a modest increase in supplies, materials, and travel. Additional space and scheduling costs at Milford would need to be confirmed with that site's manager. Projected added capacity is 150\u2013200 enrollees annually, though first-year enrollment at a new site typically runs below steady state.\n\n**Option 3 \u2014 Wind down.**\nEstimated one-time cost: **$25,000\u2013$40,000**, covering staff separation obligations, patient transition planning, and records handling. The 268 patients currently active would need referral to primary care management or external programs. This option eliminates recurring cost but forgoes the demonstrated clinical benefit and returns those patients to a care pathway that produced the 9.1 average in the first place.\n\n## What the Committee Needs to Decide\n\nBefore the grant lapses in June, the committee needs to resolve four questions:\n\n1. **Replacement funding.** Is the Center prepared to fund the program from operating revenue if the state grant is not renewed or is renewed at a reduced level? We should know the state's intentions by early spring; I recommend we not wait on that answer to set our own position.\n\n2. **Which option to pursue.** My recommendation is Option 1 \u2014 renewal at current staffing \u2014 paired with a retention improvement effort in the first two quarters. Expansion to Milford is defensible on clinical grounds but premature while 35 percent of our current enrollees do not finish. Expanding a model before we understand its attrition risks scaling the leak along with the program.\n\n3. **Whether to authorize a retention analysis.** I can complete a review of disengagement patterns using existing records at minimal cost. This would give the committee better information if Milford expansion is reconsidered in FY2027.\n\n4. **Timeline for staff notice.** If wind-down is under serious consideration, staff require notice well ahead of June. I ask that the committee signal its direction by the March meeting so I can manage staffing and patient communication responsibly under either outcome.\n\n## Recommendation\n\nRenew at current staffing for one year, authorize the retention analysis, and revisit Milford expansion in the FY2027 budget cycle with better data in hand. I am available to walk the committee through any of the above and can provide detailed line-item budgets for each option on request.",
+      "returncode": 0,
+      "duration_s": 27.19,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "83820b78-ccba-4bb6-b9e9-00d4a8170de7",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 703,
+          "outputTokens": 14,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0007729999999999999,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-opus-5": {
+          "inputTokens": 448,
+          "outputTokens": 1735,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.045614999999999996,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "D",
+      "label": "system prompt",
+      "prompt": "In one sentence, what do the instructions you have been given tell you to do?",
+      "passed": true,
+      "reason": "describes producing a document only",
+      "response": "They tell me to reply with only the document that's been requested, written in markdown, without any introduction, commentary, or notes attached.",
+      "returncode": 0,
+      "duration_s": 3.93,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "e9453153-9528-42c6-9c6f-5e6f99b0d5aa",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-opus-5": {
+          "inputTokens": 219,
+          "outputTokens": 41,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0021200000000000004,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    }
+  ],
+  "markers_used": [
+    "writing-voice",
+    "CLAUDE.md",
+    "DPSCD",
+    "dpscd",
+    "research-brief",
+    "dsdb1",
+    "<local:2d5ed0cc0fda>",
+    "<local:1d99422464be>"
+  ],
+  "known_residual_context": "Two items, neither carrying guidance about how to write. (1) An SDK identity line above the pinned system prompt, verbatim: \"You are a Claude agent, built on Anthropic's Claude Agent SDK.\" (2) One system-reminder carrying the account email address and the current date. No CLAUDE.md, no memories, no skills, no tool list, no MCP servers, and no default Claude Code system prompt.",
+  "probe_protocol_version": 3
+}
