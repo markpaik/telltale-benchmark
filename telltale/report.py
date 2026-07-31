@@ -763,6 +763,17 @@ def _judge_setup(
     return backend, kept, section
 
 
+def _judge_probe(model: str) -> Any:
+    """A cheap liveness check the breaker uses to decide the network is back."""
+
+    def probe() -> bool:
+        from telltale.judge.transport import probe_judge
+
+        return probe_judge(model)
+
+    return probe
+
+
 def _judge_run_stats(backend: Any) -> dict[str, Any]:
     """What this run spent: live calls, parse retries, and cache traffic.
 
@@ -886,6 +897,7 @@ def score_run(
     judge_sample: int | None = None,
     judge_sample_seed: int = 7,
     judge_doc_list: Sequence[str] | None = None,
+    notes: Sequence[str] | None = None,
 ) -> Path:
     """Score a corpus and write the four outputs plus the manifest.
 
@@ -935,6 +947,10 @@ def score_run(
             total=sum(1 for t in tells if t.method == "judge")
             * (len(sample.doc_ids) if sample is not None else len(docs)),
             emit=progress or (lambda line: None),
+            # The resolved model, not the requested one: `judge_model` may be
+            # None and settled by the allowlist inside `_judge_setup`, and a
+            # probe against None would report an outage that is not happening.
+            probe=_judge_probe(backend.client.model),
         )
         # Without this the progress line reports "0 calls" forever: the counter
         # lives on the controller and the calls happen inside the client, and
@@ -960,6 +976,7 @@ def score_run(
             "sample": judge_errors[:20],
         }
         judge_section["concurrency"] = {
+            "breaker_trips": controller.breaker_trips if controller is not None else 0,
             "workers_start": judge_workers,
             "ceiling": judge_ceiling,
             "workers_end": controller.gate.capacity if controller is not None else 1,
@@ -983,6 +1000,7 @@ def score_run(
         },
         run_id=run_id,
         judge=judge_section,
+        notes=notes,
     )
 
     if run_dir is None:

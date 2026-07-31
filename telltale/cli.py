@@ -276,6 +276,7 @@ def cmd_score(args: argparse.Namespace) -> int:
         progress=_progress_printer() if args.judge else None,
         judge_workers=args.judge_workers,
         judge_ceiling=args.judge_ceiling,
+        notes=args.note,
         judge_sample=args.sample,
         judge_sample_seed=args.sample_seed,
         judge_doc_list=(
@@ -407,6 +408,13 @@ def _add_score_parser(subparsers: argparse._SubParsersAction) -> None:
     )
     parser.add_argument(
         "--sample-seed", type=int, default=7, help="seed for the judge sample"
+    )
+    parser.add_argument(
+        "--note",
+        action="append",
+        default=None,
+        metavar="TEXT",
+        help="operator note recorded in the manifest (repeatable)",
     )
     parser.add_argument(
         "--doc-list",

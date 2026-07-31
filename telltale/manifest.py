@@ -64,6 +64,7 @@ def build_manifest(
     now: datetime.datetime | None = None,
     run_id: str | None = None,
     judge: dict[str, Any] | None = None,
+    notes: Sequence[str] | None = None,
 ) -> dict[str, Any]:
     """Assemble the manifest for one scoring run."""
     sha = corpus_hash(list(docs))
@@ -116,6 +117,10 @@ def build_manifest(
         # Tier-2. `enabled: false` is the M5 shape and stays the default, so a
         # deterministic run's manifest is unchanged by this section existing.
         "judge": dict(judge or {"enabled": False}),
+        # Free-text operator notes. Not derived from anything, which is the
+        # point: a run that follows an aborted one should say so where the
+        # numbers are, not only in someone's memory.
+        "notes": list(notes or []),
         "environment": {
             "python": platform.python_version(),
             "pandas": _version("pandas"),

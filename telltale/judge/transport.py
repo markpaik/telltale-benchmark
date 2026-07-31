@@ -31,6 +31,7 @@ import hashlib
 import json
 import re
 import threading
+import time
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -77,6 +78,32 @@ RETRY_SUFFIX = "Reply with ONLY the JSON object, no code fences."
 
 class JudgeError(RuntimeError):
     """A judge call that cannot be turned into evidence."""
+
+
+class TransientJudgeError(JudgeError):
+    """A judge call that failed for a reason that may not be true a minute later.
+
+    The distinction is the whole point. A malformed reply or a genuine model
+    mismatch is a fact about this call and recording it is right. A dropped
+    connection, or an envelope whose modelUsage is empty because nothing ever
+    reached the API, is a fact about the network — and recording fifty of those
+    as measurement failures burns the queue during an outage instead of waiting
+    it out. That happened, at scale, and this class is the difference.
+    """
+
+
+#: Failures that say "the network is down", not "this call was bad".
+_TRANSIENT = re.compile(
+    r"connection (closed|reset|refused|error)|econnreset|broken pipe|"
+    r"timed out|timeout|network is (down|unreachable)|temporary failure|"
+    r"name resolution|dns|socket|unexpected eof|stream (closed|ended)",
+    re.IGNORECASE,
+)
+
+
+def is_transient(message: str) -> bool:
+    """Whether a failure message describes the network rather than the call."""
+    return bool(_TRANSIENT.search(str(message or "")))
 
 
 def assert_judge_model(model: str) -> str:
@@ -157,6 +184,7 @@ class TransportStats:
 
     calls: int = 0
     retries: int = 0
+    transient_retries: int = 0
     failures: int = 0
     seconds: float = 0.0
     _lock: "threading.Lock" = field(default_factory=lambda: threading.Lock(), repr=False)
@@ -169,6 +197,7 @@ class TransportStats:
         return {
             "calls": self.calls,
             "retries": self.retries,
+            "transient_retries": self.transient_retries,
             "failures": self.failures,
             "seconds": round(self.seconds, 2),
         }
@@ -182,6 +211,9 @@ class CliJudgeTransport:
     timeout: int = JUDGE_TIMEOUT_S
     transport: isolation.Transport = isolation.run_cli
     stats: TransportStats = field(default_factory=TransportStats)
+    #: Pause before the one transient retry. Injectable so tests need no clock.
+    retry_delay_s: float = 30.0
+    sleep: Any = time.sleep
 
     def __post_init__(self) -> None:
         assert_judge_model(self.model)
@@ -191,9 +223,25 @@ class CliJudgeTransport:
     def ask(self, prompt: str) -> dict[str, Any]:
         """Send one prompt, return the parsed JSON object.
 
-        One retry, and only for a parse failure: a transport error or a model
-        mismatch is a fact about the run, not a hiccup to paper over.
+        Two independent retries, for two different kinds of wrong. A reply that
+        is not JSON gets one more try immediately, because the model can be
+        asked again to drop its code fences. A call that never reached the API
+        gets one more try after a pause, because a blip should not cost a
+        measurement — while a genuine mismatch, where some other model really
+        did answer, stays immediately fatal and is never retried.
         """
+        for attempt in (0, 1):
+            try:
+                return self._ask_parsed(prompt)
+            except TransientJudgeError:
+                if attempt == 1:
+                    raise
+                self.stats.bump("transient_retries")
+                self.sleep(self.retry_delay_s)
+        raise AssertionError("unreachable")  # pragma: no cover
+
+    def _ask_parsed(self, prompt: str) -> dict[str, Any]:
+        """One call, with the JSON-parse retry."""
         payload = prompt
         for attempt in (0, 1):
             text = self._call(payload)
@@ -215,16 +263,28 @@ class CliJudgeTransport:
         envelope = isolation.parse_envelope(result.stdout, requested_model=self.model)
         if envelope.model_mismatch:
             self.stats.bump("failures")
+            if not envelope.model_usage:
+                # Nothing was billed to any model, so nothing reached the API.
+                # That is the network, not a substituted judge, and it is the
+                # signature an outage writes into every call at once.
+                raise TransientJudgeError(
+                    f"empty modelUsage for {self.model}: no model was reached "
+                    f"(exit {result.returncode}) {result.stderr[:120]}"
+                )
             raise JudgeError(
                 f"model mismatch: asked for {self.model}, modelUsage has "
-                f"{sorted(envelope.model_usage) or 'nothing'}"
+                f"{sorted(envelope.model_usage)}"
             )
         if not envelope.ok:
             self.stats.bump("failures")
             detail = envelope.parse_error or (envelope.result or "")[:200]
-            raise JudgeError(
-                f"judge call failed (exit {result.returncode}): {detail or result.stderr[:200]}"
+            message = (
+                f"judge call failed (exit {result.returncode}): "
+                f"{detail or result.stderr[:200]}"
             )
+            if result.timed_out or is_transient(message) or is_transient(result.stderr):
+                raise TransientJudgeError(message)
+            raise JudgeError(message)
         return envelope.result
 
 

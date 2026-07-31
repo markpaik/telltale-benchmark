@@ -138,6 +138,12 @@ class SweepPolicy:
     #: Overloads below this count never trip the rate test, however few calls
     #: have been made — one 529 out of three calls is not a trend.
     min_overloads: int = 3
+    #: Consecutive failures across all workers before the pool stops dead.
+    breaker_after: int = 8
+    #: How often a paused sweep probes for the network coming back.
+    probe_every_s: float = 60.0
+    #: How long a paused sweep waits before giving up and halting cleanly.
+    breaker_timeout_s: float = 1800.0
 
 
 @dataclass
@@ -148,16 +154,24 @@ class SweepController:
     total: int = 0
     emit: Callable[[str], None] = lambda line: None
     clock: Callable[[], float] = time.monotonic
+    #: A cheap live call that answers True when the judge is reachable again.
+    probe: Callable[[], bool] | None = None
+    sleep: Callable[[float], None] = time.sleep
 
     def __post_init__(self) -> None:
         self.gate = Gate(self.policy.workers, self.policy.ceiling)
         self._lock = threading.Lock()
+        self._cv = threading.Condition()
         self._events: Deque[tuple[float, str]] = deque()
         self._done = 0
         self._calls = 0
         self._started = self.clock()
         self._last_progress = self._started
         self._last_incident = self._started
+        self._consecutive = 0
+        self._breaker_open = False
+        self._breaker_since = 0.0
+        self.breaker_trips = 0
         self.stop_reason: str | None = None
 
     # -- outcomes --
@@ -168,11 +182,23 @@ class SweepController:
 
     def record_ok(self) -> None:
         self._note(OK)
+        with self._lock:
+            self._consecutive = 0
 
     def record_failure(self, message: str) -> str:
         """Classify a failure, apply the policy, and return the classification."""
         kind = classify_failure(message)
         self._note(kind)
+
+        # The cascade check comes first and is deliberately blind to the kind of
+        # failure. What distinguishes an outage from bad data is not what any
+        # one call said, it is that every call is saying it: eight in a row
+        # across four workers is not eight bad documents.
+        with self._lock:
+            self._consecutive += 1
+            tripped = self._consecutive >= self.policy.breaker_after
+        if tripped:
+            self.open_breaker(f"{self._consecutive} consecutive failures")
         if kind == AUTH:
             with self._lock:
                 if self.stop_reason is None:
@@ -211,6 +237,72 @@ class SweepController:
         now = self.gate.set_capacity(max(1, current // 2))
         if now != current:
             self.emit(f"THROTTLE {now} (was {current}, {why})")
+
+    # -- the cascade breaker --
+
+    def open_breaker(self, why: str) -> None:
+        """Stop the pool taking new work and start probing for recovery.
+
+        Workers already inside a call finish it; nobody starts another. The
+        alternative — which is what happened — is that the queue keeps feeding
+        work into a dead network and every measurement in it is recorded as a
+        failure. Fifty measurements burned in seventeen minutes, none of them
+        because of anything in the documents.
+        """
+        with self._cv:
+            if self._breaker_open or self.stop_reason is not None:
+                return
+            self._breaker_open = True
+            self._breaker_since = self.clock()
+            self.breaker_trips += 1
+            self._cv.notify_all()
+        self.emit(f"BREAKER-OPEN {why}; pausing, probing every {self.policy.probe_every_s:.0f}s")
+        threading.Thread(target=self._probe_until_recovered, daemon=True).start()
+
+    def _probe_until_recovered(self) -> None:
+        while True:
+            self.sleep(self.policy.probe_every_s)
+            with self._cv:
+                if self.stop_reason is not None or not self._breaker_open:
+                    return
+                open_for = self.clock() - self._breaker_since
+            if open_for >= self.policy.breaker_timeout_s:
+                with self._cv:
+                    self.stop_reason = "outage"
+                    self._breaker_open = False
+                    self._cv.notify_all()
+                self.emit(
+                    f"SWEEP-HALTED (outage) after {open_for / 60:.0f}m; "
+                    "cache is intact, the same command resumes"
+                )
+                return
+            try:
+                recovered = bool(self.probe()) if self.probe is not None else False
+            except Exception:  # noqa: BLE001 - a failing probe is just "not yet"
+                recovered = False
+            if recovered:
+                # The count belongs to `_lock` everywhere else; take it here
+                # too, and never while holding `_cv`, so the two locks stay in
+                # a fixed order and cannot close on each other.
+                with self._lock:
+                    self._consecutive = 0
+                with self._cv:
+                    self._breaker_open = False
+                    self._cv.notify_all()
+                self.emit(f"BREAKER-CLOSED after {open_for / 60:.1f}m; resuming")
+                return
+
+    def await_ready(self) -> bool:
+        """Block while the breaker is open. False means stop working."""
+        with self._cv:
+            while self._breaker_open and self.stop_reason is None:
+                self._cv.wait(timeout=0.5)
+            return self.stop_reason is None
+
+    @property
+    def breaker_open(self) -> bool:
+        with self._cv:
+            return self._breaker_open
 
     # -- recovery --
 

@@ -237,7 +237,9 @@ def detect_all(
 
     def measure(tell: Tell, detector: Any, doc: Doc) -> None:
         """One (tell, document) measurement, safe to run from a sweep worker."""
-        if controller is not None and controller.should_stop:
+        # Waits out an open breaker rather than feeding the queue into a dead
+        # network. Returns False once the sweep has stopped for good.
+        if controller is not None and not controller.await_ready():
             return
         gate = controller.gate if controller is not None else None
         if gate is not None:

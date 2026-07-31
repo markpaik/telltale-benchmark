@@ -10,8 +10,10 @@ from __future__ import annotations
 
 import json
 import re
+import threading
+import time
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 import pytest
 
@@ -1658,6 +1660,332 @@ def test_two_workers_produce_byte_identical_scores(
 
     for name in outputs[1]:
         assert outputs[1][name] == outputs[2][name], f"{name} differs between 1 and 2 workers"
+
+
+# --- outage handling: transient retry and the cascade breaker -----------------
+
+
+def test_empty_model_usage_is_transient_but_a_real_mismatch_is_not() -> None:
+    """The two shapes of "model_mismatch" mean opposite things.
+
+    Empty modelUsage means nothing reached the API — the network. A different
+    model actually present means something else answered — a fact about the
+    run, and never retried.
+    """
+    from telltale.judge.transport import TransientJudgeError
+
+    outage = json.dumps(
+        {"result": "", "session_id": "s", "num_turns": 0, "is_error": True, "modelUsage": {}}
+    )
+    transport = CliJudgeTransport(
+        model=JUDGE_MODEL_DEFAULT, transport=fake_cli(outage, outage),
+        retry_delay_s=0, sleep=lambda s: None,
+    )
+    with pytest.raises(TransientJudgeError, match="empty modelUsage"):
+        transport.ask("go")
+
+    substituted = CliJudgeTransport(
+        model=JUDGE_MODEL_DEFAULT,
+        transport=fake_cli(envelope('{"spans": []}', model="claude-haiku-4-5")),
+    )
+    with pytest.raises(JudgeError, match="model mismatch") as caught:
+        substituted.ask("go")
+    assert not isinstance(caught.value, TransientJudgeError)
+
+
+def test_a_transient_failure_gets_one_retry_then_succeeds() -> None:
+    outage = json.dumps(
+        {"result": "", "session_id": "s", "num_turns": 0, "is_error": True, "modelUsage": {}}
+    )
+    slept: list[float] = []
+    transport = CliJudgeTransport(
+        model=JUDGE_MODEL_DEFAULT,
+        transport=fake_cli(outage, envelope('{"spans": []}')),
+        retry_delay_s=30.0,
+        sleep=slept.append,
+    )
+    assert transport.ask("go") == {"spans": []}
+    assert slept == [30.0], "it waits before the one retry"
+    assert transport.stats.transient_retries == 1
+
+
+def test_a_transient_failure_that_persists_is_raised_not_retried_forever() -> None:
+    from telltale.judge.transport import TransientJudgeError
+
+    outage = json.dumps(
+        {"result": "", "session_id": "s", "num_turns": 0, "is_error": True, "modelUsage": {}}
+    )
+    transport = CliJudgeTransport(
+        model=JUDGE_MODEL_DEFAULT, transport=fake_cli(outage, outage, outage),
+        retry_delay_s=0, sleep=lambda s: None,
+    )
+    with pytest.raises(TransientJudgeError):
+        transport.ask("go")
+    assert transport.stats.transient_retries == 1, "one retry, not a loop"
+
+
+def test_a_timed_out_call_is_transient() -> None:
+    from telltale.isolation import CliResult
+    from telltale.judge.transport import TransientJudgeError
+
+    def timing_out(cmd, prompt, timeout):
+        return CliResult(124, "", "timed out after 300s", 300.0, timed_out=True)
+
+    transport = CliJudgeTransport(
+        model=JUDGE_MODEL_DEFAULT, transport=timing_out, retry_delay_s=0,
+        sleep=lambda s: None,
+    )
+    with pytest.raises(TransientJudgeError):
+        transport.ask("go")
+
+
+OUTAGE_ENVELOPE = json.dumps(
+    {"result": "", "session_id": "s", "num_turns": 0, "is_error": True, "modelUsage": {}}
+)
+
+
+def _cli_backend(tmp_path: Path, router, script: Sequence[str] = (), **kwargs):
+    """A judge wired through the real CliJudgeTransport, so retries are exercised.
+
+    `script` is replayed as raw stdout before the router takes over, which is
+    how an outage is staged: the first call comes back with nothing billed to
+    any model, exactly as it did on the night this was written.
+    """
+    pending = list(script)
+    calls: list[str] = []
+
+    def transport(cmd: list[str], prompt: str, timeout: int) -> CliResult:
+        calls.append(prompt)
+        if pending:
+            return CliResult(returncode=1, stdout=pending.pop(0), stderr="", duration_s=0.1)
+        return CliResult(returncode=0, stdout=envelope(router(prompt)), stderr="", duration_s=0.1)
+
+    wire = CliJudgeTransport(
+        model=JUDGE_MODEL_DEFAULT, transport=transport, retry_delay_s=0,
+        sleep=lambda s: None, **kwargs
+    )
+    client = JudgeClient(transport=wire, cache=JudgeCache(tmp_path / "judge"))
+    return JudgeBackend(client), wire, calls
+
+
+def test_an_outage_blip_costs_a_pause_not_a_measurement(
+    tmp_path: Path, registry: Registry
+) -> None:
+    """The retry that matters: an empty-modelUsage call is re-asked, and the
+    measurement lands as if nothing had happened."""
+    from telltale import scoring
+
+    backend, wire, calls = _cli_backend(tmp_path, e2e_router, script=[OUTAGE_ENVELOPE])
+    df = scoring.detect_all([doc_from(E2E_DOC)], [registry.get("rht.rhetorical-qa")], judge=backend)
+
+    assert df.attrs["judge_errors"] == [], "a blip is not a measurement failure"
+    assert len(df) == 1, "the measurement completed"
+    assert wire.stats.transient_retries == 1
+    assert calls[0] == calls[1], "the retry re-asks the same question"
+
+
+def test_a_substituted_judge_fails_the_measurement_immediately(
+    tmp_path: Path, registry: Registry
+) -> None:
+    """The other half: if some other model really answered, that is not a blip.
+
+    Retrying would be worse than useless — it would spend a second call to
+    reach the same wrong judge, and might quietly succeed on it.
+    """
+    from telltale import scoring
+
+    wrong = envelope('{"spans": []}', model="claude-haiku-4-5")
+    backend, wire, calls = _cli_backend(tmp_path, e2e_router, script=[wrong])
+    df = scoring.detect_all([doc_from(E2E_DOC)], [registry.get("rht.rhetorical-qa")], judge=backend)
+
+    errors = df.attrs["judge_errors"]
+    assert len(errors) == 1
+    assert "model mismatch" in errors[0]["error"]
+    assert "claude-haiku-4-5" in errors[0]["error"], "it names the model that answered"
+    assert wire.stats.transient_retries == 0, "a real mismatch is never retried"
+    assert len(calls) == 1, "and it costs exactly one call"
+
+
+class _ProbeDriver:
+    """Drives a paused sweep's probe loop one iteration at a time.
+
+    The loop's shape is sleep, check the clock, probe. Handing it a semaphore
+    to sleep on turns "every sixty seconds" into "when the test says so", and
+    handing it a clock the test moves turns "after thirty minutes" into one
+    assignment — so these tests exercise the shipped defaults, 60s and 1800s,
+    rather than a miniature of them that might not be the same code path.
+    """
+
+    def __init__(self, results: Sequence[bool] = ()) -> None:
+        self.now = 0.0
+        self.probes = 0
+        self._results = list(results)
+        self._go = threading.Semaphore(0)
+
+    def clock(self) -> float:
+        return self.now
+
+    def sleep(self, _seconds: float) -> None:
+        self._go.acquire()
+
+    def probe(self) -> bool:
+        self.probes += 1
+        return self._results.pop(0) if self._results else False
+
+    def step(self, until, timeout: float = 5.0) -> bool:
+        """Release one probe iteration and wait for `until` to come true."""
+        self._go.release()
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            if until():
+                return True
+            time.sleep(0.002)
+        return False
+
+
+def _breaker(driver: _ProbeDriver, **policy):
+    from telltale.judge.sweep import SweepController, SweepPolicy
+
+    lines: list[str] = []
+    defaults = dict(workers=4, ceiling=4, breaker_after=8)
+    defaults.update(policy)
+    return (
+        SweepController(
+            policy=SweepPolicy(**defaults), total=10, emit=lines.append,
+            probe=driver.probe, sleep=driver.sleep, clock=driver.clock,
+        ),
+        lines,
+    )
+
+
+def test_the_breaker_opens_at_exactly_eight_consecutive_failures() -> None:
+    driver = _ProbeDriver()
+    controller, lines = _breaker(driver)
+    for _ in range(7):
+        controller.record_failure("connection closed")
+    assert not controller.breaker_open, "seven is not a cascade"
+    assert controller.breaker_trips == 0
+
+    controller.record_failure("connection closed")
+    assert controller.breaker_open
+    assert controller.breaker_trips == 1
+    assert any(line.startswith("BREAKER-OPEN") for line in lines)
+    assert any("8 consecutive failures" in line for line in lines)
+
+    # Further failures from workers already in flight do not re-trip it.
+    controller.record_failure("connection closed")
+    assert controller.breaker_trips == 1
+
+
+def test_a_success_between_failures_resets_the_cascade_count() -> None:
+    driver = _ProbeDriver()
+    controller, _ = _breaker(driver)
+    for _ in range(7):
+        controller.record_failure("bad json")
+    controller.record_ok()
+    for _ in range(7):
+        controller.record_failure("bad json")
+    assert not controller.breaker_open, "scattered failures are data, not an outage"
+    assert driver.probes == 0, "a sweep that never paused never probes"
+
+
+def test_the_breaker_closes_when_the_probe_succeeds_and_workers_resume() -> None:
+    driver = _ProbeDriver(results=[False, False, True])
+    controller, lines = _breaker(driver)
+    for _ in range(8):
+        controller.record_failure("connection reset")
+    assert controller.breaker_open
+
+    # A worker asking for its next measurement parks until the breaker closes.
+    parked: list[bool] = []
+    worker = threading.Thread(target=lambda: parked.append(controller.await_ready()))
+    worker.start()
+
+    driver.now += 60.0
+    assert driver.step(lambda: driver.probes == 1)
+    assert controller.breaker_open, "one failed probe is not recovery"
+    worker.join(timeout=0.2)
+    assert worker.is_alive() and not parked, "the worker is still parked"
+
+    driver.now += 60.0
+    assert driver.step(lambda: driver.probes == 2)
+    assert controller.breaker_open
+
+    driver.now += 60.0
+    assert driver.step(lambda: not controller.breaker_open)
+    worker.join(timeout=5)
+    assert parked == [True], "the parked worker was released, not stopped"
+    assert controller.await_ready() is True
+    assert controller.stop_reason is None
+    assert any(line.startswith("BREAKER-CLOSED") for line in lines)
+    assert any("after 3.0m" in line for line in lines)
+
+    # And the sweep goes on: the cascade count started over, so the next eight
+    # failures are what re-trips it, not the ones from before the outage.
+    for _ in range(7):
+        controller.record_failure("connection reset")
+    assert not controller.breaker_open
+    controller.record_failure("connection reset")
+    assert controller.breaker_open
+    assert controller.breaker_trips == 2
+
+
+def test_a_breaker_that_never_closes_halts_the_sweep_cleanly() -> None:
+    driver = _ProbeDriver()  # every probe fails, forever
+    controller, lines = _breaker(driver)
+    for _ in range(8):
+        controller.record_failure("connection closed")
+
+    # Twenty-nine minutes of failed probes still leaves the sweep waiting.
+    for minute in range(1, 30):
+        driver.now = 60.0 * minute
+        assert driver.step(lambda n=minute: driver.probes == n)
+        assert controller.stop_reason is None, f"gave up at {minute}m"
+
+    driver.now = 60.0 * 30
+    assert driver.step(lambda: controller.stop_reason is not None)
+    assert controller.stop_reason == "outage"
+    assert controller.await_ready() is False, "workers stop asking for work"
+    assert not controller.breaker_open
+    assert any(line.startswith("SWEEP-HALTED (outage)") for line in lines)
+    assert any("after 30m" in line for line in lines)
+    assert any("the same command resumes" in line for line in lines)
+
+
+def test_an_open_breaker_stops_measurements_being_burned(
+    tmp_path: Path, registry: Registry
+) -> None:
+    """The behaviour the outage exposed: don't record failures against a dead network."""
+    from telltale import scoring
+    from telltale.judge.sweep import SweepController, SweepPolicy
+
+    docs = [
+        doc_from(E2E_DOC.replace("Consolidation", f"C{i}"), doc_id=f"m/doc-{i:02d}")
+        for i in range(20)
+    ]
+    tells = [registry.get("rht.rhetorical-qa")]
+
+    def dead(prompt: str):
+        raise JudgeError("connection closed by remote host")
+
+    # The probe never recovers and the deadline has already passed, so the
+    # first probe iteration halts the sweep — the same path a real thirty
+    # minutes reaches, without the thirty minutes.
+    controller = SweepController(
+        policy=SweepPolicy(workers=1, ceiling=1, breaker_after=8, breaker_timeout_s=0.0),
+        total=len(docs), probe=lambda: False, sleep=lambda s: time.sleep(0.001),
+    )
+    df = scoring.detect_all(
+        docs, tells, judge=JudgeBackend(make_client(tmp_path, dead)),
+        workers=1, controller=controller,
+    )
+    assert df.empty
+    errors = df.attrs["judge_errors"]
+    assert 8 <= len(errors) <= 12, (
+        f"the breaker should stop the queue near the threshold, got {len(errors)} "
+        "of 20 documents burned"
+    )
+    assert controller.stop_reason == "outage"
 
 
 # --- stratified sampling ------------------------------------------------------
