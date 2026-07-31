@@ -310,7 +310,13 @@ def probe_judge(
         assert_judge_model(model)
     except JudgeError:
         return False
-    client = CliJudgeTransport(model=model, timeout=timeout, transport=transport)
+    # No pause before the transient retry: a probe *is* the retry. The breaker
+    # calls this on its own schedule and reads False as "not yet", so a thirty
+    # second sleep in here would only make the sweep slower to notice the
+    # network came back.
+    client = CliJudgeTransport(
+        model=model, timeout=timeout, transport=transport, retry_delay_s=0.0
+    )
     try:
         data = client.ask(PROBE_PROMPT)
     except JudgeError:

@@ -24,6 +24,7 @@ from telltale.isolation import CliResult
 from telltale.judge import audit as audit_mod
 from telltale.judge import calibrate as calibration
 from telltale.judge import protocol
+from telltale.judge import transport as transport_mod
 from telltale.judge.cache import (
     ADJUDICATE,
     EXTRACT,
@@ -1742,6 +1743,40 @@ def test_a_timed_out_call_is_transient() -> None:
 OUTAGE_ENVELOPE = json.dumps(
     {"result": "", "session_id": "s", "num_turns": 0, "is_error": True, "modelUsage": {}}
 )
+
+
+def test_the_liveness_probe_does_not_sit_through_the_retry_pause() -> None:
+    """A probe is already the breaker's retry, so it must not sleep inside one.
+
+    Thirty seconds here would be thirty seconds the sweep spends not noticing
+    the network came back, once per probe, for the whole outage.
+    """
+    slept: list[float] = []
+    calls: list[str] = []
+
+    def down(cmd: list[str], prompt: str, timeout: int) -> CliResult:
+        calls.append(prompt)
+        return CliResult(returncode=1, stdout=OUTAGE_ENVELOPE, stderr="", duration_s=0.1)
+
+    # `sleep` is a dataclass default, bound at import, so the pause has to be
+    # observed on the instance the probe builds rather than by patching a clock.
+    built: list[CliJudgeTransport] = []
+    real = transport_mod.CliJudgeTransport
+
+    def spy(**kwargs):
+        made = real(**kwargs, sleep=slept.append)
+        built.append(made)
+        return made
+
+    transport_mod.CliJudgeTransport = spy
+    try:
+        assert probe_judge(JUDGE_MODEL_DEFAULT, transport=down) is False
+    finally:
+        transport_mod.CliJudgeTransport = real
+
+    assert built and built[0].retry_delay_s == 0
+    assert slept == [0], "it waits for nothing, but it still waits once"
+    assert len(calls) == 2, "it still gets its one retry, just without the pause"
 
 
 def _cli_backend(tmp_path: Path, router, script: Sequence[str] = (), **kwargs):
