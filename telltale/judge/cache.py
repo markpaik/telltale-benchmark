@@ -8,7 +8,15 @@ is invisible. So the key is the whole recipe:
     chunk sha256 | tell id | rubric_version | judge model | protocol version | stage
 
 Bump the rubric in `tells.yaml` and every cached answer for that tell falls out
-of reach. Change a prompt and `PROTOCOL_VERSION` moves, and the whole cache does.
+of reach. Change a prompt and `PROMPT_VERSION` moves, and the whole cache does.
+
+The version in the key is `PROMPT_VERSION`, not `PROTOCOL_VERSION`, and the two
+are not the same thing. The key has to cover everything that could change the
+*answer*, which is everything the model sees. `PROTOCOL_VERSION` also moves when
+the code changes what it does with an answer it already has — protocol v3's
+structural disposition and adjudication cap being the first such change — and
+invalidating a cache for that would be discarding correct answers to questions
+nobody re-asked. Both numbers are written into every envelope.
 Point at a different judge and the answers are separate. Nothing is keyed by
 document path or run id, so two runs over the same corpus share their work.
 
@@ -29,7 +37,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from telltale.judge.protocol import PROTOCOL_VERSION
+from telltale.judge.protocol import PROMPT_VERSION, PROTOCOL_VERSION
 
 EXTRACT = "extract"
 ADJUDICATE = "adjudicate"
@@ -60,7 +68,7 @@ def cache_key(
         str(tell_id),
         str(rubric_version),
         str(judge_model),
-        str(PROTOCOL_VERSION),
+        str(PROMPT_VERSION),
     ]
     if stage == ADJUDICATE:
         if quote is None:
@@ -119,6 +127,7 @@ class JudgeCache:
         envelope = {
             "key": key,
             **fields,
+            "prompt_version": PROMPT_VERSION,
             "protocol_version": PROTOCOL_VERSION,
             "transport": self.transport_name,
             "timestamp": datetime.now(timezone.utc).isoformat(timespec="seconds"),

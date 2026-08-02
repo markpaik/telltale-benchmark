@@ -764,3 +764,116 @@ def test_doc_skeleton_handles_an_empty_document() -> None:
     assert "OUTLINE\n(empty)" in skeleton
     assert "FIRST PARAGRAPH\n(none)" in skeleton
     assert "LAST PARAGRAPH\n(none)" in skeleton
+
+
+# --- line classification (protocol v3) ---------------------------------------
+
+#: (line, expected class). Every fixture is a shape that showed up in the cached
+#: real-corpus extractions the M8d cost fix was measured against.
+LINE_FIXTURES = [
+    ("", "blank"),
+    ("   \t ", "blank"),
+    ("---", "rule"),
+    ("***", "rule"),
+    ("# Executive summary", "heading"),
+    ("### Findings ###", "heading"),
+    ("   ## Indented but still a heading", "heading"),
+    ("- a bulleted item", "list_item"),
+    ("* another one", "list_item"),
+    ("  3. a numbered item", "list_item"),
+    ("2) a paren-numbered item", "list_item"),
+    ("[x] a bare checkbox", "list_item"),
+    ("| Site | Cost |", "table_row"),
+    ("|------|------|", "table_row"),
+    ("| Ashford Lane | $1.3M", "table_row"),
+    ("**Bold run-in heading**", "heading"),
+    ("__Underscore heading__:", "heading"),
+    ("**Scope:** the pilot covers four sites.", "heading"),
+    ("Dear Amara,", "signoff"),
+    ("Hi team,", "signoff"),
+    ("Best regards,", "signoff"),
+    ("Thanks —", "signoff"),
+    ("Sincerely", "signoff"),
+    ("— Priya Raman, Director of Analytics", "signoff"),
+    ("March 4, 2026", "signoff"),
+    ("2026-03-04", "signoff"),
+    ("Note: the vendor missed the window.", "caption"),
+    ("Figure 3: enrollment by building", "caption"),
+    ("Action: confirm the cutover date.", "caption"),
+    ("Subject: Q3 platform review", "caption"),
+    ("Owner — Facilities", "caption"),
+    ("The reconciliation script wrote to the wrong column.", "prose"),
+    ("Six weeks.", "prose"),
+    ("Not anymore.", "prose"),
+    ("Thanks for turning that around so quickly.", "prose"),
+    ("We moved from a manual process to an automated one.", "prose"),
+]
+
+
+@pytest.mark.parametrize("line,expected", LINE_FIXTURES)
+def test_classify_line(line: str, expected: str) -> None:
+    assert ts.classify_line(line) == expected
+
+
+def test_every_class_it_returns_is_declared() -> None:
+    for line, expected in LINE_FIXTURES:
+        assert expected in ts.LINE_CLASSES
+    assert "prose" in ts.LINE_CLASSES
+
+
+def test_classify_line_is_the_conservative_direction() -> None:
+    """Anything it is unsure about is prose, so the span goes to the judge."""
+    for line in (
+        "A fragment. And then the sentence it leans on.",
+        "12 percent of sites reported the same failure.",
+        "e.g. the vendor's own log",
+        "Table stakes for any vendor: a working export.",
+    ):
+        assert ts.classify_line(line) == "prose"
+
+
+def test_line_classes_walks_a_passage() -> None:
+    assert ts.line_classes("# T\n\n- one\nprose\n") == [
+        "heading",
+        "blank",
+        "list_item",
+        "prose",
+        "blank",
+    ]
+
+
+def test_class_of_line_is_one_based_and_survives_a_bad_number() -> None:
+    text = "# T\nprose\n"
+    assert ts.class_of_line(text, 1) == "heading"
+    assert ts.class_of_line(text, 2) == "prose"
+    assert ts.class_of_line(text, 0) == "blank"
+    assert ts.class_of_line(text, 99) == "blank"
+
+
+def test_runin_heading_end_needs_text_after_the_bold() -> None:
+    # The offset runs to the start of the paragraph text, trailing space and all.
+    assert ts.runin_heading_end("**Grade crossings.** Thirteen crossings.") == 21
+    assert ts.runin_heading_end("**Grade crossings.**") == 0  # a whole-line heading
+    assert ts.runin_heading_end("Ordinary prose about **bold** words.") == 0
+    # Several bold spans and their separators all count as the run-in.
+    line = "**4:05 p.m.** — **Restart issued.** The operator invokes the tooling."
+    assert ts.runin_heading_end(line) == line.index("The operator")
+
+
+def test_classify_span_splits_a_run_in_heading_from_its_paragraph() -> None:
+    """The dominant real-corpus shape: heading and paragraph on one line."""
+    text = "Intro.\n\n**Grade crossings.** Thirteen crossings need work.\n"
+    start = text.index("**Grade")
+    assert ts.classify_span(text, start, start + len("**Grade crossings.**")) == "heading"
+    body = text.index("Thirteen")
+    assert ts.classify_span(text, body, body + len("Thirteen crossings need work.")) == "prose"
+    # The line itself is prose — the split is a property of the span, not the line.
+    assert ts.classify_line("**Grade crossings.** Thirteen crossings need work.") == "prose"
+
+
+def test_classify_span_takes_the_line_class_otherwise() -> None:
+    text = "# Heading here\n- a bullet\nplain prose\n"
+    assert ts.classify_span(text, 2, 9) == "heading"
+    assert ts.classify_span(text, text.index("a bullet"), text.index("a bullet") + 8) == "list_item"
+    assert ts.classify_span(text, text.index("plain"), text.index("plain") + 5) == "prose"
+    assert ts.classify_span(text, -1, 3) == "blank"

@@ -24,6 +24,7 @@ from telltale.isolation import CliResult
 from telltale.judge import audit as audit_mod
 from telltale.judge import calibrate as calibration
 from telltale.judge import protocol
+from telltale import textstats
 from telltale.judge import transport as transport_mod
 from telltale.judge.cache import (
     ADJUDICATE,
@@ -464,6 +465,80 @@ def test_the_criteria_table_matches_the_rubrics_in_the_registry(registry: Regist
         # ALL vs ANY is read off the rubric's own opening line.
         head = tell.rubric.split("\n", 1)[0]
         assert rule.mode == ("any" if "ANY" in head else "all"), tell.id
+        # Protocol v3: a structural exclusion disposes of spans in code, so its
+        # letter has to be one the rubric actually writes, and the classes it
+        # maps to have to be classes `classify_line` can return. A letter
+        # invented here would reject spans under an exclusion nobody wrote.
+        for letter, classes in rule.structural_exclusions.items():
+            assert letter in exclusions, f"{tell.id}: ({letter}) is not in the rubric"
+            assert classes, f"{tell.id}: ({letter}) maps to no line class"
+            for line_class in classes:
+                assert line_class in textstats.LINE_CLASSES, f"{tell.id}: {line_class}"
+            assert "prose" not in classes, f"{tell.id}: prose is not a structural shape"
+
+
+def test_the_structural_exclusion_map_says_what_the_two_rubrics_say() -> None:
+    """The mapping, spelled out against the rubric text it was read from.
+
+    The test above proves the letters exist; this one proves they are the right
+    ones. Both are needed — a map that moved (x) onto list items would pass the
+    first check and still be excluding bullets as headings.
+    """
+    fragment = protocol.RULES["rht.fragment-emphasis"]
+    assert fragment.structural_exclusions == {
+        "x": ("heading",),  # headings, subheadings, titles, bolded run-ins
+        "y": ("list_item", "table_row"),  # list items, table cells, bullet text
+        "z": ("signoff", "caption"),  # salutations, sign-offs, captions, labels
+    }
+    # (w) is quoted speech: not a line shape, so the judge keeps it.
+    assert "w" in fragment.exclusions
+    assert "w" not in fragment.structural_exclusions
+
+    three = protocol.RULES["rht.rule-of-three"]
+    # (y) alone: "a list rendered as bullets or numbered items is out of scope".
+    # (x) enumerative content and (z) quotation are both semantic.
+    assert three.structural_exclusions == {"y": ("list_item",)}
+    assert three.adjudication_cap == 11
+
+    # No other judge tell disposes of anything in code.
+    for tell_id, rule in protocol.RULES.items():
+        if tell_id not in {"rht.fragment-emphasis", "rht.rule-of-three"}:
+            assert rule.structural_exclusions == {}
+            assert rule.adjudication_cap is None
+
+
+def test_structural_exclusion_for_returns_the_rubric_letter() -> None:
+    rule = protocol.RULES["rht.fragment-emphasis"]
+    assert protocol.structural_exclusion_for(rule, "heading") == "x"
+    assert protocol.structural_exclusion_for(rule, "table_row") == "y"
+    assert protocol.structural_exclusion_for(rule, "signoff") == "z"
+    assert protocol.structural_exclusion_for(rule, "caption") == "z"
+    assert protocol.structural_exclusion_for(rule, "prose") is None
+    # A class the tell does not declare is not disposed of, even if another
+    # tell declares it.
+    assert protocol.structural_exclusion_for(rule, "rule") is None
+    assert protocol.structural_exclusion_for(rule, "blank") is None
+
+    three = protocol.RULES["rht.rule-of-three"]
+    assert protocol.structural_exclusion_for(three, "list_item") == "y"
+    assert protocol.structural_exclusion_for(three, "table_row") is None
+    assert protocol.structural_exclusion_for(three, "heading") is None
+
+    assert protocol.structural_exclusion_for(protocol.RULES["rht.from-x-to-y"], "heading") is None
+
+
+def test_the_prompt_version_is_what_the_cache_keys_on() -> None:
+    """Protocol v3 changed no prompt, so v2's cached answers stay reachable."""
+    assert protocol.PROTOCOL_VERSION == 3
+    assert protocol.PROMPT_VERSION == 2
+    key = cache_key("sha", "rht.rule-of-three", 1, "model", EXTRACT)
+    assert key == _sha_of_parts("sha", "rht.rule-of-three", "1", "model", "2", "extract")
+
+
+def _sha_of_parts(*parts: str) -> str:
+    import hashlib
+
+    return hashlib.sha256("|".join(parts).encode("utf-8")).hexdigest()
 
 
 def test_every_judge_tell_has_a_decision_path(registry: Registry) -> None:
@@ -925,6 +1000,227 @@ def test_detect_all_scores_judge_rows_when_a_backend_is_supplied(
     assert scored.loc[scored["tell_id"] == "rht.rhetorical-qa", "score"].iloc[0] == 1.0
 
 
+# --- structural disposition and the adjudication cap (protocol v3) -----------
+
+
+TRIAGE_DOC = """\
+# Quarterly platform review
+
+Dear Amara,
+
+**The grant.** The reconciliation script wrote to the wrong column for six
+weeks. Six weeks.
+
+## Findings
+
+- No go-live gate.
+- Silent exclusions.
+
+| Site | Status |
+|------|--------|
+| Ashford | Red. |
+
+Note: the vendor has not answered.
+
+Best regards,
+"""
+
+
+def span_under_review(prompt: str) -> str:
+    return prompt.split("<<<SPAN", 1)[1].split("SPAN>>>", 1)[0].strip()
+
+
+def triage_router(prompt: str) -> dict[str, Any]:
+    """Extracts one candidate per structural shape, plus one real prose fragment.
+
+    Every span it proposes is a verbatim quote from TRIAGE_DOC, so the only
+    thing that can stop one reaching adjudication is the code.
+    """
+    if "EXTRACTION ONLY" in prompt:
+        return {
+            "spans": [
+                {"quote": "# Quarterly platform review", "location_hint": "title"},
+                {"quote": "Dear Amara,", "location_hint": "salutation"},
+                {"quote": "**The grant.**", "location_hint": "run-in heading"},
+                {"quote": "Six weeks.", "location_hint": "after the sentence"},
+                {"quote": "- No go-live gate.", "location_hint": "bullet"},
+                {"quote": "| Ashford | Red. |", "location_hint": "table"},
+                {"quote": "Note: the vendor has not answered.", "location_hint": "callout"},
+                {"quote": "Best regards,", "location_hint": "sign-off"},
+            ]
+        }
+    return {
+        "instance": True,
+        "criteria_met": ["a", "b"],
+        "exclusion_triggered": None,
+        "rationale": "a verbless fragment leaning on the sentence before it",
+    }
+
+
+def test_structural_spans_never_reach_the_judge(tmp_path: Path, registry: Registry) -> None:
+    """Fix M8d-1, end to end: only the prose span is paid for."""
+    tell = registry.get("rht.fragment-emphasis")
+    client = make_client(tmp_path, triage_router)
+    detection = JudgeBackend(client).detect(tell, doc_from(TRIAGE_DOC))
+
+    adjudications = [p for p in client.transport.prompts if "ADJUDICATE ONE SPAN" in p]
+    assert [span_under_review(p) for p in adjudications] == ["Six weeks."]
+    assert detection.raw == 1.0
+
+    detail = detection.detail
+    assert detail["extracted"] == 8
+    assert detail["excluded_by_code"] == 7
+    assert detail["by_class"] == {
+        "caption": 1,
+        "heading": 2,  # the ATX title and the bolded run-in
+        "list_item": 1,
+        "signoff": 2,  # the salutation and the closing
+        "table_row": 1,
+    }
+    assert detail["adjudicated_true"] == 1
+    assert detail["adjudicated_false"] == 0
+
+
+def test_a_dispositioned_span_stays_in_the_evidence(tmp_path: Path, registry: Registry) -> None:
+    """A saving that cannot be audited is indistinguishable from a bug."""
+    tell = registry.get("rht.fragment-emphasis")
+    detection = JudgeBackend(make_client(tmp_path, triage_router)).detect(
+        tell, doc_from(TRIAGE_DOC)
+    )
+    assert len(detection.matches) == 8
+    counted = [m for m in detection.matches if m["counted"]]
+    assert [m["quote"] for m in counted] == ["Six weeks."]
+    assert detection.matches[0]["quote"] == "Six weeks.", "counted evidence comes first"
+
+    disposed = {m["quote"]: m for m in detection.matches if not m["counted"]}
+    assert disposed["Dear Amara,"]["exclusion_triggered"] == "z"
+    assert disposed["Dear Amara,"]["line_class"] == "signoff"
+    assert disposed["- No go-live gate."]["exclusion_triggered"] == "y"
+    assert disposed["**The grant.**"]["exclusion_triggered"] == "x"
+    for record in disposed.values():
+        assert record["excluded_by_code"] is True
+        # The judge was not asked, so it did not say False either.
+        assert record["judge_instance"] is None
+        assert record["line"] >= 1
+
+
+def test_a_tell_without_structural_exclusions_sends_everything(
+    tmp_path: Path, registry: Registry
+) -> None:
+    """The triage fires only where the criteria table declares it."""
+    tell = registry.get("rht.rule-of-three")
+    client = make_client(tmp_path, triage_router)
+    detection = JudgeBackend(client).detect(tell, doc_from(TRIAGE_DOC))
+    adjudicated = [
+        span_under_review(p) for p in client.transport.prompts if "ADJUDICATE ONE SPAN" in p
+    ]
+    # rule-of-three declares (y) -> list_item and nothing else, so the heading,
+    # the table row, the sign-offs and the callout all still go to the judge.
+    assert "- No go-live gate." not in adjudicated
+    assert "# Quarterly platform review" in adjudicated
+    assert "| Ashford | Red. |" in adjudicated
+    assert detection.detail["by_class"] == {"list_item": 1}
+
+
+def _numbered_prose(n: int) -> str:
+    """A chunk of n prose lines, each with a quotable triple."""
+    return "\n\n".join(
+        f"Finding {i} covers scope{i}, budget{i}, and timeline{i} in one sentence."
+        for i in range(n)
+    )
+
+
+def cap_router(prompt: str) -> dict[str, Any]:
+    if "EXTRACTION ONLY" in prompt:
+        passage = passage_of(prompt)
+        return {
+            "spans": [
+                {"quote": line.strip(), "location_hint": ""}
+                for line in passage.split("\n")
+                if line.strip().startswith("Finding ")
+            ]
+        }
+    return {
+        "instance": True,
+        "criteria_met": ["a", "b", "c"],
+        "exclusion_triggered": None,
+        "rationale": "three coordinate nouns, the third adds cadence",
+    }
+
+
+def test_the_adjudication_cap_bites_in_document_order(
+    tmp_path: Path, registry: Registry
+) -> None:
+    tell = registry.get("rht.rule-of-three")
+    cap = protocol.RULES[tell.id].adjudication_cap
+    assert cap == 11
+    doc = doc_from(_numbered_prose(cap + 4))
+
+    client = make_client(tmp_path, cap_router)
+    detection = JudgeBackend(client).detect(tell, doc)
+
+    adjudicated = [
+        span_under_review(p) for p in client.transport.prompts if "ADJUDICATE ONE SPAN" in p
+    ]
+    assert len(adjudicated) == cap
+    assert adjudicated == sorted(adjudicated, key=lambda q: int(q.split()[1]))
+    assert [int(q.split()[1]) for q in adjudicated] == list(range(cap))
+    assert detection.raw == float(cap)
+
+
+def test_the_cap_is_visible_in_the_detection(tmp_path: Path, registry: Registry) -> None:
+    """Truncation is never silent: the row that carries it says so."""
+    tell = registry.get("rht.rule-of-three")
+    cap = protocol.RULES[tell.id].adjudication_cap
+    detection = JudgeBackend(make_client(tmp_path, cap_router)).detect(
+        tell, doc_from(_numbered_prose(cap + 4))
+    )
+    assert detection.detail["adjudication_capped"] is True
+    assert detection.detail["adjudication_cap"] == cap
+    assert detection.detail["spans_skipped"] == 4
+    skipped = [r for r in detection.detail["rejected"] if r["why_not"] == "adjudication cap"]
+    assert len(skipped) == 4
+    assert all(r["judge_instance"] is None for r in skipped)
+
+
+def test_the_cap_is_absent_when_it_did_not_bite(tmp_path: Path, registry: Registry) -> None:
+    tell = registry.get("rht.rule-of-three")
+    detection = JudgeBackend(make_client(tmp_path, cap_router)).detect(
+        tell, doc_from(_numbered_prose(3))
+    )
+    assert "adjudication_capped" not in detection.detail
+    assert "spans_skipped" not in detection.detail
+    assert detection.raw == 3.0
+
+
+def test_the_cap_counts_adjudications_not_extractions(
+    tmp_path: Path, registry: Registry
+) -> None:
+    """Spans the triage disposed of do not consume the cap."""
+    tell = registry.get("rht.rule-of-three")
+    cap = protocol.RULES[tell.id].adjudication_cap
+    bullets = "\n".join(f"- bullet {i} of scope, budget, and timeline." for i in range(6))
+    doc = doc_from(bullets + "\n\n" + _numbered_prose(cap))
+
+    def router(prompt: str) -> dict[str, Any]:
+        if "EXTRACTION ONLY" in prompt:
+            return {
+                "spans": [
+                    {"quote": line.strip(), "location_hint": ""}
+                    for line in passage_of(prompt).split("\n")
+                    if line.strip()
+                ]
+            }
+        return {"instance": True, "criteria_met": ["a", "b", "c"],
+                "exclusion_triggered": None, "rationale": "triple"}
+
+    client = make_client(tmp_path, router)
+    detection = JudgeBackend(client).detect(tell, doc)
+    assert detection.detail["by_class"] == {"list_item": 6}
+    assert "adjudication_capped" not in detection.detail
+    assert len([p for p in client.transport.prompts if "ADJUDICATE ONE SPAN" in p]) == cap
+
+
 def test_the_build_seam_takes_the_backend(tmp_path: Path, qa_tell: Tell) -> None:
     backend = JudgeBackend(make_client(tmp_path, e2e_router))
     detector = build(qa_tell, judge=backend)
@@ -1149,6 +1445,32 @@ def test_calibration_scores_agreement_and_applies_the_gate(
     assert 0.0 <= report.agreement <= 1.0
     assert report.judge_model == JUDGE_MODEL_DEFAULT
     assert report.rubric_version == qa_tell.rubric_version
+
+
+def test_a_code_disposition_is_named_in_the_calibration_detail(
+    tmp_path: Path, registry: Registry
+) -> None:
+    """The gate report has to say a snippet was disposed of by the classifier.
+
+    Otherwise "the line classifier rejected it" and "the judge found nothing to
+    quote" read identically, and the gate stops being able to see the behaviour
+    it exists to check.
+    """
+    tell = registry.get("rht.fragment-emphasis")
+    snippet = calibration.Snippet(
+        id="neg-x", label="negative", source="synthetic", text="## Every single school\n"
+    )
+
+    def router(prompt: str) -> dict[str, Any]:
+        if "EXTRACTION ONLY" in prompt:
+            return {"spans": [{"quote": "## Every single school", "location_hint": ""}]}
+        raise AssertionError("a heading must never be adjudicated")
+
+    backend = JudgeBackend(make_client(tmp_path, router))
+    outcome = calibration.run_snippet(tell, snippet, backend)
+    assert outcome.observed is False
+    assert outcome.extracted == 1
+    assert "(x) by structure: heading" in outcome.detail
 
 
 def test_a_report_below_the_gate_does_not_pass(tmp_path: Path, qa_tell: Tell) -> None:

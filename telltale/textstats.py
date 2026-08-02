@@ -264,6 +264,165 @@ _HEADING_ANY = re.compile(r"^\s{0,3}(#{1,6})\s+(.*?)\s*#*\s*$")
 _LIST_ITEM = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+(.*)$")
 
 
+# --- line classification -----------------------------------------------------
+
+#: The classes `classify_line` can return. `prose` is the default and the only
+#: one that means "this line is ordinary running text".
+LINE_CLASSES: tuple[str, ...] = (
+    "prose",
+    "heading",
+    "list_item",
+    "table_row",
+    "blank",
+    "signoff",
+    "rule",
+    "caption",
+)
+
+#: A whole line that is nothing but a bold or italic span, optionally with a
+#: trailing colon: the markdown idiom for a run-in heading.
+_BOLD_ONLY_LINE = re.compile(r"^\s{0,3}(?:\*\*|__)(?P<t>[^*_\n]{1,120})(?:\*\*|__):?\s*$")
+#: Bold run-in heading followed by its own content: "**Scope:** we will …".
+_BOLD_RUNIN = re.compile(r"^\s{0,3}(?:\*\*|__)[^*_\n]{1,60}:(?:\*\*|__)\s+\S")
+#: A task-list checkbox that did not come with a bullet marker.
+_TASKBOX_LINE = re.compile(r"^\s*\[[ xX]\]\s+")
+#: "Dear Amara," / "Hi team," / "Good morning all —"
+_SALUTATION = re.compile(
+    r"^\s{0,3}(?:Dear|Hi|Hello|Hey|Greetings|Good morning|Good afternoon|Good evening)\b"
+    r"[^.!?]{0,60}[,:—-]?\s*$",
+    re.IGNORECASE,
+)
+#: "Best," / "Thanks —" / "Sincerely" / "Kind regards,"
+_CLOSING = re.compile(
+    r"^\s{0,3}(?:Best|Best regards|Regards|Kind regards|Warm regards|Warmly|Thanks|"
+    r"Thanks again|Thank you|Sincerely|Cheers|Respectfully|All the best|Yours truly|"
+    r"Yours sincerely)\s*[,.!—-]?\s*$",
+    re.IGNORECASE,
+)
+#: An em-dash attribution line: "— Priya Raman, Director of Analytics".
+_ATTRIBUTION = re.compile(r"^\s{0,3}[—–-]{1,2}\s*[A-Z][^.!?]{0,80}$")
+#: A line that is only a date: "March 4, 2026" / "2026-03-04" / "4 March 2026".
+_DATE_ONLY = re.compile(
+    r"^\s{0,3}(?:\d{4}-\d{2}-\d{2}|\d{1,2}[/-]\d{1,2}[/-]\d{2,4}"
+    r"|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2},?\s*\d{0,4}"
+    r"|\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\.?\s*\d{0,4})"
+    r"\s*$"
+)
+#: A leading label or callout tag: "Note:", "Action:", "Figure 3:", "Owner —".
+_CALLOUT = re.compile(
+    r"^\s{0,3}"
+    r"(?:\*\*|__|\*|_)?"
+    r"(?P<label>(?:Figure|Table|Exhibit|Chart|Appendix|Note|Notes|Action|Actions|"
+    r"Caption|Source|Sources|Owner|Owners|Due|Deadline|Status|Next steps?|Decision|"
+    r"Risk|Risks|Ask|Asks|Recommendation|Impact|Context|Background|Summary|TL;DR|"
+    r"Warning|Caution|Important|Tip|Key takeaway|Bottom line|Takeaway|Update|"
+    r"Attendees|Present|Apologies|Subject|Re|To|From|Cc|Bcc|Date|Prepared by|"
+    r"Reviewed by|Approved by|Author|Version)"
+    r"(?:\s+[\dA-Z][\w.-]*)?)"
+    r"(?:\*\*|__|\*|_)?\s*[:—–]\s*",
+    re.IGNORECASE,
+)
+
+
+def classify_line(line: str) -> str:
+    """What kind of markdown line this is, by its own text alone.
+
+    One line, one class, decided from the line and nothing around it. That
+    limit is deliberate: the classification is used to dispose of judge spans
+    without a model call, and a rule that needed neighbouring lines would give
+    different answers for the same span depending on where a chunk was cut.
+
+    The order below is the precedence order, and it matters. A table row that
+    happens to start with a dash is still a table row; a heading that ends in a
+    colon is still a heading, not a caption. `prose` is the fallback, so a line
+    this function is unsure about goes to the judge rather than being disposed
+    of in code — the conservative direction for a cost fix.
+    """
+    text = line or ""
+    if not text.strip():
+        return "blank"
+    if _HR.match(text):
+        return "rule"
+    if _HEADING_ANY.match(text):
+        return "heading"
+    if _TABLE_DELIM.match(text):
+        return "table_row"
+    stripped = text.strip()
+    if stripped.startswith("|") or (stripped.endswith("|") and "|" in stripped[:-1]):
+        return "table_row"
+    if _LIST_ITEM.match(text) or _TASKBOX_LINE.match(text):
+        return "list_item"
+    if _BOLD_ONLY_LINE.match(text) or _BOLD_RUNIN.match(text):
+        return "heading"
+    if _SALUTATION.match(text) or _CLOSING.match(text) or _ATTRIBUTION.match(text):
+        return "signoff"
+    if _DATE_ONLY.match(text):
+        return "signoff"
+    if _CALLOUT.match(text):
+        return "caption"
+    return "prose"
+
+
+def line_classes(text: str) -> list[str]:
+    """`classify_line` over every line of a passage, in order."""
+    return [classify_line(line) for line in (text or "").split("\n")]
+
+
+def class_of_line(text: str, line_number: int) -> str:
+    """The class of a 1-based line of `text`; "blank" when it is out of range."""
+    lines = (text or "").split("\n")
+    if 1 <= line_number <= len(lines):
+        return classify_line(lines[line_number - 1])
+    return "blank"
+
+
+#: One or more bold spans at the head of a line, with the separators business
+#: markdown puts between them ("**4:05 p.m.** — **Restart issued.** The …").
+_RUNIN_PREFIX = re.compile(
+    r"^\s{0,3}(?:(?:\*\*|__)(?:(?!\*\*|__).)+?(?:\*\*|__)[ \t]*[—–:;,.\-]?[ \t]*)+"
+)
+
+
+def runin_heading_end(line: str) -> int:
+    """How far into `line` a bolded run-in heading reaches; 0 if there is none.
+
+    A run-in heading is a whole line's worth of heading crammed onto the front
+    of a paragraph: `**Grade crossings.** Thirteen crossings within the project
+    limits …`. `classify_line` cannot help here, because the line is a heading
+    and a paragraph at once — which is why the class of a *span* is not always
+    the class of its line, and why this returns an offset rather than a class.
+
+    Requires text after the bold run: a line that is nothing but a bold span is
+    an ordinary run-in heading and `classify_line` already calls it one.
+    """
+    match = _RUNIN_PREFIX.match(line or "")
+    if not match or not line[match.end() :].strip():
+        return 0
+    return match.end()
+
+
+def classify_span(text: str, start: int, end: int) -> str:
+    """The line class governing the span at `text[start:end]`.
+
+    The span's own start line decides, with one refinement: a span lying wholly
+    inside a bolded run-in heading is `heading` even though the line it shares
+    with the following paragraph reads as prose. That case is not an edge — it
+    is 370 of the 1,145 cached `rht.fragment-emphasis` spans, more than any
+    other single shape, and the judge itself excluded 364 of them as headings.
+    """
+    if start < 0 or start > len(text or ""):
+        return "blank"
+    line_start = text.rfind("\n", 0, start) + 1
+    line_end = text.find("\n", start)
+    line = text[line_start:] if line_end == -1 else text[line_start:line_end]
+    cls = classify_line(line)
+    if cls == "prose":
+        reach = runin_heading_end(line)
+        if reach and end <= line_start + reach:
+            return "heading"
+    return cls
+
+
 def doc_skeleton(doc: "Doc") -> str:
     """A deterministic outline of a document, for the judge's skeleton view.
 

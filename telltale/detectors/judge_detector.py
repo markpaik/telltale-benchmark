@@ -23,9 +23,11 @@ for nothing, and if they never agree, the rubric is not saying what it thinks.
 
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass, field
 from typing import Any
 
+from telltale import textstats
 from telltale.corpus import Doc
 from telltale.detectors.base import MAX_MATCHES, Detection
 from telltale.judge import cache as cache_mod
@@ -47,6 +49,14 @@ class SpanRun:
     extracted: int = 0
     keys: list[str] = field(default_factory=list)
     judge_disagreements: int = 0
+    #: Spans the line classifier disposed of without an adjudication call, and
+    #: the tally of which line class did it. Kept as records, not just a count:
+    #: a saving that cannot be audited is indistinguishable from a bug.
+    code_excluded: list[dict[str, Any]] = field(default_factory=list)
+    by_class: Counter = field(default_factory=Counter)
+    #: Spans the per-chunk adjudication cap dropped, and whether it ever bit.
+    capped: bool = False
+    spans_skipped: int = 0
 
     def merge(self, other: "SpanRun") -> None:
         self.counted += other.counted
@@ -55,6 +65,10 @@ class SpanRun:
         self.extracted += other.extracted
         self.keys += other.keys
         self.judge_disagreements += other.judge_disagreements
+        self.code_excluded += other.code_excluded
+        self.by_class.update(other.by_class)
+        self.capped = self.capped or other.capped
+        self.spans_skipped += other.spans_skipped
 
 
 @dataclass
@@ -99,27 +113,42 @@ class JudgeBackend:
 
         raw = float(len(run.counted))
         rate = (raw / doc.words * 1000.0) if doc.words else None
+        # Counted spans first, so a document whose structure produced hundreds
+        # of dispositioned spans can never crowd its real evidence out of the
+        # window. Every entry says whether it counted, so `matches` is readable
+        # as evidence without having to know which list it came from.
+        counted = [{**record, "counted": True} for record in run.counted]
+        matches = (counted + run.code_excluded)[:MAX_MATCHES]
+        detail: dict[str, Any] = dict(
+            chunks=len(chunks),
+            view="chunk",
+            extracted=run.extracted,
+            adjudicated_true=len(run.counted),
+            adjudicated_false=len(run.rejected),
+            excluded_by_code=len(run.code_excluded),
+            by_class=dict(sorted(run.by_class.items())),
+            hallucinated=len(run.hallucinated),
+            hallucinated_quotes=run.hallucinated[:MAX_REJECTED],
+            judge_disagreements=run.judge_disagreements,
+            rejected=run.rejected[:MAX_REJECTED],
+            keys=run.keys,
+        )
+        if run.capped:
+            # Only written when the cap actually bit. A truncated measurement
+            # has to be visible in the row that carries it — a reader comparing
+            # two documents must be able to see that one of them was cut short.
+            detail["adjudication_capped"] = True
+            detail["adjudication_cap"] = protocol.rule_for(tell).adjudication_cap
+            detail["spans_skipped"] = run.spans_skipped
         return Detection(
             tell_id=tell.id,
             doc_id=doc.doc_id,
             raw=raw,
             rate_per_1k=rate,
-            matches=run.counted[:MAX_MATCHES],
+            matches=matches,
             method="judge",
             unit=tell.unit,
-            detail=self._detail(
-                tell,
-                chunks=len(chunks),
-                view="chunk",
-                extracted=run.extracted,
-                adjudicated_true=len(run.counted),
-                adjudicated_false=len(run.rejected),
-                hallucinated=len(run.hallucinated),
-                hallucinated_quotes=run.hallucinated[:MAX_REJECTED],
-                judge_disagreements=run.judge_disagreements,
-                rejected=run.rejected[:MAX_REJECTED],
-                keys=run.keys,
-            ),
+            detail=self._detail(tell, **detail),
         )
 
     def spans_for_text(
@@ -129,10 +158,17 @@ class JudgeBackend:
         source_sha: str | None = None,
         seen: set[str] | None = None,
     ) -> SpanRun:
-        """Extract, verify, and adjudicate over one passage.
+        """Extract, verify, triage, and adjudicate over one passage.
 
         `seen` carries normalized quotes already handled, so a span sitting in
         the overlap between two chunks is counted — and paid for — once.
+
+        Between verification and adjudication sits the structural triage added
+        in protocol v3. A verified span whose line is a heading, a list item, a
+        table row, a sign-off or a caption is dispositioned here, by the letter
+        of the rubric's own structural exclusion, with no judge call — but only
+        for tells that declare which of their letters are structural. Everything
+        left is adjudicated in document order, up to the tell's cap.
         """
         sha = source_sha or protocol.Chunk.make("text", 0, text).sha256
         rule = protocol.rule_for(tell)
@@ -148,6 +184,7 @@ class JudgeBackend:
         )
         run.keys.append(key)
 
+        pending: list[tuple[protocol.Match, dict[str, Any]]] = []
         for candidate in protocol.extraction_spans(payload):
             run.extracted += 1
             match = protocol.verify_quote(candidate["quote"], text)
@@ -158,6 +195,44 @@ class JudgeBackend:
                 continue
             seen.add(match.normalized)
 
+            line_class = textstats.classify_span(text, match.start, match.end)
+            letter = protocol.structural_exclusion_for(rule, line_class)
+            if letter is not None:
+                run.code_excluded.append(
+                    self._code_record(match, candidate, letter, line_class)
+                )
+                run.by_class[line_class] += 1
+                continue
+            pending.append((match, candidate))
+
+        # Document order, then the cap. Ordering by offset rather than by the
+        # judge's own listing order is what makes the truncation reproducible:
+        # the same chunk always keeps the same spans, whatever order stage 1
+        # happened to emit them in.
+        pending.sort(key=lambda item: (item[0].start, item[0].end))
+        cap = rule.adjudication_cap
+        if cap is not None and len(pending) > cap:
+            run.spans_skipped = len(pending) - cap
+            run.capped = True
+            for match, candidate in pending[cap:]:
+                run.rejected.append(
+                    {
+                        "quote": match.quote,
+                        "line": match.line,
+                        "location_hint": candidate.get("location_hint", ""),
+                        "criteria_met": [],
+                        "exclusion_triggered": None,
+                        "rationale": (
+                            f"not adjudicated: over the {cap}-span per-chunk "
+                            "adjudication cap"
+                        ),
+                        "judge_instance": None,
+                        "why_not": "adjudication cap",
+                    }
+                )
+            pending = pending[:cap]
+
+        for match, candidate in pending:
             context = protocol.context_for(match, text)
             answer, adj_key, _ = self.client.ask(
                 cache_mod.ADJUDICATE,
@@ -190,6 +265,35 @@ class JudgeBackend:
             else:
                 run.rejected.append({**record, "why_not": why_not})
         return run
+
+    @staticmethod
+    def _code_record(
+        match: protocol.Match,
+        candidate: dict[str, Any],
+        letter: str,
+        line_class: str,
+    ) -> dict[str, Any]:
+        """One span dispositioned by the line classifier, in the same shape as
+        an adjudicated one, so a reader diffing the evidence sees the same
+        fields whether a machine or a model decided.
+
+        `judge_instance` is None rather than False: the judge was not asked, and
+        recording a False it never said would put words in its mouth and inflate
+        the disagreement counter with cases where there was no disagreement to
+        have.
+        """
+        return {
+            "quote": match.quote,
+            "line": match.line,
+            "location_hint": candidate.get("location_hint", ""),
+            "criteria_met": [],
+            "exclusion_triggered": letter,
+            "rationale": f"line classified as {line_class}; excluded by ({letter})",
+            "judge_instance": None,
+            "excluded_by_code": True,
+            "line_class": line_class,
+            "counted": False,
+        }
 
     # -- skeleton tells --
 

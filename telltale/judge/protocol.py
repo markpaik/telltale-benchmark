@@ -32,16 +32,17 @@ from __future__ import annotations
 
 import hashlib
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Callable, Iterable, Sequence
 
 from telltale import textstats
 from telltale.corpus import Doc
 from telltale.registry import Tell
 
-#: Bumped when a prompt, a decision rule, or the chunking changes. It is part of
-#: every cache key: an answer produced under a different protocol is a different
-#: answer, and reusing it would be a silent change of instrument.
+#: Bumped when a prompt, a decision rule, or the chunking changes — the version
+#: of the instrument as a whole, recorded on every detection. What the *cache*
+#: keys on is `PROMPT_VERSION` below, which moves only when the model-facing
+#: question moves; the two were the same number until v3.
 #:
 #: v2 (2026-07-29) made two changes, both found by the first live calibration
 #: round:
@@ -59,7 +60,28 @@ from telltale.registry import Tell
 #:     last paragraph twice — once as a `PARA:` line, once in full — which made
 #:     any final sentence look like it recurred at the end, and pulled
 #:     `str.summary-sandwich` toward finding a closing recap that was not there.
-PROTOCOL_VERSION = 2
+#:
+#: v3 (2026-08-02) added code-side structural disposition and the adjudication
+#: cap. Neither changes a prompt, so every EXTRACTION and STRUCTURAL answer in
+#: the cache is still the answer to the same question — but what the code does
+#: with a stage-1 answer changed, and a detection produced under v2 is not
+#: comparable with one produced under v3. See `structural_exclusion_for`.
+PROTOCOL_VERSION = 3
+
+#: What the judge is *asked*, versioned separately from the instrument as a
+#: whole — and it is this, not `PROTOCOL_VERSION`, that the cache keys on.
+#:
+#: The two were one number through v2 because every change so far had been a
+#: change to a prompt. v3 is the first that is not: the structural disposition
+#: and the adjudication cap are decisions the code makes about answers the judge
+#: already gave, and the extraction prompt, the adjudication prompt, the
+#: structural prompt and the chunking are all byte-identical to v2. Keying the
+#: cache on the instrument version would have thrown away ~3,500 paid-for
+#: answers to questions that did not change, which is the cost this task exists
+#: to reduce. Any future change to a prompt, to the chunker, or to the rubric
+#: split must bump BOTH — the cache is only safe while this number covers
+#: everything the model sees.
+PROMPT_VERSION = 2
 
 TARGET_WORDS = 2500
 OVERLAP_WORDS = 150
@@ -145,6 +167,19 @@ class TellRule:
 
     any_exclusion_kills: bool = True
 
+    #: Which of this rubric's exclusions can be decided from the *shape of the
+    #: line a span sits on*, and which `textstats` line classes decide them.
+    #: A span on one of those lines is dispositioned in code and never
+    #: adjudicated. Only exclusions that are purely structural belong here: an
+    #: exclusion that needs to know what the words mean stays with the judge.
+    structural_exclusions: dict[str, tuple[str, ...]] = field(default_factory=dict)
+
+    #: The most spans one chunk may send to adjudication, or None for no limit.
+    #: A cap is a last resort — it truncates the measurement — so it is set only
+    #: where the extractor's recall-first instruction produces so many spans per
+    #: chunk that the cost is unbounded, and it is always reported.
+    adjudication_cap: int | None = None
+
 
 RULES: dict[str, TellRule] = {
     "rht.rule-of-three": TellRule(
@@ -153,6 +188,21 @@ RULES: dict[str, TellRule] = {
         mode="all",
         required=("a", "b", "c"),
         exclusions=("x", "y", "z"),
+        # Only (y) is structural: "a list rendered as bullets or numbered items
+        # is out of scope here". A table row is not a list and the rubric does
+        # not say it is, so table rows keep going to the judge even though it
+        # excludes 40 of them under (x) in the cache — mapping (y) onto
+        # `table_row` would be the code inventing an exclusion the rubric does
+        # not have. (x) enumerative content and (z) quotation are both about
+        # what the words mean and stay judge-side.
+        structural_exclusions={"y": ("list_item",)},
+        # Set to the p90 of the measured post-triage spans-per-chunk
+        # distribution over the 167 cached real-corpus chunks (p50 6, p75 8,
+        # p90 11, p95 13, max 22). Recall-first extraction on a densely
+        # enumerative document proposes triples faster than adjudication can
+        # pay for them, and the tail is where the cost lives: capping at 11
+        # bounds 14 of 167 chunks and leaves the other 153 untouched.
+        adjudication_cap=11,
     ),
     "rht.rhetorical-qa": TellRule(
         tell_id="rht.rhetorical-qa",
@@ -173,6 +223,21 @@ RULES: dict[str, TellRule] = {
         mode="all",
         required=("a", "b"),
         exclusions=("x", "y", "z", "w"),
+        # Three of this rubric's four exclusions are about where a fragment
+        # sits, not what it says, and that is decidable from the line:
+        #   (x) "headings, subheadings, and titles ... including bolded run-in
+        #       headings"      -> heading
+        #   (y) "list items, table cells, and bullet text"
+        #                      -> list_item, table_row
+        #   (z) "salutations, sign-offs, captions, labels, bylines, dates, and
+        #       callout tags"  -> signoff, caption
+        # (w) — a fragment inside quoted speech attributed to someone else —
+        # is not a line shape and stays with the judge.
+        structural_exclusions={
+            "x": ("heading",),
+            "y": ("list_item", "table_row"),
+            "z": ("signoff", "caption"),
+        },
     ),
     "rht.from-x-to-y": TellRule(
         tell_id="rht.from-x-to-y",
@@ -221,6 +286,30 @@ def rule_for(tell: Tell | str) -> TellRule:
             f"no judge decision rule for {tell_id!r}; add one to protocol.RULES "
             "and mirror the rubric's own criterion labels"
         ) from None
+
+
+def structural_exclusion_for(rule: TellRule, line_class: str) -> str | None:
+    """The rubric letter a span on a `line_class` line is excluded by, or None.
+
+    This is the whole of fix M8d-1, and it is deliberately small. The judge is
+    asked nothing here: the rubric already says, in its own words, that a
+    heading or a bullet or a sign-off does not qualify, and whether a line is a
+    heading is a fact about the markdown rather than a reading of it. Sending
+    those spans to adjudication bought a paid-for confirmation of something the
+    parser knew — on the cached real-corpus chunks, 51% of every verified
+    `rht.fragment-emphasis` span, and the judge agreed with the line class 98%
+    of the time on the run-in headings that dominate the count.
+
+    Two properties keep this honest. It can only ever *reject*: a code
+    disposition never makes a tell fire, so the failure mode is a lost instance
+    rather than an invented one. And it fires only for letters a tell's rule
+    explicitly declares, so a tell whose exclusions are semantic — every one of
+    them, for `rht.rule-of-three` except (y) — is untouched.
+    """
+    for letter, classes in (rule.structural_exclusions or {}).items():
+        if line_class in classes:
+            return letter
+    return None
 
 
 def criteria_satisfied(rule: TellRule, criteria_met: Iterable[Any]) -> bool:
@@ -1035,6 +1124,7 @@ def extraction_spans(payload: dict[str, Any]) -> list[dict[str, Any]]:
 __all__ = [
     "CONTEXT_SENTENCES",
     "OVERLAP_WORDS",
+    "PROMPT_VERSION",
     "PROTOCOL_VERSION",
     "RULES",
     "STRUCTURAL_DECISIONS",
@@ -1058,6 +1148,7 @@ __all__ = [
     "rule_for",
     "skeleton_view",
     "span_counts",
+    "structural_exclusion_for",
     "structural_quotes",
     "verify_quote",
 ]

@@ -272,10 +272,18 @@ def run_snippet(tell: Tell, snippet: Snippet, backend: Any) -> SnippetOutcome:
             detail = f"{counted} span(s) counted: " + "; ".join(
                 q["quote"][:70] for q in run.counted[:2]
             )
-        elif run.rejected:
-            detail = "all spans rejected: " + "; ".join(
-                f"{r['why_not']}" for r in run.rejected[:3]
-            )
+        elif run.rejected or run.code_excluded:
+            # Structural dispositions have to show up here by name. A snippet
+            # that was rejected by the line classifier and one where the judge
+            # found nothing to quote both end with nothing counted, and reading
+            # the second for the first would hide the whole of protocol v3's
+            # behaviour from the gate report it is supposed to be judged by.
+            why = [str(r["why_not"]) for r in run.rejected[:3]]
+            why += [
+                f"({r['exclusion_triggered']}) by structure: {r['line_class']}"
+                for r in run.code_excluded[:3]
+            ]
+            detail = "all spans rejected: " + "; ".join(why)
         else:
             detail = "no spans extracted"
 
