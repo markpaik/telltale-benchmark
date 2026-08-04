@@ -1,0 +1,57 @@
+=== BEGIN lexical / claude-opus-5 17:51:16 ===
+judge resolved to claude-opus-4-6
+lexical lens on claude-opus-5: 3 candidate(s), 0 rejected
+  'sentence-initial it is' [regex] '\\bIt\\s+is\\b(?!\\s+important\\b)'
+  'against numeric benchmark' [regex] '\\bagainst\\s+(?:\\w+\\s+){0,2}\\$?\\d'
+  'percent of proportion' [regex] '\\bpercent\\s+of\\b'
+=== END lexical / claude-opus-5 rc=0 18:08:25 ===
+=== BEGIN rhetorical / claude-opus-5 18:08:25 ===
+  REJECTED 'abstract noun is-that frame': these examples are not verbatim in the excerpts: 'The problem with a twenty-three-month project is that you can always t'
+judge resolved to claude-opus-4-6
+rhetorical lens on claude-opus-5: 2 candidate(s), 1 rejected
+  'against-value benchmark' [regex] '\\bagainst\\s+(?:an?\\s+)?(?:\\w+\\s+)?\\$?\\d'
+  'copular superlative identification' [regex] '\\bis the\\s+(?:most|least|(?:small|larg|bigg|strong|weak|great|high|low|fast|slow|deep|long|short|wide|narrow|hard|broad|old|new|young|rich|poor|clear|sharp|thin|thick|bright|dark|close|tough)est)\\s+\\w+'
+=== END rhetorical / claude-opus-5 rc=0 18:23:57 ===
+=== BEGIN structural / claude-opus-5 18:23:57 ===
+judge resolved to claude-opus-4-6
+structural lens on claude-opus-5: 3 candidate(s), 0 rejected
+  'high total word count' [statistic] 'document_total_word_count'
+  'h3 heading depth prevalence' [statistic] 'h3_heading_share'
+  'short claim opener paragraphs' [statistic] 'short_opener_long_para_rate'
+=== END structural / claude-opus-5 rc=0 18:29:58 ===
+=== BEGIN formatting / claude-opus-5 18:29:58 ===
+judge resolved to claude-opus-4-6
+formatting lens on claude-opus-5: 3 candidate(s), 0 rejected
+  'standalone italic byline' [regex] '^\\*[^*\\n]+\\*$'
+  'bold inline citation' [regex] '\\*\\*[A-Z][a-z]+ et al\\.'
+  'em dash heading separator' [regex] '^#{1,6} [^:\\n]+ — [^:\\n]+$'
+=== END formatting / claude-opus-5 rc=0 18:42:19 ===
+=== BEGIN lexical / claude-sonnet-5 18:42:19 ===
+judge resolved to claude-opus-4-6
+lexical lens on claude-sonnet-5: 3 candidate(s), 0 rejected
+  'already temporal adverb' [regex] '\\balready\\b'
+  'within temporal deadline' [regex] '\\bwithin\\s+(?:\\S+\\s+)?(?:day|week|month|quarter|year|hour|minute)s?\\b'
+  'address verb for resolve' [regex] '\\baddress(?:es|ed|ing)\\b'
+=== END lexical / claude-sonnet-5 rc=0 18:59:43 ===
+=== BEGIN rhetorical / claude-sonnet-5 18:59:43 ===
+judge resolved to claude-opus-4-6
+rhetorical lens on claude-sonnet-5: 3 candidate(s), 0 rejected
+  'subject-interrupting participial parenthetical' [judge] 'chunk'
+  'this-content-noun cohesive opener' [judge] 'chunk'
+  'dense compound-predicate sentence' [judge] 'chunk'
+=== END rhetorical / claude-sonnet-5 rc=0 19:13:29 ===
+=== BEGIN structural / claude-sonnet-5 19:13:29 ===
+judge resolved to claude-opus-4-6
+structural lens on claude-sonnet-5: 3 candidate(s), 0 rejected
+  'inline topic-label paragraphs' [statistic] 'inline_topic_label_rate'
+  'topic-label paragraph runs' [statistic] 'max_topic_label_run'
+  'shallow heading hierarchy' [statistic] 'h3_heading_share'
+=== END structural / claude-sonnet-5 rc=0 19:21:32 ===
+=== BEGIN formatting / claude-sonnet-5 19:21:32 ===
+judge resolved to claude-opus-4-6
+formatting lens on claude-sonnet-5: 3 candidate(s), 0 rejected
+  'email addresses in bold headers' [regex] '\\*\\*(?:From|To|Cc|Bcc):\\*\\*.*<\\S+@\\S+>'
+  'parenthetical roles in attendance' [regex] '\\w+ \\([A-Z][a-z]{3,}(?:\\s[A-Z][a-z]+)?\\)'
+  'lowercase preposition in metadata label' [regex] '^\\*\\*\\w+ (?:by|for):\\*\\*'
+=== END formatting / claude-sonnet-5 rc=0 20:04:09 ===
+=== ALL LENSES DONE 20:04:09 ===

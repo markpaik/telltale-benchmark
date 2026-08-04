@@ -71,7 +71,11 @@ def test_get_raises_for_unknown_id(registry: Registry) -> None:
 
 def test_active_tells(registry: Registry) -> None:
     active = registry.active_tells()
-    assert len(active) == len(registry)
+    # Not `len(registry)`: once a discovery run has appended candidates the
+    # registry holds more tells than it scores, which is the whole point of the
+    # candidate status. The invariant is that `active_tells` returns exactly the
+    # active-status ones, not that every tell is active.
+    assert len(active) == sum(1 for t in registry if t.status == "active")
     assert all(t.status == "active" for t in active)
     assert len(registry.active_tells(include_candidates=True)) >= len(active)
 
@@ -118,6 +122,7 @@ def test_append_and_set_status_roundtrip(tmp_path: Path) -> None:
     registry = Registry(path)
     start_version = registry.version
     start_count = len(registry)
+    start_active = len(registry.active_tells())
 
     new = Tell(
         id="lex.testword",
@@ -157,7 +162,7 @@ def test_append_and_set_status_roundtrip(tmp_path: Path) -> None:
     deprecated = Registry(path)
     assert deprecated.version == start_version + 3
     assert deprecated.get("lex.testword").status == "deprecated"
-    assert len(deprecated.active_tells()) == start_count
+    assert len(deprecated.active_tells()) == start_active
 
 
 def test_append_rejects_duplicate_id(tmp_path: Path) -> None:
@@ -235,7 +240,12 @@ def test_validate_rejects_scope(tmp_path: Path, scope: str) -> None:
 
 
 def test_seed_tells_are_all_general(registry: Registry) -> None:
-    assert {t.scope for t in registry} == {"general"}
+    # Seed tells only. Discovery is allowed to propose a model-scoped tell — that
+    # is what gate 3 decides — so scoping this assertion to every tell in the
+    # file would turn "the seed set makes no per-model claims" into "no tell ever
+    # may", which is a different and wrong statement.
+    seed = [t for t in registry if (t.provenance or {}).get("source") != "discovery"]
+    assert {t.scope for t in seed} == {"general"}
 
 
 # --- proper_noun_guard -------------------------------------------------------

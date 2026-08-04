@@ -1,0 +1,79 @@
+{
+  "run_id": "20260804T202633Z-m8f",
+  "registry_version": 2,
+  "registry_hash": "4e8ff91a3c6f50efb9d901b223439a4ce13923034c81986d5608561ecbbf6954",
+  "appended": [
+    {
+      "id": "pnc.em-dash-heading-separator",
+      "name": "em dash heading separator",
+      "scope": "general",
+      "method": "regex"
+    },
+    {
+      "id": "pnc.lowercase-preposition-in-metadata-label",
+      "name": "lowercase preposition in metadata label",
+      "scope": "general",
+      "method": "regex"
+    },
+    {
+      "id": "phr.sentence-initial-it-is",
+      "name": "sentence-initial it is",
+      "scope": "general",
+      "method": "regex"
+    },
+    {
+      "id": "phr.against-numeric-benchmark",
+      "name": "against numeric benchmark",
+      "scope": "general",
+      "method": "regex"
+    },
+    {
+      "id": "phr.percent-of-proportion",
+      "name": "percent of proportion",
+      "scope": "general",
+      "method": "regex"
+    },
+    {
+      "id": "phr.already-temporal-adverb",
+      "name": "already temporal adverb",
+      "scope": "general",
+      "method": "regex"
+    },
+    {
+      "id": "phr.within-temporal-deadline",
+      "name": "within temporal deadline",
+      "scope": "general",
+      "method": "regex"
+    },
+    {
+      "id": "rht.against-value-benchmark",
+      "name": "against-value benchmark",
+      "scope": "general",
+      "method": "regex"
+    },
+    {
+      "id": "rht.copular-superlative-identification",
+      "name": "copular superlative identification",
+      "scope": "general",
+      "method": "regex"
+    },
+    {
+      "id": "rht.subject-interrupting-participial-parenth",
+      "name": "subject-interrupting participial parenthetical",
+      "scope": "model:claude-sonnet-5",
+      "method": "judge"
+    },
+    {
+      "id": "rht.this-content-noun-cohesive-opener",
+      "name": "this-content-noun cohesive opener",
+      "scope": "model:claude-sonnet-5",
+      "method": "judge"
+    },
+    {
+      "id": "rht.dense-compound-predicate-sentence",
+      "name": "dense compound-predicate sentence",
+      "scope": "model:claude-sonnet-5",
+      "method": "judge"
+    }
+  ]
+}
