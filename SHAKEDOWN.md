@@ -233,7 +233,7 @@ ask about that.
 The same question applies to `rht.from-x-to-y` with less ambiguity: one counted
 span in 60 documents, at a cost of 206 extraction calls and 127 adjudications.
 
-### 2.2 The disagreement rate has the wrong denominator
+### 2.2 The disagreement rate has the wrong denominator (fixed, M8g.2)
 
 Judge/code disagreement is 0 of 292 across every tell, and that is a real
 result: the model's own `instance` boolean never once contradicted the rubric
@@ -250,9 +250,13 @@ no also changed a number, downward, and those spans land in
 `adjudicated_false`, which is excluded from the denominator. The right
 denominator is every adjudicated span: 1,981 here, not 292. The rate is zero
 either way, so nothing published is wrong, and the metric would report 6.8x too
-high the first time a disagreement appears. Fixing it changes `scorecard.md`,
-which would invalidate `--verify` against this run, so it should land with the
-next protocol bump rather than now.
+high the first time a disagreement appears.
+
+Fixed in M8g.2: the denominator is now `adjudicated_true + adjudicated_false`,
+and the key is renamed `counted` -> `adjudicated` in the rollup, the scorecard
+row, and the CLI warning. That changes `scorecard.md`, so it invalidates
+`--verify` against run `20260803T145220Z`; the run was re-rendered under the
+fixed code and the new run supersedes it as the shakedown reference.
 
 ### 2.3 Haiku substitution
 
@@ -598,3 +602,126 @@ peak. A sampled sweep at 60 documents is about 3,000 calls, 10 hours sustained.
     record the stitch rate per model in the manifest.** The 69%-against-3%
     asymmetry is the single largest known bias in the current corpus. Halving the
     continuation ladder shrinks it; recording it makes it auditable either way.
+
+---
+
+## 5. Discovery findings
+
+The M8f discovery run put four lenses over the same 224-document corpus, one
+pass per model, and put every proposal through the five verification gates. It
+produced 23 candidates: 12 accepted and appended to the registry as
+`status: candidate`, 5 rejected, and 6 parked for want of a statistic that does
+not exist yet. Everything in this section comes from
+`runs/discovery/shakedown-1/`.
+
+### 5.1 The twelve appended candidates
+
+Nine regex tells and three judge rubrics. Every regex candidate cleared a
+10-of-10 precision spot-check, adjudicated by the judge against the rubric
+rather than by eye. Document frequencies are Opus / Sonnet across all 224
+documents. All twelve are candidates, not active tells: none of them counts
+toward an index until it is promoted.
+
+| id | lens | Opus / Sonnet doc freq |
+|---|---|---|
+| `pnc.em-dash-heading-separator` | formatting | 58% / 32% |
+| `pnc.lowercase-preposition-in-metadata-label` | formatting | 18% / 28% |
+| `phr.sentence-initial-it-is` | lexical | 84% / 45% |
+| `phr.against-numeric-benchmark` | lexical | 81% / 53% |
+| `phr.percent-of-proportion` | lexical | 90% / 71% |
+| `phr.already-temporal-adverb` | lexical | 84% / 94% |
+| `phr.within-temporal-deadline` | lexical | 87% / 71% |
+| `rht.against-value-benchmark` | rhetorical | 80% / 51% |
+| `rht.copular-superlative-identification` | rhetorical | 61% / 42% |
+| `rht.subject-interrupting-participial-parenth` | rhetorical | deferred |
+| `rht.this-content-noun-cohesive-opener` | rhetorical | deferred |
+| `rht.dense-compound-predicate-sentence` | rhetorical | deferred |
+
+The three judge candidates carry no frequencies because measuring a judge tell
+costs one model call per document and the rubric has not been calibrated yet;
+gates 2 and 3 are deferred to the M6 calibration set. They record
+`measurement: deferred` rather than a zero (M8g.1) — the first write of these
+entries put `doc_freq: 0.0` on disk, which reads as "looked for across 112
+documents and never found" when the truth is that nobody looked.
+
+### 5.2 The lens over-attributes to the model it was shown
+
+Every lens is run against one model with the other as contrast, and it is asked
+for a scope hypothesis. Of the 12 candidates that reached gate 3 and came out
+with a scope, **12 of 12 had their model-specific hypothesis overturned**. Not
+one survived as `model:*`. Every one landed at `general`.
+
+Two were worse than merely over-attributed — they were pointed at the wrong
+model outright:
+
+- `within temporal deadline`, proposed as Sonnet, z = **-2.79**. Opus uses it in
+  87% of documents against Sonnet's 71%.
+- `address verb for resolve`, proposed as Sonnet, z = -0.98, and rejected. Opus
+  87% document frequency against Sonnet's 76%.
+
+A third, `email addresses in bold headers`, was also proposed as Sonnet with a
+negative z and was rejected at the gate.
+
+This is what a lens is for — it generates hypotheses, and gate 3 is what tests
+them — but it means a lens report read on its own is systematically wrong about
+scope. **Any lens output quoted anywhere must carry its gate-3 numbers.** The
+model's rationale for `within temporal deadline` reads as confidently as the
+rationale for `sentence-initial it is`, and one of them is backwards.
+
+### 5.3 Commas per sentence is the largest separator, and its ramp misses it
+
+The statistical sweep's biggest effect by a wide margin:
+
+| stat | Opus mean | Sonnet mean | Cohen's d |
+|---|---|---|---|
+| `commas_per_sentence` | 0.97 | 1.46 | **1.45** |
+| `sentence_length_band_distance` | 0.21 | 4.60 | 1.22 |
+| `sentence_opener_diversity` | 0.42 | 0.37 | 0.72 |
+
+A d of 1.45 on 112 documents per side is the cleanest model separation anything
+in this project has produced. The registry already has a tell for it —
+`sta.comma-rate`, seeded from the literature on 2026-07-28, ramp `[1.6, 3.0]`,
+`high_is_telling`. **Both models' means sit below the floor of that ramp.**
+Sonnet's 1.46 does not reach 1.6; Opus's 0.97 is nowhere near it. The tell that
+should be the loudest discriminator in the benchmark scores approximately zero
+for every document in the corpus.
+
+This is the same failure as Section 2.8 and it belongs with it: fold
+`sta.comma-rate` into that recalibration item. A ramp of roughly `[0.9, 1.8]`
+would put Opus near the floor and Sonnet well up the slope, but the number
+should be chosen and frozen before the canonical run, not after seeing what it
+does to the scores.
+
+### 5.4 Six statistic candidates parked for M9
+
+Six proposals were well-formed and survived the executability gate but named
+statistics `textstats.py` does not compute. They are recorded as
+`needs-stat-implementation`, which is neither an acceptance nor a rejection:
+
+- `document_total_word_count` — high total word count (Opus)
+- `h3_heading_share` — h3 heading depth prevalence (Opus), and, from the Sonnet
+  pass, shallow heading hierarchy off the same statistic in the other direction
+- `short_opener_long_para_rate` — short claim-opener paragraphs (Opus)
+- `inline_topic_label_rate` — inline topic-label paragraphs (Sonnet)
+- `max_topic_label_run` — topic-label paragraph runs (Sonnet)
+
+Two of the six are the same statistic proposed from opposite ends, which is
+itself a small piece of evidence that the heading-depth difference is real.
+Implementing these is M9 work: each one needs a function, a test, and a ramp
+chosen against the corpus, and none of that should be rushed to make a
+milestone.
+
+### 5.5 Every scope here is provisional until Fable is in the corpus
+
+The corpus has two models. "General" in this run means "not different between
+Opus 5 and Sonnet 5" — it does not mean "characteristic of machine writing."
+The distinction matters most for exactly the 12 candidates in Section 5.2, whose
+scope was set to `general` by a two-way comparison that a third model could
+overturn in either direction: a habit both Claudes share and Fable does not is a
+Claude tell, not a general one.
+
+So: **no candidate discovered in this run should be promoted to `active` before
+the three-model corpus exists.** The gate-3 result is a falsification of the
+model-specific hypothesis, which is real and worth having. It is not a
+confirmation of the general one, and treating it as one would put roughly a
+dozen unfalsified tells into the index at once.
