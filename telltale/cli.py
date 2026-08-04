@@ -359,6 +359,59 @@ def cmd_report(args: argparse.Namespace) -> int:
         print(result.summary())
         return 0 if result.ok else 1
 
+    if args.seams:
+        import json as _json
+
+        from telltale import analysis
+        from telltale.corpus import load_corpus
+
+        docs = load_corpus(args.corpus)
+        rows = analysis.read_scores(Path(args.seams) / "scores.jsonl")
+        report_obj = analysis.seam_report(
+            docs, rows, window=args.window or analysis.DEFAULT_WINDOW
+        )
+        print(report_obj.table())
+        for note in report_obj.notes:
+            print(f"note: {note}")
+        flagged = report_obj.flagged()
+        print(
+            f"\n{len(flagged)} of {len(report_obj.groups)} cells flagged as a "
+            "suspected harness artifact"
+        )
+
+        # The companion measure: a tell the continuation regime turns on for a
+        # whole document never clusters at the join, so seam proximity cannot
+        # see it. Printed only where the two cohorts actually diverge.
+        rates = {(r.tell_id, r.cohort): r for r in analysis.cohort_rates(docs, rows)}
+        models = sorted({r.cohort.split(" ")[0] for r in rates.values()})
+        print("\nstitched vs single-turn mean rate, where they diverge by 2x or more")
+        print(f"{'tell':<30} {'model':<18} {'single':>9} {'stitched':>9} {'x':>7}")
+        for tell_id in sorted({t for t, _ in rates}):
+            for model in models:
+                single = rates.get((tell_id, f"{model} single"))
+                stitched = rates.get((tell_id, f"{model} stitched"))
+                if single is None or stitched is None or stitched.docs < 5:
+                    continue
+                if single.mean == 0 and stitched.mean == 0:
+                    continue
+                ratio = (stitched.mean / single.mean) if single.mean else float("inf")
+                if 0.5 < ratio < 2.0:
+                    continue
+                shown = "inf" if ratio == float("inf") else f"{ratio:.2f}"
+                print(
+                    f"{tell_id:<30} {model:<18} {single.mean:>9.3f} "
+                    f"{stitched.mean:>9.3f} {shown:>7}"
+                )
+
+        if args.out:
+            out = Path(args.out)
+            out.parent.mkdir(parents=True, exist_ok=True)
+            payload = report_obj.as_dict()
+            payload["cohort_rates"] = [r.as_dict() for r in analysis.cohort_rates(docs, rows)]
+            out.write_text(_json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+            print(f"report: {out}")
+        return 0
+
     from telltale import report
 
     path = report.render_scorecard(args.render)
@@ -446,6 +499,20 @@ def _add_report_parser(subparsers: argparse._SubParsersAction) -> None:
         metavar="RUN_DIR",
         help="re-render scorecard.md from an existing run directory",
     )
+    group.add_argument(
+        "--seams",
+        type=Path,
+        metavar="RUN_DIR",
+        help="join a run's matches against the corpus's continuation boundaries",
+    )
+    parser.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
+    parser.add_argument(
+        "--window",
+        type=int,
+        default=None,
+        help="characters either side of a seam that count as at it (default 200)",
+    )
+    parser.add_argument("--out", type=Path, default=None, help="write the report as JSON")
     parser.set_defaults(func=cmd_report)
 
 
