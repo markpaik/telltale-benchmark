@@ -1124,7 +1124,15 @@ def _evidence(
         "examples": list(candidate.get("examples") or [])[:5],
         "gates": [g.as_dict() for g in verdict.gates],
     }
-    if measurement is not None:
+    if str(candidate.get("method") or "") == "judge":
+        # A judge candidate has no regex to run, so `measure` counts nothing and
+        # every model comes back 0/112. Written out as doc_freq that reads as a
+        # measured zero — the tell was looked for and never found — which is the
+        # opposite of the truth: it was never looked for. Deferred must say
+        # deferred.
+        evidence["measurement"] = "deferred"
+        evidence["reason"] = "judge-method: gates 2-3 deferred to calibration"
+    elif measurement is not None:
         evidence["doc_freq"] = measurement.doc_freq()
         evidence["doc_hits"] = {k: list(v) for k, v in measurement.doc_hits().items()}
         evidence["mean_rate_per_1k"] = measurement.mean_rate()

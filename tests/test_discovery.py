@@ -1020,6 +1020,34 @@ def test_a_judge_candidate_defers_prevalence_and_scope(
     assert verdict.gate(2).data["deferred"] is True
     assert verdict.gate(3).data["deferred"] is True
     assert verdict.gate(4).data["skipped"] is True
+    # And it must not carry a measured-looking zero. `measure` runs no regex for
+    # a judge candidate, so every model comes back 0-of-N; writing that out as
+    # doc_freq says "looked for, never found" when the truth is "never looked
+    # for".
+    assert "doc_freq" not in verdict.evidence
+    assert "doc_hits" not in verdict.evidence
+    assert "mean_rate_per_1k" not in verdict.evidence
+    assert verdict.evidence["measurement"] == "deferred"
+    assert verdict.evidence["reason"] == "judge-method: gates 2-3 deferred to calibration"
+
+
+def test_the_shipped_judge_candidates_do_not_claim_a_measured_zero() -> None:
+    """The three M8f judge tells were written before the fix; they were repaired."""
+    reg = Registry(REGISTRY_PATH)
+    judged = [
+        t
+        for t in reg
+        if t.method == "judge"
+        and isinstance(t.provenance, dict)
+        and t.provenance.get("source") == "discovery"
+    ]
+    assert judged
+    for tell in judged:
+        evidence = tell.provenance.get("evidence") or {}
+        assert "doc_freq" not in evidence, tell.id
+        assert "doc_hits" not in evidence, tell.id
+        assert evidence.get("measurement") == "deferred", tell.id
+        assert "unverified" in (tell.provenance.get("note") or ""), tell.id
 
 
 # --- to_tell and the registry round trip -------------------------------------

@@ -7712,18 +7712,9 @@ tells:
     source: discovery
     added: 2026-08-04
     run_id: 20260804T202633Z-m8f
+    note: scope is the lens hypothesis, unverified — 12/12 testable discovery candidates had their model-scope hypothesis overturned by gate 3; re-decide at calibration
     evidence:
       discovery_run_id: discover-20260804T185949Z
-      doc_freq:
-        claude-opus-5: 0.0
-        claude-sonnet-5: 0.0
-      doc_hits:
-        claude-opus-5:
-        - 0
-        - 112
-        claude-sonnet-5:
-        - 0
-        - 112
       examples:
       - The immediate operational consequence of this turnover, beyond the direct effects already described in Sections 2.2 and 2.4, is increased reliance on remaining staff working above capacity and on contracted or temporary support in some functions.
       - The public comment period, extended by unanimous consent from its customary thirty minutes to a full hour given the size of the audience, was occupied in its entirety.
@@ -8118,11 +8109,13 @@ tells:
         passed: true
       judge_model: claude-opus-4-6
       lens: rhetorical
+      measurement: deferred
       mean_rate_per_1k:
         claude-opus-5: 0.0
         claude-sonnet-5: 0.0
       prompt_sha: 019c5f866a99c3402342fcc73831bba18d5e0cac88ae0accc1b0f2da3df5a1b9
       rationale: Claude-sonnet-5 frequently inserts substantial participial or prepositional phrases between a sentence's subject and its main verb, creating an information-dense interrupted cadence. This construction appears across multiple document types in the sonnet excerpts but is largely absent from the opus excerpts, where subjects and verbs tend to remain adjacent.
+      reason: 'judge-method: gates 2-3 deferred to calibration'
       scope_hypothesis: model:claude-sonnet-5
       scope_z: null
       target_model: claude-sonnet-5
@@ -8160,18 +8153,9 @@ tells:
     source: discovery
     added: 2026-08-04
     run_id: 20260804T202633Z-m8f
+    note: scope is the lens hypothesis, unverified — 12/12 testable discovery candidates had their model-scope hypothesis overturned by gate 3; re-decide at calibration
     evidence:
       discovery_run_id: discover-20260804T185949Z
-      doc_freq:
-        claude-opus-5: 0.0
-        claude-sonnet-5: 0.0
-      doc_hits:
-        claude-opus-5:
-        - 0
-        - 112
-        claude-sonnet-5:
-        - 0
-        - 112
       examples:
       - This figure represents not a momentary dip but a structural pattern that has held largely steady across recent years
       - This single decision addressed directly the gap that had existed at the board's original March 2023 approval
@@ -8567,11 +8551,13 @@ tells:
         passed: true
       judge_model: claude-opus-4-6
       lens: rhetorical
+      measurement: deferred
       mean_rate_per_1k:
         claude-opus-5: 0.0
         claude-sonnet-5: 0.0
       prompt_sha: 019c5f866a99c3402342fcc73831bba18d5e0cac88ae0accc1b0f2da3df5a1b9
       rationale: 'Claude-sonnet-5 strongly favors opening sentences with ''This'' + a specific content noun that classifies the preceding discourse, then asserting something about it. Statistical evidence supports this: ''this'' has z=+18.51 for sonnet-5 while ''it'' has z=-22.57 (opus overuses ''it'' as a pronoun instead). Opus tends toward ''It is/was...'' constructions rather than this demonstrative-noun cohesive device.'
+      reason: 'judge-method: gates 2-3 deferred to calibration'
       scope_hypothesis: model:claude-sonnet-5
       scope_z: null
       target_model: claude-sonnet-5
@@ -8609,18 +8595,9 @@ tells:
     source: discovery
     added: 2026-08-04
     run_id: 20260804T202633Z-m8f
+    note: scope is the lens hypothesis, unverified — 12/12 testable discovery candidates had their model-scope hypothesis overturned by gate 3; re-decide at calibration
     evidence:
       discovery_run_id: discover-20260804T185949Z
-      doc_freq:
-        claude-opus-5: 0.0
-        claude-sonnet-5: 0.0
-      doc_hits:
-        claude-opus-5:
-        - 0
-        - 112
-        claude-sonnet-5:
-        - 0
-        - 112
       examples:
       - The owner's representative was tasked with auditing the remaining construction scope, independently verifying the corrected mechanical design for the refrigeration system, and managing the contractor's schedule and change orders going forward with a level of scrutiny the project had not had from its outset.
       - Ms. Nwachukwu's office does not consider the current exit interview sample large enough to draw firm conclusions about supervisory factors and recommends continued monitoring rather than immediate action on that specific point.
@@ -9016,11 +8993,13 @@ tells:
         passed: true
       judge_model: claude-opus-4-6
       lens: rhetorical
+      measurement: deferred
       mean_rate_per_1k:
         claude-opus-5: 0.0
         claude-sonnet-5: 0.0
       prompt_sha: 019c5f866a99c3402342fcc73831bba18d5e0cac88ae0accc1b0f2da3df5a1b9
       rationale: Claude-sonnet-5 frequently packs multiple distinct, detail-laden actions into a single sentence governed by one grammatical subject, creating dense compound-predicate constructions that often exceed 50 words. The contrast model tends to break such multi-action sequences into separate sentences or uses simpler constructions with compound objects rather than compound predicates.
+      reason: 'judge-method: gates 2-3 deferred to calibration'
       scope_hypothesis: model:claude-sonnet-5
       scope_z: null
       target_model: claude-sonnet-5
