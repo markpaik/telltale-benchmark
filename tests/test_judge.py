@@ -1563,6 +1563,30 @@ def test_an_audit_with_nothing_cached_says_so(tmp_path: Path, qa_tell: Tell) -> 
     assert "nothing to re-ask" in report.summary()
 
 
+def test_the_audit_draw_covers_every_tell_and_respects_a_budget() -> None:
+    """Uniform sampling would spend the budget on whichever tell chunks most."""
+    from telltale.registry import Tell
+
+    def entry(tell_id: str, i: int):
+        tell = Tell(id=tell_id, name=tell_id, category="rhetorical", method="judge")
+        return (tell, f"m/doc-{i:02d}", None, "extract", {})
+
+    # 90 cached items for one tell, 5 for another: a uniform draw of 10 would
+    # be expected to take 9 and 1.
+    available = [entry("deep", i) for i in range(90)] + [entry("thin", i) for i in range(5)]
+    picks = audit_mod._stratified_picks(available, 10, seed=11)
+    assert len(picks) == 10
+    taken = [available[i][0].id for i in picks]
+    assert taken.count("thin") == 5, "the thin tell's whole pool should be drawn first"
+    assert taken.count("deep") == 5
+
+    # Deterministic under the same seed, and the cap trims the tail of the
+    # round rather than dropping a tell.
+    assert audit_mod._stratified_picks(available, 10, seed=11) == picks
+    small = audit_mod._stratified_picks(available, 4, seed=11)
+    assert {available[i][0].id for i in small} == {"deep", "thin"}
+
+
 # --- judge/code disagreement rollup ------------------------------------------
 
 

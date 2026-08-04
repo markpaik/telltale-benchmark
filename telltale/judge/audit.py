@@ -17,6 +17,13 @@ Agreement is reported as Jaccard overlap on whitespace-normalized verified
 quotes — two calls that find the same three spans score 1.0, two calls that
 agree on two of three score 0.5. Both-empty counts as full agreement, because
 "nothing here" twice is a reproduced answer.
+
+The draw is stratified by tell and round-robin, not uniform over the cache.
+Uniform sampling would spend the budget where the cache is deepest, and the
+cache is deepest for whichever tell happens to chunk documents most finely —
+which has nothing to do with which rubric a reader most needs a stability
+number for. Equal coverage per tell means every rubric gets an estimate, and a
+budget cap trims the tail of the round rather than a random tell's whole share.
 """
 
 from __future__ import annotations
@@ -69,11 +76,34 @@ class AuditReport:
     timestamp: str
     items: list[AuditItem] = field(default_factory=list)
     note: str = ""
+    n_requested: int = 0
+    max_calls: int | None = None
+    capped: bool = False
 
     def as_dict(self) -> dict[str, Any]:
         data = asdict(self)
         data["items"] = [i.as_dict() for i in self.items]
+        data["per_tell"] = self.per_tell()
         return data
+
+    def per_tell(self) -> dict[str, dict[str, Any]]:
+        """Agreement per tell. A rubric's stability is a per-rubric fact."""
+        out: dict[str, dict[str, Any]] = {}
+        for item in self.items:
+            row = out.setdefault(
+                item.tell_id,
+                {"n": 0, "identical": 0, "mean_agreement": 0.0, "_total": 0.0,
+                 "cached_spans": 0, "live_spans": 0, "shared": 0},
+            )
+            row["n"] += 1
+            row["_total"] += item.agreement
+            row["identical"] += 1 if item.agreement == 1.0 else 0
+            row["cached_spans"] += item.cached_spans
+            row["live_spans"] += item.live_spans
+            row["shared"] += item.shared
+        for row in out.values():
+            row["mean_agreement"] = row.pop("_total") / row["n"]
+        return dict(sorted(out.items()))
 
     def summary(self) -> str:
         if not self.n_sampled:
@@ -81,12 +111,24 @@ class AuditReport:
                 f"consistency audit: nothing to re-ask "
                 f"({self.n_available} cached items available). {self.note}".strip()
             )
-        return (
+        head = (
             f"consistency audit: {self.n_sampled} of {self.n_available} cached "
             f"extractions re-asked live against {self.judge_model}; mean span-set "
             f"agreement {self.mean_agreement:.2f}, "
             f"{self.exact_matches}/{self.n_sampled} identical"
         )
+        if self.capped:
+            head += (
+                f"\n  capped: {self.pct:g}% of the cache is {self.n_requested} "
+                f"calls, trimmed to the {self.max_calls}-call budget"
+            )
+        lines = [head, "  tell                            n  mean  identical"]
+        for tell_id, row in self.per_tell().items():
+            lines.append(
+                f"  {tell_id:<30} {row['n']:>3}  {row['mean_agreement']:.2f}  "
+                f"{row['identical']}/{row['n']}"
+            )
+        return "\n".join(lines)
 
 
 def _work_items(
@@ -134,14 +176,55 @@ def _agreement(left: set[str], right: set[str]) -> tuple[int, float]:
     return shared, shared / len(union)
 
 
+def _stratified_picks(
+    available: Sequence[tuple[Tell, Doc, Any, str, dict[str, Any]]],
+    n_sample: int,
+    seed: int,
+) -> list[int]:
+    """Indices into `available`, drawn round-robin over tells.
+
+    Each tell's pool is shuffled on its own seed, so adding a tell to the
+    registry does not reshuffle everybody else's draw.
+    """
+    by_tell: dict[str, list[int]] = {}
+    for index, entry in enumerate(available):
+        by_tell.setdefault(entry[0].id, []).append(index)
+    for tell_id, pool in by_tell.items():
+        random.Random(f"{seed}|{tell_id}").shuffle(pool)
+
+    picks: list[int] = []
+    order = sorted(by_tell)
+    round_index = 0
+    while len(picks) < n_sample:
+        took = False
+        for tell_id in order:
+            pool = by_tell[tell_id]
+            if round_index < len(pool):
+                picks.append(pool[round_index])
+                took = True
+                if len(picks) >= n_sample:
+                    break
+        if not took:
+            break
+        round_index += 1
+    return sorted(picks)
+
+
 def audit(
     docs: Sequence[Doc],
     tells: Sequence[Tell],
     client: Any,
     pct: float = DEFAULT_PCT,
     seed: int = DEFAULT_SEED,
+    max_calls: int | None = None,
+    progress: Any | None = None,
 ) -> AuditReport:
-    """Re-ask `pct` percent of the cached extractions and compare span sets."""
+    """Re-ask `pct` percent of the cached extractions and compare span sets.
+
+    `max_calls` is a budget ceiling. A live call costs about a minute, so a
+    percentage over a large cache can quietly become an hour; the cap is
+    recorded in the report rather than applied silently.
+    """
     judge = [t for t in tells if t.method == "judge"]
     items = _work_items(docs, judge)
 
@@ -154,16 +237,15 @@ def audit(
         if cached is not None:
             available.append((tell, doc, chunk, stage, cached))
 
-    n_sample = min(len(available), math.ceil(len(available) * (pct / 100.0)))
-    picks = (
-        sorted(random.Random(seed).sample(range(len(available)), n_sample))
-        if n_sample
-        else []
-    )
+    n_requested = min(len(available), math.ceil(len(available) * (pct / 100.0)))
+    n_sample = n_requested if max_calls is None else min(n_requested, int(max_calls))
+    picks = _stratified_picks(available, n_sample, seed) if n_sample else []
 
     results: list[AuditItem] = []
-    for index in picks:
+    for position, index in enumerate(picks, start=1):
         tell, doc, chunk, stage, cached = available[index]
+        if progress is not None:
+            progress(f"AUDIT {position}/{len(picks)} {tell.id} {doc.doc_id}#{chunk.index}")
         live = client.transport.ask(_prompt_for(tell, chunk, stage))
         cached_set = _verified_quotes(tell, cached, chunk.text, stage)
         live_set = _verified_quotes(tell, live, chunk.text, stage)
@@ -199,6 +281,9 @@ def audit(
         timestamp=datetime.now(timezone.utc).isoformat(timespec="seconds"),
         items=results,
         note="" if available else "no cached judge answers to audit",
+        n_requested=n_requested,
+        max_calls=None if max_calls is None else int(max_calls),
+        capped=bool(n_sample < n_requested),
     )
 
 

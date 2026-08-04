@@ -529,7 +529,11 @@ def cmd_judge_audit(args: argparse.Namespace) -> int:
     docs = load_corpus(args.corpus)
     model = _resolved_judge(args)
     backend = build_backend(model=model)
-    report = audit_mod.audit(docs, tells, backend.client, pct=args.pct, seed=args.seed)
+    report = audit_mod.audit(
+        docs, tells, backend.client, pct=args.pct, seed=args.seed,
+        max_calls=args.max_calls,
+        progress=lambda line: print(line, file=sys.stderr, flush=True),
+    )
     print(report.summary())
     for item in report.items:
         if item.agreement < 1.0:
@@ -570,6 +574,12 @@ def _add_judge_parser(subparsers: argparse._SubParsersAction) -> None:
     )
     audit.add_argument("--pct", type=float, default=5.0)
     audit.add_argument("--seed", type=int, default=11)
+    audit.add_argument(
+        "--max-calls",
+        type=int,
+        default=None,
+        help="budget ceiling on live judge calls; the draw is trimmed, not the tells",
+    )
     audit.add_argument("--tell", default=None)
     audit.add_argument("--model", default=None)
     audit.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)
