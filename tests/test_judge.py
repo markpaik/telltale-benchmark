@@ -2641,3 +2641,67 @@ def test_a_judge_run_verifies_off_its_cache_without_calling_the_model(
     shutil.rmtree(tmp_path / "cache")
     with pytest.raises(CacheMiss):
         manifest_mod.verify(run_dir)
+
+
+def test_a_sampled_judge_run_verifies_on_the_documents_it_actually_judged(
+    tmp_path: Path, judged_corpus: Path, registry: Registry, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The sample is an input to the run, so the replay has to draw it too.
+
+    A replay that ignored the sample would ask the judge about documents the
+    run never judged, and the first one is a cache miss — the verifier failing
+    on work nobody did.
+    """
+    from telltale import manifest as manifest_mod
+    from telltale import report as report_mod
+
+    _install_fake_judge(monkeypatch, tmp_path)
+    runs = tmp_path / "runs"
+    _calibrate_all(runs, registry)
+    run_dir = report_mod.score_run(
+        corpus_root=judged_corpus, registry_path=REGISTRY_PATH, out_root=runs,
+        bootstrap_n=20, judge=True, judge_model=JUDGE_MODEL_DEFAULT, runs_root=runs,
+        judge_sample=1, judge_sample_seed=7,
+    )
+
+    result = manifest_mod.verify(run_dir)
+    assert result.ok, result.summary()
+    assert any("judge_sample" in name for name in result.checked)
+
+
+def test_a_measurement_that_failed_live_replays_as_a_failure_not_a_lost_input(
+    tmp_path: Path, registry: Registry
+) -> None:
+    """A call that failed live wrote nothing to the cache.
+
+    On replay its absence is the faithful reproduction of that run, not a
+    vanished input — but only for the (tell, document) pairs the manifest
+    actually recorded as failures. Any other miss still stops the replay.
+    """
+    from telltale import scoring
+
+    docs = [
+        doc_from(E2E_DOC.replace("Consolidation", f"C{i}"), doc_id=f"m/doc-{i:02d}")
+        for i in range(2)
+    ]
+    tells = [registry.get("rht.rhetorical-qa")]
+
+    # Warm the cache for doc-01 only; doc-00 stands in for the failed call.
+    warm = make_client(tmp_path, e2e_router)
+    scoring.detect_all(docs[1:], tells, judge=JudgeBackend(warm))
+
+    replay = make_client(tmp_path, e2e_router, cache_only=True)
+    df = scoring.detect_all(
+        docs, tells, judge=JudgeBackend(replay),
+        judge_missing_ok=[("rht.rhetorical-qa", "m/doc-00")],
+    )
+    assert sorted(df[df["method"] == "judge"]["doc_id"]) == ["m/doc-01"]
+    errors = list(df.attrs.get("judge_errors") or [])
+    assert [e["doc_id"] for e in errors] == ["m/doc-00"]
+    assert "never cached" in errors[0]["error"]
+
+    # Without that pair named, the same miss is a missing input and must stop.
+    with pytest.raises(CacheMiss):
+        scoring.detect_all(
+            docs, tells, judge=JudgeBackend(make_client(tmp_path, e2e_router, cache_only=True))
+        )

@@ -897,6 +897,7 @@ def score_run(
     judge_sample: int | None = None,
     judge_sample_seed: int = 7,
     judge_doc_list: Sequence[str] | None = None,
+    judge_missing_ok: Sequence[tuple[str, str]] | None = None,
     notes: Sequence[str] | None = None,
 ) -> Path:
     """Score a corpus and write the four outputs plus the manifest.
@@ -961,6 +962,7 @@ def score_run(
         docs, tells, judge=backend, progress=progress,
         workers=max(1, judge_workers), controller=controller,
         judge_docs=sample.doc_ids if sample is not None else None,
+        judge_missing_ok=judge_missing_ok,
     )
     df = scoring.normalize(df, tells)
     judge_skipped = scoring.judge_tell_ids(tells) if backend is None else []

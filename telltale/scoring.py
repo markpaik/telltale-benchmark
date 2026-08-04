@@ -151,6 +151,7 @@ def detect_all(
     workers: int = 1,
     controller: Any | None = None,
     judge_docs: Any | None = None,
+    judge_missing_ok: Any | None = None,
 ) -> pd.DataFrame:
     """Run every applicable tell over every document.
 
@@ -188,7 +189,17 @@ def detect_all(
     # A missing cache entry is not a flaky call, it is a missing input, and a
     # replay that quietly scored 223 of 224 documents would be worse than one
     # that stopped. Everything else about a judge call is recoverable.
+    #
+    # The one exception is a measurement the original run itself never
+    # completed: a call that failed live wrote nothing to the cache, so its
+    # absence on replay is the faithful reproduction of that run, not a lost
+    # input. `judge_missing_ok` carries those (tell_id, doc_id) pairs from the
+    # manifest, and only those, so a genuinely emptied cache still stops the
+    # replay dead.
     fatal: tuple[type[BaseException], ...] = ()
+    missing_ok: set[tuple[str, str]] = {
+        (str(t), str(d)) for t, d in (judge_missing_ok or ())
+    }
     if judge is not None:
         from telltale.judge.cache import CacheMiss
 
@@ -247,7 +258,18 @@ def detect_all(
         try:
             detection = detector.detect(doc)
         except fatal:
-            raise
+            if (tell.id, doc.doc_id) not in missing_ok:
+                raise
+            with lock:
+                errors.append(
+                    {
+                        "tell_id": tell.id,
+                        "doc_id": doc.doc_id,
+                        "error": "CacheMiss: the original run recorded this "
+                        "measurement as failed, so it was never cached",
+                    }
+                )
+            return
         except Exception as exc:  # noqa: BLE001 - recorded, not swallowed
             note = f"{type(exc).__name__}: {exc}"
             with lock:

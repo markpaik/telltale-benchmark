@@ -178,6 +178,17 @@ class VerifyResult:
         return "\n".join(lines)
 
 
+def _sample_ids(run_dir: Path) -> list[str]:
+    """The document ids in a run's judge_sample.json, or [] if it has none."""
+    path = Path(run_dir) / "judge_sample.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return []
+    ids = data.get("doc_ids") if isinstance(data, dict) else None
+    return [str(i) for i in ids] if isinstance(ids, list) else []
+
+
 def verify(run_dir: Path) -> VerifyResult:
     """Recompute a run from its manifest and require byte-identical outputs.
 
@@ -222,6 +233,35 @@ def verify(run_dir: Path) -> VerifyResult:
 
     bootstrap = manifest.get("bootstrap") or {}
     judge = manifest.get("judge") or {}
+
+    # A sampled judge run measured Tier-2 on 60 of 224 documents. Replaying it
+    # without the sample would ask the judge about documents the run never
+    # judged, which is not a verification of anything — the first such document
+    # is simply a cache miss. The size and seed are replayed rather than the
+    # recorded id list, so the sampler itself is under test; the ids are then
+    # checked against what the run wrote down.
+    judge_sample = judge.get("sample") or {}
+    sample_size = int(judge_sample.get("size") or 0) or None
+    sample_seed = int(judge_sample.get("seed", 7))
+
+    # Calls that failed live wrote nothing to the cache. Their absence is part
+    # of the run being verified, so they are named rather than treated as a
+    # vanished input. Only the errors the manifest actually lists can be named:
+    # the sample is capped at 20, and past that the replay would stop, which is
+    # the honest outcome of a manifest that did not record enough to replay.
+    error_section = judge.get("errors") or {}
+    missing_ok = [
+        (str(e.get("tell_id")), str(e.get("doc_id")))
+        for e in (error_section.get("sample") or [])
+    ]
+    n_errors = int(error_section.get("count") or 0)
+    if n_errors > len(missing_ok):
+        result.notes.append(
+            f"{n_errors} judge calls failed in the original run but only "
+            f"{len(missing_ok)} are named in the manifest; the unnamed ones "
+            "cannot be replayed"
+        )
+
     with tempfile.TemporaryDirectory(prefix="telltale-verify-") as tmp:
         replay = Path(tmp) / "replay"
         score_run(
@@ -243,8 +283,22 @@ def verify(run_dir: Path) -> VerifyResult:
             judge=bool(judge.get("enabled")),
             judge_model=judge.get("model"),
             judge_tells=judge.get("tells_scored"),
+            judge_sample=sample_size,
+            judge_sample_seed=sample_seed,
+            judge_missing_ok=missing_ok,
             judge_cache_only=True,
         )
+        if sample_size:
+            recorded = list(judge_sample.get("doc_ids") or [])
+            replayed = _sample_ids(replay)
+            if recorded and replayed != recorded:
+                result.ok = False
+                result.diffs.append(
+                    "judge_sample.json: the sampler no longer draws the "
+                    f"{len(recorded)} documents this run judged"
+                )
+            else:
+                result.checked.append(f"judge_sample {len(recorded)} docs")
         for name in REPRODUCIBLE_OUTPUTS:
             original = run_dir / name
             fresh = replay / name
