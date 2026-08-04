@@ -674,7 +674,8 @@ def _judge_rows(judge: Mapping[str, Any], df: pd.DataFrame) -> list[list[str]]:
         ],
         [
             "Judge/code disagreement",
-            f"{disagreement.get('total', 0)} of {disagreement.get('counted', 0)} counted spans"
+            f"{disagreement.get('total', 0)} of "
+            f"{disagreement.get('adjudicated', 0)} adjudicated spans"
             + (f" ({100.0 * float(d_rate):.1f}%)" if d_rate is not None else "")
             + (
                 " — over threshold: " + _cell(", ".join(f"`{t}`" for t in flagged))
@@ -791,7 +792,7 @@ def _judge_run_stats(backend: Any) -> dict[str, Any]:
     }
 
 
-#: Above this share of a tell's counted spans, judge-vs-code disagreement stops
+#: Above this share of a tell's adjudicated spans, judge-vs-code disagreement stops
 #: being noise and starts being a message about the rubric.
 DISAGREEMENT_WARN_RATE = 0.20
 
@@ -807,10 +808,17 @@ def judge_disagreements(df: pd.DataFrame) -> dict[str, Any]:
     cannot see, because the gate only asks whether the final answer was right on
     twenty snippets someone wrote on purpose.
 
-    Denominator is counted spans, not extracted ones: a disagreement only
-    matters where it changed a number.
+    Denominator is every adjudicated span, true and false alike. It used to be
+    the true ones only, which made the rate uninterpretable: a disagreement is
+    recorded when the judge's own verdict parts from what the criteria compute,
+    and that happens just as often on a span the code scored false. Dividing
+    those disagreements by the true count alone mixed two populations and could
+    exceed 1.0 — a tell where the judge said "not an instance" about ten spans
+    the code counted zero of has no rate at all under the old denominator, and
+    a tell with two true spans and eight false ones reported 100% when the real
+    figure was 20%.
     """
-    empty = {"total": 0, "counted": 0, "rate": None, "per_tell": {}, "over_threshold": []}
+    empty = {"total": 0, "adjudicated": 0, "rate": None, "per_tell": {}, "over_threshold": []}
     if df.empty or "detail" not in df.columns:
         return empty
 
@@ -820,32 +828,34 @@ def judge_disagreements(df: pd.DataFrame) -> dict[str, Any]:
         if not isinstance(detail, dict):
             continue
         entry = per_tell.setdefault(
-            str(row.tell_id), {"disagreements": 0, "counted": 0, "rate": None}
+            str(row.tell_id), {"disagreements": 0, "adjudicated": 0, "rate": None}
         )
         entry["disagreements"] += int(detail.get("judge_disagreements") or 0)
-        entry["counted"] += int(detail.get("adjudicated_true") or 0)
+        entry["adjudicated"] += int(detail.get("adjudicated_true") or 0) + int(
+            detail.get("adjudicated_false") or 0
+        )
 
     over: list[str] = []
     for tell_id, entry in per_tell.items():
-        counted = entry["counted"]
+        counted = entry["adjudicated"]
         entry["rate"] = (entry["disagreements"] / counted) if counted else None
         if entry["rate"] is not None:
             if entry["rate"] > DISAGREEMENT_WARN_RATE:
                 over.append(tell_id)
         elif entry["disagreements"]:
-            # Nothing counted, yet the judge kept calling spans instances. The
-            # rate is undefined and the tell is the *most* suspect of all: a
-            # rubric whose criteria never quite close while the judge keeps
-            # saying yes. Reporting this as "no rate, no warning" would hide the
-            # pathological case behind a division it could not perform.
+            # Nothing adjudicated, yet disagreements were recorded. Under the
+            # corrected denominator this should be unreachable — a disagreement
+            # is only counted while adjudicating a span — so if it happens the
+            # accounting itself is broken, which is worth flagging rather than
+            # hiding behind a division that could not be performed.
             entry["rate"] = None
             over.append(tell_id)
 
     total = sum(e["disagreements"] for e in per_tell.values())
-    counted = sum(e["counted"] for e in per_tell.values())
+    counted = sum(e["adjudicated"] for e in per_tell.values())
     return {
         "total": total,
-        "counted": counted,
+        "adjudicated": counted,
         "rate": (total / counted) if counted else None,
         "threshold": DISAGREEMENT_WARN_RATE,
         "per_tell": dict(sorted(per_tell.items())),

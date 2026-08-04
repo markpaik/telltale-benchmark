@@ -326,7 +326,7 @@ def _warn_on_disagreement(judge_info: dict) -> None:
     threshold = float(disagreement.get("threshold") or 0.20)
     print(
         f"\nWARNING: the judge's own verdict disagreed with the rubric's decision "
-        f"on more than {100 * threshold:.0f}% of counted spans for "
+        f"on more than {100 * threshold:.0f}% of adjudicated spans for "
         f"{len(flagged)} tell(s):",
         file=sys.stderr,
     )
@@ -336,11 +336,11 @@ def _warn_on_disagreement(judge_info: dict) -> None:
         share = (
             f"({100.0 * float(rate):.0f}%)"
             if rate is not None
-            else "(nothing counted at all — the criteria never close)"
+            else "(nothing adjudicated at all — the span accounting is broken)"
         )
         print(
             f"  {tell_id}: {entry.get('disagreements', 0)} of "
-            f"{entry.get('counted', 0)} counted spans {share}",
+            f"{entry.get('adjudicated', 0)} adjudicated spans {share}",
             file=sys.stderr,
         )
     print(

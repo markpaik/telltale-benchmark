@@ -1590,8 +1590,8 @@ def test_the_audit_draw_covers_every_tell_and_respects_a_budget() -> None:
 # --- judge/code disagreement rollup ------------------------------------------
 
 
-def _judge_frame(rows: list[tuple[str, int, int]]):
-    """A minimal detection frame: (tell_id, disagreements, adjudicated_true)."""
+def _judge_frame(rows: list[tuple[str, int, int, int]]):
+    """A minimal detection frame: (tell_id, disagreements, true, false)."""
     import pandas as pd
 
     return pd.DataFrame(
@@ -1599,9 +1599,13 @@ def _judge_frame(rows: list[tuple[str, int, int]]):
             {
                 "tell_id": tell_id,
                 "method": "judge",
-                "detail": {"judge_disagreements": d, "adjudicated_true": t},
+                "detail": {
+                    "judge_disagreements": d,
+                    "adjudicated_true": t,
+                    "adjudicated_false": f,
+                },
             }
-            for tell_id, d, t in rows
+            for tell_id, d, t, f in rows
         ]
     )
 
@@ -1610,21 +1614,41 @@ def test_disagreements_roll_up_across_documents_and_tells() -> None:
     from telltale import report as report_mod
 
     roll = report_mod.judge_disagreements(
-        _judge_frame([("a", 1, 10), ("a", 2, 10), ("b", 0, 5)])
+        _judge_frame([("a", 1, 6, 4), ("a", 2, 7, 3), ("b", 0, 3, 2)])
     )
     assert roll["total"] == 3
-    assert roll["counted"] == 25
+    assert roll["adjudicated"] == 25
     assert roll["rate"] == pytest.approx(3 / 25)
-    assert roll["per_tell"]["a"] == {"disagreements": 3, "counted": 20, "rate": pytest.approx(0.15)}
+    assert roll["per_tell"]["a"] == {
+        "disagreements": 3,
+        "adjudicated": 20,
+        "rate": pytest.approx(0.15),
+    }
     assert roll["per_tell"]["b"]["rate"] == 0.0
     assert roll["over_threshold"] == []
+
+
+def test_the_denominator_is_every_adjudicated_span_not_the_true_ones() -> None:
+    """The M8 shakedown defect: dividing by adjudicated_true alone.
+
+    A disagreement is recorded whenever the judge's own verdict parts from what
+    the criteria compute, and that happens just as readily on a span the code
+    scored false. Over the true count alone the rate mixed two populations and
+    could exceed 1.0 outright.
+    """
+    from telltale import report as report_mod
+
+    roll = report_mod.judge_disagreements(_judge_frame([("t", 2, 2, 8)]))
+    assert roll["per_tell"]["t"]["adjudicated"] == 10
+    assert roll["per_tell"]["t"]["rate"] == pytest.approx(0.20)
+    assert roll["over_threshold"] == [], "1.0 under the old denominator"
 
 
 def test_a_tell_over_the_threshold_is_named() -> None:
     from telltale import report as report_mod
 
     roll = report_mod.judge_disagreements(
-        _judge_frame([("noisy", 3, 10), ("quiet", 1, 10)])
+        _judge_frame([("noisy", 3, 5, 5), ("quiet", 1, 5, 5)])
     )
     assert roll["per_tell"]["noisy"]["rate"] == pytest.approx(0.30)
     assert roll["over_threshold"] == ["noisy"]
@@ -1634,34 +1658,46 @@ def test_a_tell_over_the_threshold_is_named() -> None:
 def test_the_threshold_is_strict_not_inclusive() -> None:
     from telltale import report as report_mod
 
-    exactly = report_mod.judge_disagreements(_judge_frame([("t", 2, 10)]))
+    exactly = report_mod.judge_disagreements(_judge_frame([("t", 2, 4, 6)]))
     assert exactly["per_tell"]["t"]["rate"] == pytest.approx(0.20)
     assert exactly["over_threshold"] == [], "at the threshold is not over it"
-    assert report_mod.judge_disagreements(_judge_frame([("t", 3, 10)]))["over_threshold"] == ["t"]
+    assert (
+        report_mod.judge_disagreements(_judge_frame([("t", 3, 4, 6)]))["over_threshold"]
+        == ["t"]
+    )
 
 
-def test_a_tell_that_counted_nothing_has_no_disagreement_rate() -> None:
+def test_a_tell_that_adjudicated_nothing_has_no_disagreement_rate() -> None:
     from telltale import report as report_mod
 
-    roll = report_mod.judge_disagreements(_judge_frame([("t", 0, 0)]))
+    roll = report_mod.judge_disagreements(_judge_frame([("t", 0, 0, 0)]))
     assert roll["per_tell"]["t"]["rate"] is None
     assert roll["rate"] is None
     assert roll["over_threshold"] == []
 
 
-def test_disagreements_with_nothing_counted_are_still_flagged() -> None:
-    """The pathological case: criteria that never close while the judge says yes.
+def test_a_tell_the_code_never_counted_still_gets_a_rate() -> None:
+    """Under the old denominator this tell had no rate at all.
 
-    The rate is undefined because the denominator is zero, and reporting that as
-    "no warning" would hide the most suspect rubric of all behind a division it
-    could not perform.
+    Ten spans adjudicated, none of them true, and the judge called four of them
+    instances: that is the rubric-drift case the rollup exists to surface, and
+    dividing by the true count made it invisible behind a zero denominator.
     """
     from telltale import report as report_mod
 
-    roll = report_mod.judge_disagreements(_judge_frame([("stuck", 4, 0)]))
-    assert roll["per_tell"]["stuck"]["rate"] is None
-    assert roll["per_tell"]["stuck"]["disagreements"] == 4
+    roll = report_mod.judge_disagreements(_judge_frame([("stuck", 4, 0, 10)]))
+    assert roll["per_tell"]["stuck"]["rate"] == pytest.approx(0.40)
     assert roll["over_threshold"] == ["stuck"]
+
+
+def test_disagreements_with_nothing_adjudicated_are_still_flagged() -> None:
+    """Unreachable if the accounting is sound, so worth saying aloud if it happens."""
+    from telltale import report as report_mod
+
+    roll = report_mod.judge_disagreements(_judge_frame([("broken", 4, 0, 0)]))
+    assert roll["per_tell"]["broken"]["rate"] is None
+    assert roll["per_tell"]["broken"]["disagreements"] == 4
+    assert roll["over_threshold"] == ["broken"]
 
 
 def test_the_cli_explains_an_undefined_disagreement_rate(capsys) -> None:
@@ -1670,14 +1706,16 @@ def test_the_cli_explains_an_undefined_disagreement_rate(capsys) -> None:
     _warn_on_disagreement(
         {
             "disagreements": {
-                "over_threshold": ["stuck"],
+                "over_threshold": ["broken"],
                 "threshold": 0.2,
-                "per_tell": {"stuck": {"disagreements": 4, "counted": 0, "rate": None}},
+                "per_tell": {
+                    "broken": {"disagreements": 4, "adjudicated": 0, "rate": None}
+                },
             }
         }
     )
     err = capsys.readouterr().err
-    assert "nothing counted at all — the criteria never close" in err
+    assert "nothing adjudicated at all" in err
 
 
 def test_an_empty_frame_rolls_up_to_nothing() -> None:
@@ -1700,13 +1738,19 @@ def test_the_cli_warns_only_when_a_tell_is_over_the_threshold(capsys) -> None:
             "disagreements": {
                 "over_threshold": ["rht.rule-of-three"],
                 "threshold": 0.2,
-                "per_tell": {"rht.rule-of-three": {"disagreements": 9, "counted": 20, "rate": 0.45}},
+                "per_tell": {
+                        "rht.rule-of-three": {
+                            "disagreements": 9,
+                            "adjudicated": 20,
+                            "rate": 0.45,
+                        }
+                    },
             }
         }
     )
     err = capsys.readouterr().err
     assert "WARNING" in err
-    assert "rht.rule-of-three: 9 of 20 counted spans (45%)" in err
+    assert "rht.rule-of-three: 9 of 20 adjudicated spans (45%)" in err
     assert "needs an exclusion it does not have yet" in err
 
 
