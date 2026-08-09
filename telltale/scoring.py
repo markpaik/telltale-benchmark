@@ -44,7 +44,7 @@ from typing import Any, Iterable
 import numpy as np
 import pandas as pd
 
-from telltale.corpus import Doc
+from telltale.corpus import EXPLORATORY_FORMATS, Doc
 from telltale.detectors import build
 from telltale.registry import Tell
 
@@ -412,7 +412,14 @@ def normalize(df: pd.DataFrame, tells: Iterable[Tell] | Mapping | None = None) -
 
         if unit == "count":
             rates = group["rate_per_1k"].to_numpy(dtype=float)
-            cap = winsorized_cap(rates)
+            # The cap comes from the evidence corpus alone. Excluding the annex
+            # from the rollups is not enough on its own: the cap is pooled across
+            # documents, so an annex document with an unusual rate would move
+            # every model's score for that tell through the denominator, and the
+            # index would depend on documents it is supposed to ignore. Annex
+            # rows are still scored, against that same evidence-derived cap, so
+            # their per-document numbers stay on one scale with everything else.
+            cap = winsorized_cap(comparable(group)["rate_per_1k"].to_numpy(dtype=float))
             caps[tell_id] = cap
             if not (isinstance(cap, float) and cap > 0):
                 score[idx] = np.where(np.isfinite(rates), 0.0, np.nan)
@@ -479,6 +486,23 @@ def dormant_tells(df: pd.DataFrame) -> list[str]:
 # --- aggregation -------------------------------------------------------------
 
 
+def comparable(df: pd.DataFrame) -> pd.DataFrame:
+    """Rows the index is computed on: everything but the exploratory annex.
+
+    R20 (2026-08-09) keeps free-writing documents out of the AI-Tell Index and
+    the category rollups. They are generated from a prompt that asks for nothing,
+    so their length, form, and subject are all chosen by the model — a document
+    that is not comparable to another model's cell of the same name, which is
+    what every aggregate here assumes. Detection still runs on them and their
+    per-document rows are written; only the aggregation drops them.
+
+    Idempotent, so calling it at each aggregation entry point is safe.
+    """
+    if df.empty or "format" not in df.columns:
+        return df
+    return df[~df["format"].isin(EXPLORATORY_FORMATS)]
+
+
 def _weighted_nanmean(values: np.ndarray, weights: np.ndarray) -> np.ndarray:
     """Weighted mean along the last axis, dropping NaN from both halves.
 
@@ -512,12 +536,22 @@ def _mean_scores(df: pd.DataFrame, by: Sequence[str]) -> pd.DataFrame:
 
 
 def per_model_tell_matrix(df: pd.DataFrame) -> pd.DataFrame:
-    """Models x tells of S(m, t)."""
-    return _mean_scores(df, ["model"])
+    """Models x tells of S(m, t), excluding the exploratory annex.
+
+    A per-model mean has nowhere to put an annex document: it would fold into
+    the model's headline row invisibly, which is the leak the index exclusion
+    exists to prevent. The annex is still reported per document in scores.jsonl
+    and on its own rows in matrix_by_format.csv.
+    """
+    return _mean_scores(comparable(df), ["model"])
 
 
 def per_model_format_tell(df: pd.DataFrame) -> pd.DataFrame:
-    """(model, format) x tells of S(m, f, t)."""
+    """(model, format) x tells of S(m, f, t).
+
+    Not filtered: format is a row here, so the annex is visible as its own row
+    rather than mixed into anyone's average — which is how it gets reported.
+    """
     return _mean_scores(df, ["model", "format"])
 
 
@@ -560,6 +594,7 @@ def category_rollup(
     model into that model's general score would be circular.
     """
     meta = tell_meta(tells)
+    df = comparable(df)
     matrix = _mean_scores(df, by)
     categories = sorted(CATEGORY_WEIGHTS)
     if matrix.empty:
@@ -594,6 +629,7 @@ def indices(
     discovers some).
     """
     meta = tell_meta(tells)
+    df = comparable(df)
     rollup = category_rollup(df, meta, by=by, include_dormant=include_dormant)
     if rollup.empty:
         return pd.DataFrame(columns=["ai_tell_index", "signature_index"])
@@ -776,6 +812,9 @@ def bootstrap_ci(
     a quantity nobody is estimating.
     """
     meta = tell_meta(tells)
+    # Same exclusion as the point estimates, or the interval would be drawn from
+    # a wider corpus than the number it is an interval around.
+    df = comparable(df)
     result: dict[str, Any] = {
         "n": int(n),
         "seed": int(seed),
@@ -953,6 +992,7 @@ __all__ = [
     "binary_tell_rates",
     "bootstrap_ci",
     "category_rollup",
+    "comparable",
     "detect_all",
     "dormant_tells",
     "indices",

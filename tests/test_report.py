@@ -726,3 +726,106 @@ def test_scores_jsonl_is_written_in_a_fixed_order(run_dir: Path) -> None:
     keys = [(r["doc_id"], r["tell_id"]) for r in rows]
     assert keys == sorted(keys)
     assert list(rows[0]) == list(report.SCORE_FIELDS)
+
+
+# --- the exploratory annex ---------------------------------------------------
+
+
+ANNEX_PIECE = """# Notes on a Kitchen Window
+
+The light comes in at four and stays until the pans are dry. I have never
+timed it, but I know when it goes.
+
+Some mornings the sill is warm enough to sit on, and the cat does. Other
+mornings it is not, and she looks at me as though I arranged it.
+"""
+
+
+@pytest.fixture
+def corpus_with_annex(corpus: Path) -> Path:
+    for model in (LOUD, PLAIN):
+        for index in (1, 2):
+            (corpus / model / f"free-writing-{index:02d}.md").write_text(
+                ANNEX_PIECE, encoding="utf-8"
+            )
+    return corpus
+
+
+def test_the_annex_lands_in_the_per_document_rows(corpus_with_annex: Path, tmp_path: Path) -> None:
+    run_dir = report.score_run(
+        corpus_root=corpus_with_annex,
+        registry_path=REGISTRY_PATH,
+        out_root=tmp_path / "runs",
+        bootstrap_n=50,
+    )
+    rows = rows_of(run_dir)
+    annex = [r for r in rows if r["format"] == "free-writing"]
+    assert annex, "Tier-1 detection still runs on the annex"
+    assert {r["doc_id"] for r in annex} == {
+        f"{m}/free-writing-{i:02d}" for m in (LOUD, PLAIN) for i in (1, 2)
+    }
+
+
+def test_the_annex_is_its_own_rows_in_the_by_format_matrix_only(
+    corpus_with_annex: Path, tmp_path: Path
+) -> None:
+    run_dir = report.score_run(
+        corpus_root=corpus_with_annex,
+        registry_path=REGISTRY_PATH,
+        out_root=tmp_path / "runs",
+        bootstrap_n=50,
+    )
+    by_format = pd.read_csv(run_dir / report.MATRIX_BY_FORMAT_NAME)
+    assert "free-writing" in set(by_format["format"])
+    # matrix.csv is a per-model average with nowhere to put an annex document.
+    per_model = pd.read_csv(run_dir / report.MATRIX_NAME)
+    assert list(per_model.columns)[0] == "model"
+    assert set(per_model["model"]) == {LOUD, PLAIN}
+
+
+def test_the_annex_does_not_move_the_index(corpus: Path, tmp_path: Path) -> None:
+    """The headline number is the same corpus with and without the annex."""
+    without = report.score_run(
+        corpus_root=corpus,
+        registry_path=REGISTRY_PATH,
+        out_root=tmp_path / "runs-a",
+        bootstrap_n=50,
+    )
+    for model in (LOUD, PLAIN):
+        (corpus / model / "free-writing-01.md").write_text(ANNEX_PIECE, encoding="utf-8")
+    with_annex = report.score_run(
+        corpus_root=corpus,
+        registry_path=REGISTRY_PATH,
+        out_root=tmp_path / "runs-b",
+        bootstrap_n=50,
+    )
+
+    meta = scoring.tell_meta(manifest_mod.load_manifest(without)["registry"]["tells"])
+    before = scoring.indices(report.read_scores_jsonl(without / report.SCORES_NAME), meta)
+    after = scoring.indices(report.read_scores_jsonl(with_annex / report.SCORES_NAME), meta)
+    for model in (LOUD, PLAIN):
+        assert after.loc[model, "ai_tell_index"] == pytest.approx(
+            before.loc[model, "ai_tell_index"]
+        )
+
+
+def test_the_scorecard_reports_the_annex_in_its_own_section(
+    corpus_with_annex: Path, tmp_path: Path
+) -> None:
+    run_dir = report.score_run(
+        corpus_root=corpus_with_annex,
+        registry_path=REGISTRY_PATH,
+        out_root=tmp_path / "runs",
+        bootstrap_n=50,
+    )
+    card = (run_dir / report.SCORECARD_NAME).read_text(encoding="utf-8")
+    assert "## 7. Exploratory annex" in card
+    assert "excluded from the AI-Tell Index" in card
+    # Section 2 is the index by format; the annex has no index, so no column.
+    heat = card.split("## 2. Index by format")[1].split("## 3.")[0]
+    assert "free-writing" not in heat
+
+
+def test_a_corpus_without_an_annex_renders_no_annex_section(run_dir: Path) -> None:
+    card = (run_dir / report.SCORECARD_NAME).read_text(encoding="utf-8")
+    assert "Exploratory annex" not in card

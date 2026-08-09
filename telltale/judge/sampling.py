@@ -27,7 +27,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Any, Sequence
 
-from telltale.corpus import Doc
+from telltale.corpus import EXPLORATORY_FORMATS, Doc
 
 DEFAULT_SIZE = 60
 DEFAULT_SEED = 7
@@ -101,6 +101,14 @@ def stratified_sample(
     pools, since those are the only ones with documents to spare. Ties break on
     the format name so the result never depends on dict ordering.
     """
+    # The exploratory annex never enters the judge sample (R20): those documents
+    # are not benchmark cells, and spending a stratum on them would take Tier-2
+    # reads away from the formats the index is computed on. Dropping them here
+    # rather than at the call sites keeps every sampler caller honest. Per-stratum
+    # seeding means the remaining draws are byte-identical to a sample taken from
+    # a corpus that had no annex in it.
+    docs = [d for d in docs if d.fmt not in EXPLORATORY_FORMATS]
+
     models = sorted({d.model for d in docs})
     if not models or size <= 0:
         return JudgeSample(size=size, seed=seed, note="empty corpus or zero size")

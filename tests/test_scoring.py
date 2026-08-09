@@ -646,3 +646,106 @@ def test_the_whole_registry_runs_over_a_real_document() -> None:
     assert index.loc["loud", "ai_tell_index"] > index.loc["quiet", "ai_tell_index"]
     fired = scored[(scored["model"] == "loud") & (scored["raw"] > 0)]["tell_id"]
     assert {"lex.delve", "lex.robust", "phr.worth-noting"} <= set(fired)
+
+
+# --- the exploratory annex ---------------------------------------------------
+
+
+def annex_frame():
+    """One evidence document and one annex document, with opposite scores."""
+    tells = [count_tell("lex.a", weight=1.0)]
+    df = frame(
+        [
+            {
+                "doc_id": "m1/memo-01",
+                "format": "memo",
+                "tell_id": "lex.a",
+                "raw": 1.0,
+                "rate_per_1k": 1.0,
+            },
+            {
+                "doc_id": "m1/free-writing-01",
+                "format": "free-writing",
+                "tell_id": "lex.a",
+                "raw": 1.0,
+                "rate_per_1k": 1.0,
+            },
+        ]
+    )
+    df["score"] = [0.2, 1.0]
+    return scoring.mark_dormant(df), tells
+
+
+def test_the_annex_is_kept_out_of_the_rollup_and_the_index() -> None:
+    df, tells = annex_frame()
+    # Only the memo counts: 0.2, not the 0.6 mean of both documents.
+    assert scoring.category_rollup(df, tells).loc["m1", "lexical"] == pytest.approx(0.2)
+    assert scoring.indices(df, tells).loc["m1", "ai_tell_index"] == pytest.approx(20.0)
+
+
+def test_the_annex_gets_no_index_row_of_its_own() -> None:
+    df, tells = annex_frame()
+    by_format = scoring.indices(df, tells, by=("model", "format"))
+    assert ("m1", "memo") in by_format.index
+    assert ("m1", "free-writing") not in by_format.index
+
+
+def test_the_annex_does_not_move_the_bootstrap_interval() -> None:
+    df, tells = annex_frame()
+    boot = scoring.bootstrap_ci(df, tells, n=50, seed=7)
+    interval = boot["models"]["m1"]["index"]
+    # One evidence document scoring 0.2: every resample is that same document.
+    assert interval["lo"] == pytest.approx(20.0)
+    assert interval["hi"] == pytest.approx(20.0)
+
+
+def test_the_annex_is_out_of_the_per_model_matrix_but_in_the_by_format_one() -> None:
+    df, tells = annex_frame()
+    per_model = scoring.per_model_tell_matrix(df)
+    assert per_model.loc["m1", "lex.a"] == pytest.approx(0.2)
+
+    by_format = scoring.per_model_format_tell(df)
+    assert by_format.loc[("m1", "free-writing"), "lex.a"] == pytest.approx(1.0)
+    assert by_format.loc[("m1", "memo"), "lex.a"] == pytest.approx(0.2)
+
+
+def test_comparable_is_idempotent_and_safe_on_an_empty_frame() -> None:
+    df, _ = annex_frame()
+    once = scoring.comparable(df)
+    assert list(scoring.comparable(once)["doc_id"]) == list(once["doc_id"])
+    assert scoring.comparable(pd.DataFrame()).empty
+
+
+def test_the_winsor_cap_is_computed_without_the_annex() -> None:
+    """A runaway annex document must not rescale everyone else's score."""
+    tells = [count_tell()]
+    rows = [
+        {
+            "doc_id": f"m1/memo-{i:02d}",
+            "format": "memo",
+            "raw": 1.0,
+            "rate_per_1k": float(rate),
+        }
+        for i, rate in enumerate(WINSOR_RATES[:-1], start=1)
+    ]
+    evidence_only = scoring.normalize(frame(rows), tells)
+    with_annex = scoring.normalize(
+        frame(
+            rows
+            + [
+                {
+                    "doc_id": "m1/free-writing-01",
+                    "format": "free-writing",
+                    "raw": 1.0,
+                    "rate_per_1k": 100.0,
+                }
+            ]
+        ),
+        tells,
+    )
+    assert with_annex.attrs["winsor_caps"]["lex.fixture"] == pytest.approx(
+        evidence_only.attrs["winsor_caps"]["lex.fixture"]
+    )
+    # And the annex document is still scored, on that same scale, clipped at 1.
+    annex_row = with_annex[with_annex["format"] == "free-writing"]
+    assert float(annex_row["score"].iloc[0]) == pytest.approx(1.0)

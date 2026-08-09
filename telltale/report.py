@@ -30,7 +30,7 @@ import numpy as np
 import pandas as pd
 
 from telltale import scoring
-from telltale.corpus import FORMATS, load_corpus
+from telltale.corpus import EXPLORATORY_FORMATS, FORMATS, load_corpus
 from telltale.manifest import build_manifest, load_manifest, write_manifest
 from telltale.registry import Registry
 
@@ -296,6 +296,7 @@ def render_scorecard(run_dir: Path) -> Path:
     lines += _evidence_section(df)
     lines += _dormant_section(df, meta)
     lines += _run_stats(manifest, df, boot, ranked)
+    lines += _annex_section(df)
 
     path = run_dir / SCORECARD_NAME
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -405,8 +406,11 @@ def _delta(deltas: Mapping[str, Any], left: str, right: str) -> dict[str, Any] |
 
 def _heat_section(df: pd.DataFrame, meta: Mapping[str, Any]) -> list[str]:
     by_format = scoring.indices(df, meta, by=("model", "format"))
-    present = [f for f in FORMATS if f in set(df["format"].unique())]
-    extra = sorted(set(df["format"].unique()) - set(FORMATS))
+    # The annex has no index rows to show here — `indices` drops it — so listing
+    # it would print a column of em dashes. It gets its own section instead.
+    seen = set(df["format"].unique()) - set(EXPLORATORY_FORMATS)
+    present = [f for f in FORMATS if f in seen]
+    extra = sorted(seen - set(FORMATS))
     columns = present + extra
     models = sorted(df["model"].unique().tolist())
 
@@ -550,6 +554,48 @@ def _dormant_section(df: pd.DataFrame, meta: Mapping[str, Any]) -> list[str]:
         "",
     ]
     lines += ["  " + ", ".join(f"`{t}`" for t in dormant), ""]
+    return lines
+
+
+def _annex_section(df: pd.DataFrame) -> list[str]:
+    """The exploratory annex: counted and pointed at, never aggregated.
+
+    Empty when the corpus has no annex documents, so a run over a corpus
+    generated before R20 renders exactly as it did before.
+    """
+    annex = df[df["format"].isin(EXPLORATORY_FORMATS)]
+    if annex.empty:
+        return []
+
+    formats = sorted(annex["format"].unique().tolist())
+    rows = []
+    for model in sorted(annex["model"].unique().tolist()):
+        cells = [f"`{model}`"]
+        for fmt in formats:
+            subset = annex[(annex["model"] == model) & (annex["format"] == fmt)]
+            cells.append(str(subset["doc_id"].nunique()))
+        rows.append(cells)
+
+    lines = [
+        "## 7. Exploratory annex",
+        "",
+        f"Formats generated as an annex rather than as evidence: "
+        f"{', '.join('`' + f + '`' for f in formats)}. Each document answers a "
+        "prompt that asks for nothing — no subject, no form, no length — so two "
+        "models' documents are not the same cell measured twice, and averaging "
+        "them across models would compare things that were never asked to be "
+        "alike. They are therefore excluded from the AI-Tell Index, from the "
+        "category rollups, from `matrix.csv`, and from the Tier-2 judge sample "
+        "(ruling R20, 2026-08-09).",
+        "",
+        "Tier-1 detection still ran on every one of them. The per-document rows "
+        "are in `scores.jsonl` and the per-format means are their own rows in "
+        "`matrix_by_format.csv`, both identified by the format name above. Read "
+        "them descriptively: there is no index number attached, on purpose.",
+        "",
+    ]
+    lines += _table(["Model"] + formats, rows)
+    lines.append("")
     return lines
 
 
@@ -971,7 +1017,16 @@ def score_run(
     df = scoring.detect_all(
         docs, tells, judge=backend, progress=progress,
         workers=max(1, judge_workers), controller=controller,
-        judge_docs=sample.doc_ids if sample is not None else None,
+        # An unsampled judge run would otherwise read every document, annex
+        # included: `judge_docs=None` means "all". The annex is excluded from
+        # Tier-2 whether or not a sample was drawn (R20).
+        judge_docs=(
+            sample.doc_ids
+            if sample is not None
+            else ([d.doc_id for d in docs if d.fmt not in EXPLORATORY_FORMATS]
+                  if backend is not None
+                  else None)
+        ),
         judge_missing_ok=judge_missing_ok,
     )
     df = scoring.normalize(df, tells)

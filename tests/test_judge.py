@@ -2582,6 +2582,47 @@ def test_a_thin_stratum_does_not_break_the_draw() -> None:
     assert sample.doc_ids == ("m1/memo-01",)
 
 
+def test_the_exploratory_annex_is_never_drawn_into_the_sample() -> None:
+    """R20: free-writing documents are not benchmark cells and never get judged."""
+    from telltale.judge import sampling
+
+    docs = _corpus() + [
+        Doc.from_text(
+            doc_id=f"{m}/free-writing-{i:02d}",
+            model=m,
+            fmt="free-writing",
+            text="# T\n\nBody text here.\n",
+        )
+        for m in ("m1", "m2")
+        for i in range(1, 9)
+    ]
+    sample = sampling.stratified_sample(docs, size=12, seed=7)
+    assert "free-writing" not in sample.per_format
+    assert not any("free-writing" in d for d in sample.doc_ids)
+    assert all(s.fmt != "free-writing" for s in sample.strata)
+
+
+def test_adding_the_annex_does_not_move_the_sample() -> None:
+    """The annex must not change which evidence documents Tier-2 reads."""
+    from telltale.judge import sampling
+
+    plain = _corpus()
+    annexed = plain + [
+        Doc.from_text(
+            doc_id=f"{m}/free-writing-{i:02d}",
+            model=m,
+            fmt="free-writing",
+            text="# T\n\nBody text here.\n",
+        )
+        for m in ("m1", "m2")
+        for i in range(1, 9)
+    ]
+    assert (
+        sampling.stratified_sample(annexed, size=12, seed=7).doc_ids
+        == sampling.stratified_sample(plain, size=12, seed=7).doc_ids
+    )
+
+
 def test_an_explicit_document_list_is_honoured_and_reports_unknown_ids() -> None:
     from telltale.judge import sampling
 
@@ -2695,6 +2736,35 @@ def _calibrate_all(runs_root: Path, registry: Registry, agreement: float = 0.95)
             ),
             runs_root,
         )
+
+
+def test_an_unsampled_judge_run_still_skips_the_exploratory_annex(
+    tmp_path: Path, judged_corpus: Path, registry: Registry, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """R20: Tier-2 never reads annex documents, sample or no sample."""
+    from telltale import report as report_mod
+
+    (judged_corpus / "claude-opus-5" / "free-writing-01.md").write_text(E2E_DOC, encoding="utf-8")
+
+    _install_fake_judge(monkeypatch, tmp_path)
+    runs = tmp_path / "runs"
+    _calibrate_all(runs, registry)
+
+    run_dir = report_mod.score_run(
+        corpus_root=judged_corpus,
+        registry_path=REGISTRY_PATH,
+        out_root=runs,
+        bootstrap_n=20,
+        judge=True,
+        judge_model=JUDGE_MODEL_DEFAULT,
+        runs_root=runs,
+    )
+    rows = [json.loads(line) for line in (run_dir / "scores.jsonl").read_text().splitlines()]
+    annex = [r for r in rows if r["doc_id"] == "claude-opus-5/free-writing-01"]
+    assert annex, "Tier-1 must still run on the annex document"
+    assert all(r["method"] != "judge" for r in annex), "Tier-2 must not read it"
+    # The evidence documents were judged as usual.
+    assert any(r["method"] == "judge" for r in rows if r["doc_id"] == "claude-opus-5/memo-01")
 
 
 def test_score_with_judge_writes_judge_rows_and_a_manifest_section(
