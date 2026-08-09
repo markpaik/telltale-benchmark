@@ -23,7 +23,7 @@ from typing import Any
 
 from telltale import textstats
 
-# The 14 generation formats. A file whose name does not start with one of these
+# The 15 generation formats. A file whose name does not start with one of these
 # (followed by -NN.md) is not part of the corpus.
 FORMATS: tuple[str, ...] = (
     "email",
@@ -40,7 +40,20 @@ FORMATS: tuple[str, ...] = (
     "case-study",
     "sop",
     "postmortem",
+    "free-writing",
 )
+
+#: Formats generated as an exploratory annex rather than as benchmark evidence
+#: (coordinator ruling R20, 2026-08-09). Their documents are loaded, detected on,
+#: and reported per-document, but they are excluded from the AI-Tell Index, the
+#: category rollups, and the Tier-2 judge sample: one unconstrained prompt per
+#: model is a portrait, not a comparable cell, and it carries no length target,
+#: no domain rotation, and no continuation ladder.
+#:
+#: This tuple is the single source of truth. The `exploratory:` flag in each
+#: prompt-bank YAML must agree with it — `prompts.bank_lint` checks both ways —
+#: so scoring never has to read the bank off disk to know what is annex.
+EXPLORATORY_FORMATS: frozenset[str] = frozenset({"free-writing"})
 
 FILENAME_PATTERN = re.compile(
     r"^(?P<fmt>" + "|".join(sorted(FORMATS, key=len, reverse=True)) + r")-(?P<index>\d{2})\.md$"

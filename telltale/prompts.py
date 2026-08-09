@@ -1,6 +1,8 @@
 """Load the prompt bank and compose the text handed to a generating model.
 
-One YAML file per format under prompts/formats/, each holding eight scenarios.
+One YAML file per format under prompts/formats/, each holding eight scenarios
+(the exception is an exploratory annex format, which holds one prompt and no
+scenario at all — see corpus.EXPLORATORY_FORMATS).
 The scenarios are the only thing that varies between generations, so they carry
 a hard constraint: they describe a *situation*, never a way of writing. A
 scenario that said "write this in a professional tone" would plant the very
@@ -22,7 +24,7 @@ from typing import Any
 
 import yaml
 
-from telltale.corpus import FORMATS
+from telltale.corpus import EXPLORATORY_FORMATS, FORMATS
 
 #: Each format file must cover all eight domains, one prompt each.
 DOMAINS: tuple[str, ...] = (
@@ -203,6 +205,9 @@ class FormatSpec:
     output_convention: str
     prompts: list[Prompt] = field(default_factory=list)
     path: Path | None = None
+    #: Exploratory annex format (see corpus.EXPLORATORY_FORMATS): no length
+    #: target, no floor, no continuations, and no place in the index.
+    exploratory: bool = False
 
     def prompt(self, prompt_id: str) -> Prompt:
         for item in self.prompts:
@@ -235,6 +240,7 @@ def _coerce_spec(data: dict[str, Any], path: Path) -> FormatSpec:
         output_convention=str(data.get("output_convention", "")).strip(),
         prompts=prompts,
         path=path,
+        exploratory=bool(data.get("exploratory", False)),
     )
 
 
@@ -257,6 +263,11 @@ def load_prompt_bank(directory: Path | None = None) -> dict[str, FormatSpec]:
 
 def compose_prompt(spec: FormatSpec, prompt: Prompt) -> str:
     """The exact user text sent to the model for one (format, scenario) cell."""
+    # An exploratory prompt is sent exactly as written. The whole point of the
+    # cell is that nothing was asked for — appending an output convention or a
+    # length ask would put back the constraint the format exists to remove.
+    if spec.exploratory:
+        return prompt.scenario.strip()
     pages = max(1, round(spec.target_words / 500))
     if spec.bundle:
         length = (
@@ -314,21 +325,46 @@ def bank_lint(directory: Path | None = None) -> list[str]:
                 f"{where}: bundle is {spec.bundle}, expected {expected_bundle}"
             )
 
-        if spec.target_words <= 0:
-            violations.append(f"{where}: target_words must be positive")
-        if spec.min_words <= 0:
-            violations.append(f"{where}: min_words must be positive")
-        elif spec.min_words > spec.target_words:
+        # The YAML flag and corpus.EXPLORATORY_FORMATS have to agree, or scoring
+        # (which reads the constant) and generation (which reads the file) would
+        # disagree about which documents are annex.
+        expected_exploratory = fmt in EXPLORATORY_FORMATS
+        if spec.exploratory != expected_exploratory:
             violations.append(
-                f"{where}: min_words ({spec.min_words}) exceeds target_words ({spec.target_words})"
+                f"{where}: exploratory is {spec.exploratory}, expected "
+                f"{expected_exploratory} (corpus.EXPLORATORY_FORMATS)"
             )
-        if not spec.output_convention:
-            violations.append(f"{where}: output_convention is empty")
 
-        if len(spec.prompts) != PROMPTS_PER_FORMAT:
-            violations.append(
-                f"{where}: {len(spec.prompts)} prompts, expected {PROMPTS_PER_FORMAT}"
-            )
+        if spec.exploratory:
+            # Length is the datum, so a target or a floor here would be a bug:
+            # generate would compose a length ask and run the continuation ladder.
+            if spec.target_words:
+                violations.append(f"{where}: exploratory format must not set target_words")
+            if spec.min_words:
+                violations.append(f"{where}: exploratory format must not set min_words")
+            if spec.output_convention:
+                violations.append(
+                    f"{where}: exploratory format must not set output_convention "
+                    "(the prompt is sent verbatim)"
+                )
+            if not spec.prompts:
+                violations.append(f"{where}: no prompts")
+        else:
+            if spec.target_words <= 0:
+                violations.append(f"{where}: target_words must be positive")
+            if spec.min_words <= 0:
+                violations.append(f"{where}: min_words must be positive")
+            elif spec.min_words > spec.target_words:
+                violations.append(
+                    f"{where}: min_words ({spec.min_words}) exceeds target_words ({spec.target_words})"
+                )
+            if not spec.output_convention:
+                violations.append(f"{where}: output_convention is empty")
+
+            if len(spec.prompts) != PROMPTS_PER_FORMAT:
+                violations.append(
+                    f"{where}: {len(spec.prompts)} prompts, expected {PROMPTS_PER_FORMAT}"
+                )
 
         domains_seen: list[str] = []
         for position, prompt in enumerate(spec.prompts, start=1):
@@ -342,13 +378,21 @@ def bank_lint(directory: Path | None = None) -> list[str]:
             elif prompt.id:
                 seen_ids[prompt.id] = where
 
-            if prompt.domain not in DOMAINS:
+            # An exploratory prompt names no situation, so it has no domain and
+            # no length to sustain: the domain rotation and the 100-word scenario
+            # floor are both checks on a scenario it deliberately does not have.
+            if not spec.exploratory and prompt.domain not in DOMAINS:
                 violations.append(f"{label}: unknown domain {prompt.domain!r}")
+            if spec.exploratory and prompt.domain:
+                violations.append(
+                    f"{label}: exploratory prompt must not carry a domain "
+                    f"(has {prompt.domain!r})"
+                )
             domains_seen.append(prompt.domain)
 
             if not prompt.scenario:
                 violations.append(f"{label}: scenario is empty")
-            elif len(prompt.scenario.split()) < 100:
+            elif not spec.exploratory and len(prompt.scenario.split()) < 100:
                 violations.append(
                     f"{label}: scenario is only {len(prompt.scenario.split())} words "
                     "(too thin to sustain a long document)"
@@ -362,7 +406,7 @@ def bank_lint(directory: Path | None = None) -> list[str]:
                         f"(matched {match.group(0)!r}) — scenarios must not direct how to write"
                     )
 
-        if sorted(domains_seen) != sorted(DOMAINS):
+        if not spec.exploratory and sorted(domains_seen) != sorted(DOMAINS):
             counts = {d: domains_seen.count(d) for d in set(domains_seen)}
             violations.append(
                 f"{where}: domains do not cover the rotation exactly once each: {counts}"
