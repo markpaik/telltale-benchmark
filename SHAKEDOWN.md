@@ -233,6 +233,25 @@ ask about that.
 The same question applies to `rht.from-x-to-y` with less ambiguity: one counted
 span in 60 documents, at a cost of 206 extraction calls and 127 adjudications.
 
+**Resolved 2026-08-09 (rulings R16 and R17, HANDOFF §6).** Rule-of-three takes
+option 1: criterion (c) now sits in the stage-1 prompt, which proposes a triple
+only when deleting the third item would remove no distinct fact — no unique
+number, date, proper noun, obligation, or policy lever — and still proposes when
+the extractor genuinely cannot tell. That required more than a rubric edit: the
+shared extraction rules told every extractor to over-extract and named "an
+enumeration of real facts" as a judgement it must not make, so the recall-first
+pair is now a per-tell slot and this is the only tell that fills it. The tell's
+`rubric_version` went to 2, which strands its cached answers and nobody else's;
+`PROMPT_VERSION` deliberately did not move, and the scoping is proved by test
+against prompt and key hashes captured before the change. The revision ships
+only after re-passing the 0.90 calibration gate and the recall check in
+`scripts/rule_of_three_recall.py`, which re-asks the revised question on the 57
+chunks that produced the 73 counted spans (recall gate 0.70, proposals-per-chunk
+must fall by half against a cached baseline of 8.11 per chunk).
+
+`rht.from-x-to-y` is retired: status `deprecated`, entry and calibration set kept
+for history, scoring already excludes non-active tells.
+
 ### 2.2 The disagreement rate has the wrong denominator (fixed, M8g.2)
 
 Judge/code disagreement is 0 of 292 across every tell, and that is a real

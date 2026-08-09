@@ -32,10 +32,10 @@ Core design commitments (Mark's non-negotiables — do not relitigate):
 
 - **Milestones M1–M8 complete.** M9 (extensions) pending — see §5 roster.
 - **HEAD**: after M8g commits `9c26805`, `356e47b`, `d9d78ef`, `c6b1f23` (all pushed).
-- **Tests**: 1,384 passed, 3 skipped (the 3 skips are structural tells opting out of the stage-1
+- **Tests**: 1,416 passed, 3 skipped (the 3 skips are structural tells opting out of the stage-1
   exclusion-leak test — correct behavior).
-- **Registry**: v2, hash `369d107eef40`, 121 active tells + 12 discovery candidates (status
-  `candidate`) = 133 entries. NO promotions permitted until the 3-model corpus exists (§6 R12).
+- **Registry**: v2, hash `fb8d584a9b5d`, 120 active tells + 1 deprecated (`rht.from-x-to-y`, R17)
+  + 12 discovery candidates (status `candidate`) = 133 entries. NO promotions permitted until the 3-model corpus exists (§6 R12).
 - **Corpus (shakedown, LOCAL ONLY — untracked by discipline, never commit)**: 224 docs frozen —
   claude-opus-5 112/112 (717,150 words, ~zero continuations), claude-sonnet-5 112/112 (552,530
   words, 69% stitched via continuations, 9 below-floor accepted as shorts). Freeze hash
@@ -60,7 +60,8 @@ telltale/            package: registry.py, corpus.py, textstats.py, scoring.py, 
                      isolation.py, cli.py, detectors/{base,regex,stat,judge}_detector.py,
                      judge/{protocol,transport,cache,calibrate,audit}.py,
                      discovery/{pipeline,sweep,auditor,verify,dedup}.py
-registry/tells.yaml  THE inventory (121 active + 12 candidates). Single file, content-hashed.
+registry/tells.yaml  THE inventory (120 active + 1 deprecated + 12 candidates). Content-hashed.
+scripts/             one-shot checks kept in the repo (rule_of_three_recall.py — the R16 gate).
 prompts/formats/     14 YAMLs × 8 scenario prompts (112), bundle flags, output conventions.
 calibration/         7 judge-tell snippet sets (10 pos/10 neg each), production-parity rendered.
 corpus/              LOCAL shakedown corpus (untracked). Canonical corpus will be committed
@@ -134,17 +135,20 @@ DEVICE-RUNBOOK.md    sanitized-device setup/generate/score procedure.
 
 **Gated on Mark's usage reset:**
 
-4. **fable-phase** — In order: (a) apply coordinator rubric rulings for rht.rule-of-three and
-   rht.from-x-to-y (RULINGS PENDING — coordinator must decide before dispatch; options in
-   SHAKEDOWN §2.1; deciding first saves ~6,700 calls/~22h on the full sweep); recalibrate changed
-   tells; (b) launch Fable generation: `caffeinate -is python3 scratchpad-or-scripts/corpus_driver.py
+4. **fable-phase** — In order: (a) rulings R16–R19 APPLIED 2026-08-09 (registry hash
+   `369d107eef40` -> `fb8d584a9b5d`, 120 active tells; rht.rule-of-three rubric_version 2,
+   rht.from-x-to-y deprecated; substitution retry, per-stage parse counters, and the
+   adjudication-re-ask audit are in). Still to do here: re-pass the 0.90 calibration gate for
+   rht.rule-of-three and run `scripts/rule_of_three_recall.py` (57 target chunks, 73 counted
+   spans, ~57 live calls) — both live, both in a separate dispatch; (b) launch Fable generation:
+   `caffeinate -is python3 scratchpad-or-scripts/corpus_driver.py
    claude-fable-5` — driver takes models from argv, runs its own v3 battery first, skip logic
    touches only Fable's 112 cells, M4e policy (2-continuation cap, shorts retained); NOTE the old
    driver script lived in a session scratchpad that gets wiped — if missing, regenerate it or run
    `python3 -m telltale verify-isolation --model claude-fable-5` then `caffeinate -is python3 -m
    telltale generate --models claude-fable-5` directly (equivalent); (c) close-out verification
    (all cells, hashes, contamination scan incl. account email, battery citations); (d) full
-   3-model Tier-1 + judge sweep (sample or full per cost ruling at the time; full ≈ 11k calls/37h
+   3-model Tier-1 + judge sweep (R19: stratified sample of 135, 45/model, seed 7; full ≈ 11k calls/37h
    at 5/min — less after rubric fixes), consistency audit, seam analysis; (e) re-verify all 12
    discovery candidates against 3 models (gate 3 with a real third model; "general" becomes
    falsifiable); updated scorecard.
@@ -182,11 +186,33 @@ R13. PROMPT_VERSION (what the model sees) vs PROTOCOL_VERSION (processing semant
 R14. Registry ramps are data: recalibration = registry change with provenance, never code.
 R15. Em-dash counting excludes digit-flanked ranges; proper-noun guard on 12 lexical tells;
     counter-example tests run through the guard, not the bare pattern.
+R16. (2026-08-09) rht.rule-of-three: extraction absorbs criterion (c) — SHAKEDOWN §2.1 option 1.
+    Stage 1 now proposes a three-part coordinate structure ONLY when deleting the third item
+    would remove no distinct fact (no unique number, date, proper noun, obligation, or policy
+    lever); genuine uncertainty still proposes (recall-first stands, the 86.8% genuine-enumeration
+    firehose stops). This tell's rubric_version bumps 1 -> 2; PROMPT_VERSION and PROTOCOL_VERSION
+    do NOT (R13 governs global prompt/chunker changes — this is per-tell, and the cache scoping is
+    PROVEN by test, not argued). The 11-span cap (R11) stays as a backstop. Ships only after
+    (a) re-passing the 0.90 calibration gate and (b) a recall check on every chunk that produced
+    the 73 adjudicated-true spans: gate is recall >= 0.70 by whitespace-normalized containment AND
+    mean proposals/chunk down >= 50% vs the cached stage-1 answers; 0.50-0.70 goes to coordinator
+    review of the misses; below 0.50 falls back to option 2 (deterministic pre-filter). Thresholds
+    are calibrated against the 0.62 re-ask stability baseline (SHAKEDOWN §2.7).
+R17. (2026-08-09) rht.from-x-to-y is retired (status `deprecated`) per SHAKEDOWN §2.1 and
+    recommendation 4: one counted span in 60 documents for 333 calls, extractions near-uniformly
+    literal ranges (68) and literal transfers (53) that its own exclusions kill. Entry and
+    calibration set stay in the repo for history; scoring already excludes non-active tells.
+R18. (2026-08-09) Em-dash ramp unchanged for the shakedown 3-model run. The scorecard must state
+    the tell is saturated — about two thirds of documents at or above ceiling, both models — and
+    no longer discriminates within this generation. Recalibration deferred until a human baseline
+    corpus exists.
+R19. (2026-08-09) The 3-model Tier-2 sweep runs on a stratified sample of 135 (45 per model,
+    3 per model-format cell, remainder from the deepest pools), seed 7 — SHAKEDOWN recommendation 5
+    scaled to three models. The consistency audit extends to re-ask adjudications as well as
+    extractions.
 
-**PENDING coordinator rulings** (decide at fable-phase dispatch): rule-of-three rubric revision
-(4 options in SHAKEDOWN §2.1 — its cost is 76% semantic-exclusion kills; the cap is containment);
-from-x-to-y revision (1/128 counted — 0.8% precision at extraction, essentially all literal ranges;
-rubric or extraction needs rework or the tell retires); em-dash ramp decision (needs human baseline).
+**PENDING coordinator rulings**: none outstanding on the judge rubrics. The em-dash ramp is
+settled for this generation by R18 and reopens only when a human baseline exists.
 
 ## 7. Open defects (SHAKEDOWN §2 — top items)
 
@@ -208,8 +234,8 @@ rubric or extraction needs rework or the tell retires); em-dash ramp decision (n
 ## 8. Key commands
 
 ```sh
-python3 -m pytest tests/ -q                       # 1384 passed, 3 skipped expected
-python3 -m telltale registry validate             # OK: 121 active, v2, hash 369d107eef40
+python3 -m pytest tests/ -q                       # 1416 passed, 3 skipped expected
+python3 -m telltale registry validate             # OK: 120 active, v2, hash fb8d584a9b5d
 python3 -m telltale verify-isolation --model M    # 5-probe battery (v3)
 caffeinate -is python3 -m telltale generate --models claude-fable-5    # fable batch (reset)
 python3 -m telltale score                          # Tier-1, all docs, offline, seconds
