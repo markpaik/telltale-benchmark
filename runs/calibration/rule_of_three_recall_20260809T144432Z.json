@@ -1,0 +1,998 @@
+{
+  "generated": "2026-08-09T14:44:32+00:00",
+  "ruling": "R16",
+  "tell_id": "rht.rule-of-three",
+  "rubric_version_old": 1,
+  "rubric_version_new": 2,
+  "run_dir": "/Users/markpaik/Projects/benchmarks/opus5/runs/20260804T210242Z-d827d5a5-369d107e",
+  "judge_model": "claude-opus-4-6",
+  "gates": {
+    "recall_pass": 0.7,
+    "recall_review": 0.5,
+    "volume_drop_required": 0.5
+  },
+  "counted_spans": 73,
+  "counted_spans_placed": 73,
+  "target_chunks": 57,
+  "chunks_with_cached_answer": 57,
+  "recall": 0.8904109589041096,
+  "recall_strict": 0.8904109589041096,
+  "re_proposed": 65,
+  "missed": 8,
+  "proposals_per_chunk_old": 8.105263157894736,
+  "proposals_per_chunk_new": 3.6491228070175437,
+  "proposals_per_chunk_drop": 0.5497835497835497,
+  "verdict": "pass",
+  "unplaced_spans": [],
+  "spans": [
+    {
+      "doc_id": "claude-opus-5/business-report-01",
+      "chunk": "claude-opus-5/business-report-01#0",
+      "quote": "On the face of the numbers this is the agency's steadiest performing line: volume slightly above target, outcome flat, no variance requiring explanation.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/business-report-01",
+      "chunk": "claude-opus-5/business-report-01#2",
+      "quote": "It is lowest in the line with stable ratios, a defined model, and predictable working conditions.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/business-report-02",
+      "chunk": "claude-opus-5/business-report-02#0",
+      "quote": "Vacancies generate mandatory overtime. Mandatory overtime generates resignations. Resignations generate vacancies.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/business-report-08",
+      "chunk": "claude-opus-5/business-report-08#1",
+      "quote": "The most common failure mode is not absence but obsolescence: a procedure written at installation and never revised through subsequent controls upgrades, guard modifications, or auxiliary equipment additions.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/case-study-01",
+      "chunk": "claude-opus-5/case-study-01#1",
+      "quote": "The building was running at 96 percent of usable pallet positions on an average day, which in practice meant it was over capacity, because a warehouse at 96 percent has no room to stage, sort, or recover from a bad delivery.",
+      "re_proposed_strict": false,
+      "re_proposed": false
+    },
+    {
+      "doc_id": "claude-opus-5/case-study-02",
+      "chunk": "claude-opus-5/case-study-02#0",
+      "quote": "A caller reporting a rollover on the interstate might reach the county seat's center, which would determine the incident sat 400 yards past the city limit, and would then conference in the Sheriff's Office, repeat the location verbally, and hang up.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/case-study-02",
+      "chunk": "claude-opus-5/case-study-02#1",
+      "quote": "Four legacy systems held between them approximately 2.9 million historical incident records, 340,000 address points, and premise hazard information \u2014 the notes attached to an address warning that a resident is combative, that a dog is present, that a household member is oxygen-dependent \u2014 that had been entered over fifteen years with no common format and, in the joint center's case, substantial free-text entry into fields not designed for it.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/case-study-02",
+      "chunk": "claude-opus-5/case-study-02#2",
+      "quote": "Turnover at 34 percent meant continuous training load, continuous inexperience on the floor, and a recruiting pipeline that could never get ahead.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/case-study-02",
+      "chunk": "claude-opus-5/case-study-02#2",
+      "quote": "manual capability in an emergency communications center is not a legacy artifact but a required layer of the resilience architecture, and it should be budgeted, trained, and exercised on a schedule.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/email-07",
+      "chunk": "claude-opus-5/email-07#2",
+      "quote": "Installed at various points over three years, never registered, never calibrated, never reviewed.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/executive-summary-06",
+      "chunk": "claude-opus-5/executive-summary-06#1",
+      "quote": "For an adolescent identified through a school screening, 34 days is a very long time, and the design contained no bridge \u2014 no check-in, no interim contact, nothing between the screening conversation and a phone call weeks later.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/literature-review-01",
+      "chunk": "claude-opus-5/literature-review-01#2",
+      "quote": "**Bahr et al. (2014)** and **Melton et al. (2012)** both found that call outcomes depended almost entirely on whether the caller could resolve the identified problem \u2014 schedule an appointment, adjust a diuretic dose, arrange transport \u2014 rather than merely document it.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/literature-review-04",
+      "chunk": "claude-opus-5/literature-review-04#3",
+      "quote": "Long follow-up periods risk confounding with vehicle fleet changes, economic cycles, and other programs.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/literature-review-04",
+      "chunk": "claude-opus-5/literature-review-04#3",
+      "quote": "Seattle lowered limits, retimed signals, and added signage in the same period.",
+      "re_proposed_strict": false,
+      "re_proposed": false
+    },
+    {
+      "doc_id": "claude-opus-5/memo-08",
+      "chunk": "claude-opus-5/memo-08#2",
+      "quote": "Second, teachers in these programs are professionally isolated; a hub allows shared planning, coverage during crises, and the informal consultation that is how this work actually improves.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/memo-08",
+      "chunk": "claude-opus-5/memo-08#3",
+      "quote": "Third, whether there is any mechanism \u2014 a stipend, a retention commitment, anything \u2014 for staff who remain through June 2027.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/performance-review-03",
+      "chunk": "claude-opus-5/performance-review-03#0",
+      "quote": "I will write for you, introduce you, and not obstruct you if that is the direction you take, even though losing you would be the worst staffing event of my year.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/postmortem-03",
+      "chunk": "claude-opus-5/postmortem-03#1",
+      "quote": "The root cause is that **the Compass cluster was operating on a PostgreSQL major version whose behavior for this class of operation differs materially from the version the team's mental models, tooling, and review practices were calibrated against \u2014 and the organization had deferred the upgrade that would have eliminated the hazard for three consecutive quarters.**",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/postmortem-03",
+      "chunk": "claude-opus-5/postmortem-03#2",
+      "quote": "The team reasoned explicitly about the tradeoff, documented it, and chose the bounded-risk path.",
+      "re_proposed_strict": false,
+      "re_proposed": false
+    },
+    {
+      "doc_id": "claude-opus-5/postmortem-03",
+      "chunk": "claude-opus-5/postmortem-03#2",
+      "quote": "A reasonable hypothesis survived twenty-two minutes past its disconfirming evidence because nothing in our process required it to be defended, falsified, or time-boxed.",
+      "re_proposed_strict": false,
+      "re_proposed": false
+    },
+    {
+      "doc_id": "claude-opus-5/postmortem-03",
+      "chunk": "claude-opus-5/postmortem-03#2",
+      "quote": "Alerting requires the same lifecycle discipline as production software: testing, expiry, and periodic verification.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/postmortem-08",
+      "chunk": "claude-opus-5/postmortem-08#2",
+      "quote": "The Authority's offboarding checklist covers keys, credentials, and equipment; it does not ask what recurring reports, distribution lists, or unwritten responsibilities the departing person held.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/project-proposal-02",
+      "chunk": "claude-opus-5/project-proposal-02#0",
+      "quote": "The format conversion moves gross profit dollars toward categories where discount formats do not compete effectively and where our operators, our supplier relationships, and our customer base give us a defensible position.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/project-proposal-02",
+      "chunk": "claude-opus-5/project-proposal-02#2",
+      "quote": "It remains open, staffed, and serving that community.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/research-brief-04",
+      "chunk": "claude-opus-5/research-brief-04#0",
+      "quote": "The scan data therefore cannot tell us whether loss migrated to staffed lanes, stayed at self-checkout, or occurred somewhere else in the store entirely.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/research-brief-04",
+      "chunk": "claude-opus-5/research-brief-04#1",
+      "quote": "Fresh meat is not a department one would expect to move on concealment, because the packages are bulky, cold, and awkward.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/research-brief-04",
+      "chunk": "claude-opus-5/research-brief-04#2",
+      "quote": "It is entirely possible that self-checkout conversion changed the *composition* of shrink without changing its total by as much as we estimate, or that it changed something else about store operations \u2014 front-end staffing levels, floor coverage, manager attention \u2014 which then affected shrink through a channel unrelated to the checkout terminals.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/research-brief-04",
+      "chunk": "claude-opus-5/research-brief-04#2",
+      "quote": "Because the effect concentrates in health and beauty and fresh meat, and because center-store is flat, general-purpose interventions \u2014 more attendants, more cameras, more signage \u2014 are poorly targeted.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/white-paper-02",
+      "chunk": "claude-opus-5/white-paper-02#0",
+      "quote": "The turnover gap is nearly as consequential: at 26 percent annual executive turnover, an organization changes chief executives roughly every four years, which in practice means it is perpetually either recruiting, onboarding, or losing institutional memory.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/white-paper-02",
+      "chunk": "claude-opus-5/white-paper-02#1",
+      "quote": "Year One: policy, pilots, and honest accounting",
+      "re_proposed_strict": false,
+      "re_proposed": false
+    },
+    {
+      "doc_id": "claude-opus-5/white-paper-02",
+      "chunk": "claude-opus-5/white-paper-02#2",
+      "quote": "It almost never specifies grant duration, indirect cost treatment, or reporting format.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/white-paper-08",
+      "chunk": "claude-opus-5/white-paper-08#0",
+      "quote": "For pediatric behavioral health patients, boarding is longer, more frequent, and more consequential than for any other emergency population, because the downstream resource in question \u2014 an inpatient child psychiatric bed \u2014 is the scarcest bed type in American health care.",
+      "re_proposed_strict": false,
+      "re_proposed": false
+    },
+    {
+      "doc_id": "claude-opus-5/white-paper-08",
+      "chunk": "claude-opus-5/white-paper-08#0",
+      "quote": "That is the continuous, year-round removal of a small emergency department from service \u2014 capacity our communities paid to build, staff, and license, unavailable for chest pain, stroke, trauma, or obstetric emergency because a child is waiting for a bed that does not exist.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-opus-5/white-paper-08",
+      "chunk": "claude-opus-5/white-paper-08#2",
+      "quote": "The proximate cause is not emergency department practice, staff commitment, or clinical judgment.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/business-report-02",
+      "chunk": "claude-sonnet-5/business-report-02#2",
+      "quote": "Staff recommend the Board treat this report as the basis for a discrete set of August and September actions: adoption of the grant reconciliation corrective action plan, a decision on funding for the Route 4012 bridge repair, and a determination on how to address the sheriff's office overtime gap, whether through supplemental appropriation, operational adjustment, or a combination of both.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/business-report-02",
+      "chunk": "claude-sonnet-5/business-report-02#3",
+      "quote": "I'm prepared to bring options to the Board this fall \u2014 staffing model changes, rate adjustments, or a broader look at the facility's operating structure \u2014 whatever direction is useful.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/business-report-04",
+      "chunk": "claude-sonnet-5/business-report-04#0",
+      "quote": "Storage utilization above 95 percent materially reduces a facility's ability to absorb receiving spikes, rotate slow-moving inventory efficiently, or stage outbound freight without congestion, and the trailer refusals in June are a direct symptom.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/business-report-05",
+      "chunk": "claude-sonnet-5/business-report-05#1",
+      "quote": "while this does not mechanically affect the leverage covenant as defined, it does reduce the company's flexibility to absorb any additional adverse surprise, whether at RxCounter, CivicDesk, or elsewhere in the portfolio, without approaching the lender group for additional accommodation.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/business-report-06",
+      "chunk": "claude-sonnet-5/business-report-06#0",
+      "quote": "Long-term substitute coverage, even when substitutes are experienced and engaged, does not provide the continuity of instructional relationship, curriculum pacing consistency, or classroom management that a permanent teacher provides, and principal and instructional leadership at Cameron Street have flagged the vacancy period as a direct contributor to both the attendance figures and to unfinished curriculum pacing in several grade levels going into the summer.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/case-study-04",
+      "chunk": "claude-sonnet-5/case-study-04#0",
+      "quote": "A Case Study in Fleet Technology, Driver Trust, and the Price of Getting the Rollout Wrong",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/case-study-04",
+      "chunk": "claude-sonnet-5/case-study-04#0",
+      "quote": "an industry that had already stripped away much of the romance of the open road through electronic logging mandates, dispatch software, and turn-by-turn routing.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/case-study-04",
+      "chunk": "claude-sonnet-5/case-study-04#2",
+      "quote": "Every operational change we make now \u2014 routing software, a new ELD provider, anything that touches what a driver experiences in the cab \u2014 goes through Chiamaka's team before it goes to the board, not after.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/case-study-08",
+      "chunk": "claude-sonnet-5/case-study-08#3",
+      "quote": "Finally, and most fundamentally, the case demonstrates that a genuinely difficult, costly, and disruptive execution process is not incompatible with a strongly positive final outcome, provided the organization is willing to treat problems as they emerge \u2014 a missed commissioning date, a malfunctioning inspection system, a workforce walkout threat, a breached grant condition \u2014 as issues to be solved directly and transparently rather than managed around or minimized.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/email-05",
+      "chunk": "claude-sonnet-5/email-05#0",
+      "quote": "I want to know what our actual penalty exposure is if we stick with the current schedule and something goes sideways anyway \u2014 construction delay, a fourth bidder complaint, whatever.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/executive-summary-05",
+      "chunk": "claude-sonnet-5/executive-summary-05#0",
+      "quote": "What the Committee should not do is authorize open-ended continued investment without a yield and PPAP trigger attached to it, because the pattern of this program to date \u2014 plausible engineering explanations, incremental spend, and results that do not move \u2014 is exactly the pattern that turns a $7.4 million writedown into a $10 million one.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/executive-summary-05",
+      "chunk": "claude-sonnet-5/executive-summary-05#1",
+      "quote": "The Review Office's own finding \u2014 that the gap is overwhelmingly a floor-level scanning-discipline problem rather than a system defect \u2014 is the right answer to give that customer, but it is only a credible answer if the scanning-discipline initiative is funded, timed, and verified rather than left as an unstaffed aspiration attached to a software rollout.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/grant-proposal-05",
+      "chunk": "claude-sonnet-5/grant-proposal-05#0",
+      "quote": "The acquired and demolished parcels, together with several adjoining publicly owned lots, will be regraded and engineered into an eleven-acre detention complex designed to hold floodwater during high-water events and to function as a public greenway \u2014 walking paths, native plantings, and passive recreation space \u2014 during normal conditions.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/grant-proposal-05",
+      "chunk": "claude-sonnet-5/grant-proposal-05#1",
+      "quote": "The City of Sorrel Creek brings direct, relevant, and hard-won experience to this project, having managed two federally declared flood disasters in the past five years.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/grant-proposal-06",
+      "chunk": "claude-sonnet-5/grant-proposal-06#0",
+      "quote": "The question this application must answer is not whether the need exists, but whether our organization has the operating discipline, the capital structure, and the partnerships to meet it sustainably this time.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/performance-review-01",
+      "chunk": "claude-sonnet-5/performance-review-01#0",
+      "quote": "The vault carried the December peak of 4.1 million transactions in a single day with no incident, no rollback, and no on-call escalation attributable to the new code path.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/performance-review-01",
+      "chunk": "claude-sonnet-5/performance-review-01#0",
+      "quote": "That is the outcome the goal asked for, delivered on schedule, under real load, with no asterisks.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/performance-review-01",
+      "chunk": "claude-sonnet-5/performance-review-01#0",
+      "quote": "you will be one of several strong nominees from other groups, the committee decides on the whole slate, and I do not control the outcome.",
+      "re_proposed_strict": false,
+      "re_proposed": false
+    },
+    {
+      "doc_id": "claude-sonnet-5/postmortem-04",
+      "chunk": "claude-sonnet-5/postmortem-04#0",
+      "quote": "This postmortem examines the systems, processes, and decisions that led to a failed transportation launch on the first day of school and the four days that followed.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/postmortem-04",
+      "chunk": "claude-sonnet-5/postmortem-04#1",
+      "quote": "This ownership gap converted what should have been a same-day, low-severity data-quality catch \u2014 a record-count mismatch of roughly 16%, which any reconciliation step would have caught immediately \u2014 into a 16-day-old, undetected defect that shaped route-building, staffing assumptions, and the operational narrative of the launch itself.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/postmortem-04",
+      "chunk": "claude-sonnet-5/postmortem-04#1",
+      "quote": "The incumbent contractor's departure removed staff who had handled address data, apartment-unit formatting conventions, and known data-quality issues for years.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/postmortem-04",
+      "chunk": "claude-sonnet-5/postmortem-04#1",
+      "quote": "However, it removed the platform's built-in tier-separation logic without replacing it with any manual equivalent (color-coded sheets, separate yard staging areas, or a checklist step), which is why Wednesday's delays exceeded Tuesday's despite additional staff effort.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/postmortem-04",
+      "chunk": "claude-sonnet-5/postmortem-04#2",
+      "quote": "3,100 calls in a single day on September 9 overwhelmed front-line staff at all 14 schools and the district office, indicating no surge communication plan (a dedicated hotline, a proactive districtwide notification, or a triage script) existed for a transportation-specific crisis of this scale.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/postmortem-08",
+      "chunk": "claude-sonnet-5/postmortem-08#0",
+      "quote": "This postmortem examines the plant's systems, procedures, and decision points rather than the individuals who operated within them.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/postmortem-08",
+      "chunk": "claude-sonnet-5/postmortem-08#2",
+      "quote": "The Authority's governing procedural document describing how the plant is to be operated, staffed, and managed during storm events, including criteria and procedures for bypass declaration, inter-agency notification, and coordination with member towns and downstream water users.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/project-proposal-04",
+      "chunk": "claude-sonnet-5/project-proposal-04#0",
+      "quote": "At three remaining engineers, any unplanned absence \u2014 illness, departure, family emergency \u2014 leaves us without the capacity to safely change the system that settles $47 million in annual recurring revenue and, more consequentially, moves money for 340 depository institutions.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/research-brief-02",
+      "chunk": "claude-sonnet-5/research-brief-02#0",
+      "quote": "If a meaningful share instead actively declined the linkage \u2014 out of privacy concern, distrust of data sharing, or some other disposition \u2014 then the 1,412 could differ from the full enrolled population in ways correlated with the outcome we care about.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/research-brief-02",
+      "chunk": "claude-sonnet-5/research-brief-02#0",
+      "quote": "People with more complicated relationships to the health system, more chaotic health histories, or lower general trust in institutions might be simultaneously more likely to decline linkage and more likely to be frequent hospital users, in which case our analytic sample would understate true admissions among enrollees.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/research-brief-02",
+      "chunk": "claude-sonnet-5/research-brief-02#1",
+      "quote": "does staying enrolled cause lower hospitalization, or does lower likelihood of hospitalization (i.e., being more stable, more mobile, less acutely ill) cause people to stay enrolled?",
+      "re_proposed_strict": false,
+      "re_proposed": false
+    },
+    {
+      "doc_id": "claude-sonnet-5/research-brief-02",
+      "chunk": "claude-sonnet-5/research-brief-02#1",
+      "quote": "This is the most optimistic reading, and it may well be correct if hospital choice in the county is driven mainly by insurance network, geography, and long-standing patient relationships that have nothing to do with meal-program enrollment.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/research-brief-02",
+      "chunk": "claude-sonnet-5/research-brief-02#2",
+      "quote": "As additional months of program operation accumulate, we recommend re-running this analysis with an 18- and then 24-month follow-up window for the earliest-enrolled cohorts, to see whether the benefit associated with full-course completion persists, fades, or changes shape once the meal deliveries themselves have ended for six months, twelve months, and longer.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/research-brief-04",
+      "chunk": "claude-sonnet-5/research-brief-04#1",
+      "quote": "It cannot attribute a change in shrink to a specific week, a specific promotional period, or a specific operational change with precision",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/white-paper-02",
+      "chunk": "claude-sonnet-5/white-paper-02#0",
+      "quote": "And because restricted funds cannot be redeployed against unanticipated shortfalls \u2014 a delayed state contract payment, a lost staff member, a facilities failure \u2014 organizations that depend heavily on this funding model are structurally unable to accumulate the kind of flexible reserve that non-profit finance literature has long identified as the single best predictor of organizational survival through a shock.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/white-paper-02",
+      "chunk": "claude-sonnet-5/white-paper-02#0",
+      "quote": "Turnover of this magnitude is not a personnel footnote \u2014 it is a direct driver of program discontinuity, lost institutional knowledge, and, frequently, the very outcome shortfalls that restricted reporting is designed to catch.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/white-paper-02",
+      "chunk": "claude-sonnet-5/white-paper-02#2",
+      "quote": "This is consistent with the general finding in nonprofit finance research that fixed administrative costs \u2014 audit fees, insurance, basic financial systems \u2014 do not scale down proportionally with organizational size, so smaller grantees carry a heavier indirect burden as a share of budget even when their absolute overhead dollars are modest.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/white-paper-02",
+      "chunk": "claude-sonnet-5/white-paper-02#2",
+      "quote": "A 58-hour reporting burden falling on an executive director who is also the organization's primary fundraiser, program supervisor, and often its bookkeeper represents a substantially larger share of available leadership capacity than an 84-hour burden falling on the executive of a $10 million organization with a dedicated grants manager and finance director.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/white-paper-05",
+      "chunk": "claude-sonnet-5/white-paper-05#0",
+      "quote": "It is a structural cost that is now being priced into insurance premiums, retailer contracts, and federal enforcement postures.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/white-paper-05",
+      "chunk": "claude-sonnet-5/white-paper-05#0",
+      "quote": "and disputes take longer to resolve, which itself increases claim size through storage, disposal, and administrative cost.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/white-paper-05",
+      "chunk": "claude-sonnet-5/white-paper-05#2",
+      "quote": "At $1.4 million in capital for a 120-trailer fleet, with a ninety-day pilot structure and training built for 340 drivers, this model is sized to be adopted, tested, and adjusted rather than imposed all at once.",
+      "re_proposed_strict": true,
+      "re_proposed": true
+    }
+  ],
+  "chunks": [
+    {
+      "doc_id": "claude-opus-5/business-report-01",
+      "chunk_index": 0,
+      "chunk_sha256": "fbe83dea85928926",
+      "counted_spans": 1,
+      "cached_proposals": 5,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/business-report-01",
+      "chunk_index": 2,
+      "chunk_sha256": "514eac848fb61346",
+      "counted_spans": 1,
+      "cached_proposals": 14,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/business-report-02",
+      "chunk_index": 0,
+      "chunk_sha256": "df1a3d54cfb275c3",
+      "counted_spans": 1,
+      "cached_proposals": 8,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/business-report-08",
+      "chunk_index": 1,
+      "chunk_sha256": "d72f100ffa226cea",
+      "counted_spans": 1,
+      "cached_proposals": 9,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/case-study-01",
+      "chunk_index": 1,
+      "chunk_sha256": "5fbf1ff97977b82e",
+      "counted_spans": 1,
+      "cached_proposals": 11,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/case-study-02",
+      "chunk_index": 0,
+      "chunk_sha256": "9cef8943f49d4cb6",
+      "counted_spans": 1,
+      "cached_proposals": 10,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/case-study-02",
+      "chunk_index": 1,
+      "chunk_sha256": "abbe8cacb5406021",
+      "counted_spans": 1,
+      "cached_proposals": 16,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/case-study-02",
+      "chunk_index": 2,
+      "chunk_sha256": "b6efc535d3f82506",
+      "counted_spans": 2,
+      "cached_proposals": 12,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/email-07",
+      "chunk_index": 2,
+      "chunk_sha256": "c0fd70b7f441261b",
+      "counted_spans": 1,
+      "cached_proposals": 9,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/executive-summary-06",
+      "chunk_index": 1,
+      "chunk_sha256": "888d9d0ea721a1e0",
+      "counted_spans": 1,
+      "cached_proposals": 11,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/literature-review-01",
+      "chunk_index": 2,
+      "chunk_sha256": "b6ace90cc0b06804",
+      "counted_spans": 1,
+      "cached_proposals": 2,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/literature-review-04",
+      "chunk_index": 3,
+      "chunk_sha256": "963eff4539da71dc",
+      "counted_spans": 2,
+      "cached_proposals": 11,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/memo-08",
+      "chunk_index": 2,
+      "chunk_sha256": "6e29e2f495200069",
+      "counted_spans": 1,
+      "cached_proposals": 14,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/memo-08",
+      "chunk_index": 3,
+      "chunk_sha256": "833fdc8cfd53312f",
+      "counted_spans": 1,
+      "cached_proposals": 8,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/performance-review-03",
+      "chunk_index": 0,
+      "chunk_sha256": "e916a4f09f7cb366",
+      "counted_spans": 1,
+      "cached_proposals": 7,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/postmortem-03",
+      "chunk_index": 1,
+      "chunk_sha256": "4d089ce5d4f1bdc8",
+      "counted_spans": 1,
+      "cached_proposals": 5,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/postmortem-03",
+      "chunk_index": 2,
+      "chunk_sha256": "84b0818484d2912d",
+      "counted_spans": 3,
+      "cached_proposals": 10,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/postmortem-08",
+      "chunk_index": 2,
+      "chunk_sha256": "42c3f25e54cd5653",
+      "counted_spans": 1,
+      "cached_proposals": 9,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/project-proposal-02",
+      "chunk_index": 0,
+      "chunk_sha256": "24859748f647b7e8",
+      "counted_spans": 1,
+      "cached_proposals": 8,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/project-proposal-02",
+      "chunk_index": 2,
+      "chunk_sha256": "ccc1e6a949fa2307",
+      "counted_spans": 1,
+      "cached_proposals": 8,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/research-brief-04",
+      "chunk_index": 0,
+      "chunk_sha256": "cac613daf335c146",
+      "counted_spans": 1,
+      "cached_proposals": 5,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/research-brief-04",
+      "chunk_index": 1,
+      "chunk_sha256": "3bf0048f232ef5ad",
+      "counted_spans": 1,
+      "cached_proposals": 3,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/research-brief-04",
+      "chunk_index": 2,
+      "chunk_sha256": "25d0fdcb0c999f26",
+      "counted_spans": 2,
+      "cached_proposals": 9,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/white-paper-02",
+      "chunk_index": 0,
+      "chunk_sha256": "18294a53d3f7aed3",
+      "counted_spans": 1,
+      "cached_proposals": 8,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/white-paper-02",
+      "chunk_index": 1,
+      "chunk_sha256": "f6d87b8aa61afabf",
+      "counted_spans": 1,
+      "cached_proposals": 7,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/white-paper-02",
+      "chunk_index": 2,
+      "chunk_sha256": "2608756836d0930b",
+      "counted_spans": 1,
+      "cached_proposals": 9,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/white-paper-08",
+      "chunk_index": 0,
+      "chunk_sha256": "0c64839acc8ed493",
+      "counted_spans": 2,
+      "cached_proposals": 6,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-opus-5/white-paper-08",
+      "chunk_index": 2,
+      "chunk_sha256": "e7fa7e8c0b4a3fdb",
+      "counted_spans": 1,
+      "cached_proposals": 8,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/business-report-02",
+      "chunk_index": 2,
+      "chunk_sha256": "cae18d1b73b0082a",
+      "counted_spans": 1,
+      "cached_proposals": 4,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/business-report-02",
+      "chunk_index": 3,
+      "chunk_sha256": "f4a8f843f16f5256",
+      "counted_spans": 1,
+      "cached_proposals": 2,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/business-report-04",
+      "chunk_index": 0,
+      "chunk_sha256": "4093fbcf135647e5",
+      "counted_spans": 1,
+      "cached_proposals": 6,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/business-report-05",
+      "chunk_index": 1,
+      "chunk_sha256": "e70bed7fb6f75b03",
+      "counted_spans": 1,
+      "cached_proposals": 7,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/business-report-06",
+      "chunk_index": 0,
+      "chunk_sha256": "7e78d8d3ac3f928e",
+      "counted_spans": 1,
+      "cached_proposals": 8,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/case-study-04",
+      "chunk_index": 0,
+      "chunk_sha256": "c2c3dd7c0d7939c1",
+      "counted_spans": 2,
+      "cached_proposals": 14,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/case-study-04",
+      "chunk_index": 2,
+      "chunk_sha256": "d11a3ff485b364d1",
+      "counted_spans": 1,
+      "cached_proposals": 2,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/case-study-08",
+      "chunk_index": 3,
+      "chunk_sha256": "f032f7b5fb86bd6c",
+      "counted_spans": 1,
+      "cached_proposals": 4,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/email-05",
+      "chunk_index": 0,
+      "chunk_sha256": "1abc7be329aab394",
+      "counted_spans": 1,
+      "cached_proposals": 7,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/executive-summary-05",
+      "chunk_index": 0,
+      "chunk_sha256": "52f919012cce3db1",
+      "counted_spans": 1,
+      "cached_proposals": 10,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/executive-summary-05",
+      "chunk_index": 1,
+      "chunk_sha256": "a3161a56a33b3210",
+      "counted_spans": 1,
+      "cached_proposals": 9,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/grant-proposal-05",
+      "chunk_index": 0,
+      "chunk_sha256": "adecf79f53d3a05c",
+      "counted_spans": 1,
+      "cached_proposals": 12,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/grant-proposal-05",
+      "chunk_index": 1,
+      "chunk_sha256": "124e5f10f11e3aa4",
+      "counted_spans": 1,
+      "cached_proposals": 9,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/grant-proposal-06",
+      "chunk_index": 0,
+      "chunk_sha256": "3ff037349268617d",
+      "counted_spans": 1,
+      "cached_proposals": 8,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/performance-review-01",
+      "chunk_index": 0,
+      "chunk_sha256": "3c088c658d32024e",
+      "counted_spans": 3,
+      "cached_proposals": 8,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/postmortem-04",
+      "chunk_index": 0,
+      "chunk_sha256": "0f48f1f80fbd249d",
+      "counted_spans": 1,
+      "cached_proposals": 7,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/postmortem-04",
+      "chunk_index": 1,
+      "chunk_sha256": "91afe1a179ffdd01",
+      "counted_spans": 3,
+      "cached_proposals": 8,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/postmortem-04",
+      "chunk_index": 2,
+      "chunk_sha256": "9151d647b46eeb6c",
+      "counted_spans": 1,
+      "cached_proposals": 9,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/postmortem-08",
+      "chunk_index": 0,
+      "chunk_sha256": "b744fca9826e201a",
+      "counted_spans": 1,
+      "cached_proposals": 10,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/postmortem-08",
+      "chunk_index": 2,
+      "chunk_sha256": "a70e090d2aead09b",
+      "counted_spans": 1,
+      "cached_proposals": 7,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/project-proposal-04",
+      "chunk_index": 0,
+      "chunk_sha256": "815599f7ed587b2e",
+      "counted_spans": 1,
+      "cached_proposals": 9,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/research-brief-02",
+      "chunk_index": 0,
+      "chunk_sha256": "972187c99bc3e017",
+      "counted_spans": 2,
+      "cached_proposals": 6,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/research-brief-02",
+      "chunk_index": 1,
+      "chunk_sha256": "52c25fe68ba4bc0a",
+      "counted_spans": 2,
+      "cached_proposals": 6,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/research-brief-02",
+      "chunk_index": 2,
+      "chunk_sha256": "6fc89111ddb27fbf",
+      "counted_spans": 1,
+      "cached_proposals": 8,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/research-brief-04",
+      "chunk_index": 1,
+      "chunk_sha256": "4cfdf0c0534a3a8c",
+      "counted_spans": 1,
+      "cached_proposals": 4,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/white-paper-02",
+      "chunk_index": 0,
+      "chunk_sha256": "8b6d4c1698f0b5ac",
+      "counted_spans": 2,
+      "cached_proposals": 18,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/white-paper-02",
+      "chunk_index": 2,
+      "chunk_sha256": "ee4af3c73633ea54",
+      "counted_spans": 2,
+      "cached_proposals": 3,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/white-paper-05",
+      "chunk_index": 0,
+      "chunk_sha256": "f78dacd60d1ca24a",
+      "counted_spans": 2,
+      "cached_proposals": 9,
+      "cached_answer_found": true
+    },
+    {
+      "doc_id": "claude-sonnet-5/white-paper-05",
+      "chunk_index": 2,
+      "chunk_sha256": "8aba9431d2460f77",
+      "counted_spans": 1,
+      "cached_proposals": 6,
+      "cached_answer_found": true
+    }
+  ]
+}
