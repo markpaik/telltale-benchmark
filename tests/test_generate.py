@@ -939,3 +939,21 @@ def test_status_renders_a_one_prompt_format_as_one_over_one(tmp_path):
 def test_the_annex_is_in_the_default_generation_set():
     assert "free-writing" in FORMATS
     assert EXPLORATORY_FORMATS == {"free-writing"}
+
+
+def test_a_second_pass_skips_every_written_annex_cell(bank_dir, runs_root, tmp_path):
+    """Eight identical prompts still key on distinct ids, so resume works."""
+    corpus = tmp_path / "corpus"
+    first = run(
+        bank_dir, runs_root, tmp_path, Recorder([envelope(WORDS * 4)]),
+        formats=["free-writing"], corpus_root=corpus,
+    )
+    assert len(first.written) == 8
+
+    transport = Recorder([envelope(WORDS * 4)])
+    second = run(
+        bank_dir, runs_root, tmp_path, transport,
+        formats=["free-writing"], corpus_root=corpus,
+    )
+    assert len(second.skipped) == 8
+    assert transport.calls == []
