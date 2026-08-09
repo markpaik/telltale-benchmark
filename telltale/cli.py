@@ -596,14 +596,32 @@ def cmd_judge_audit(args: argparse.Namespace) -> int:
     docs = load_corpus(args.corpus)
     model = _resolved_judge(args)
     backend = build_backend(model=model)
+    stages = tuple(s.strip() for s in str(args.stages).split(",") if s.strip())
+    unknown = set(stages) - {audit_mod.EXTRACTION, audit_mod.ADJUDICATION}
+    if unknown or not stages:
+        print(
+            f"--stages takes {audit_mod.EXTRACTION} and/or "
+            f"{audit_mod.ADJUDICATION}, not {sorted(unknown) or 'nothing'}",
+            file=sys.stderr,
+        )
+        return 1
     report = audit_mod.audit(
         docs, tells, backend.client, pct=args.pct, seed=args.seed,
-        max_calls=args.max_calls,
+        max_calls=args.max_calls, stages=stages,
         progress=lambda line: print(line, file=sys.stderr, flush=True),
     )
     print(report.summary())
     for item in report.items:
         if item.agreement < 1.0:
+            if item.kind == audit_mod.ADJUDICATION:
+                print(
+                    f"  {item.tell_id} {item.doc_id}#{item.chunk_index} "
+                    f"adjudication: verdict {item.cached_verdict} -> "
+                    f"{item.live_verdict}, criteria {item.cached_criteria} -> "
+                    f"{item.live_criteria}, exclusion {item.cached_exclusion} -> "
+                    f"{item.live_exclusion} :: {item.quote[:60]}"
+                )
+                continue
             print(
                 f"  {item.tell_id} {item.doc_id}#{item.chunk_index}: "
                 f"{item.agreement:.2f} (cached {item.cached_spans}, "
@@ -637,7 +655,8 @@ def _add_judge_parser(subparsers: argparse._SubParsersAction) -> None:
     calibrate.set_defaults(func=cmd_judge_calibrate)
 
     audit = actions.add_parser(
-        "audit", help="re-ask a sample of cached extractions live and compare span sets"
+        "audit",
+        help="re-ask a sample of cached judge calls live and compare the answers",
     )
     audit.add_argument("--pct", type=float, default=5.0)
     audit.add_argument("--seed", type=int, default=11)
@@ -645,7 +664,18 @@ def _add_judge_parser(subparsers: argparse._SubParsersAction) -> None:
         "--max-calls",
         type=int,
         default=None,
-        help="budget ceiling on live judge calls; the draw is trimmed, not the tells",
+        help=(
+            "budget ceiling on live judge calls across both stages; the draw is "
+            "trimmed, not the tells"
+        ),
+    )
+    audit.add_argument(
+        "--stages",
+        default="extraction,adjudication",
+        help=(
+            "which stages to re-ask, comma separated: extraction, adjudication, "
+            "or both (default)"
+        ),
     )
     audit.add_argument("--tell", default=None)
     audit.add_argument("--model", default=None)

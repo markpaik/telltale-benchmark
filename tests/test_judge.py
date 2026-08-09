@@ -2031,8 +2031,13 @@ def test_the_controller_counts_live_calls(tmp_path: Path, registry: Registry) ->
     lines: list[str] = []
     controller.emit = lines.append
     controller.tick(force=True)
-    assert f"{controller._calls} calls" in lines[0]
-    assert "0 calls" not in lines[0]
+    assert f"{controller._calls} calls," in lines[0]
+    # The bug this test exists for was a progress line reading "0 calls" while
+    # calls were in flight. Anchored on the comma: the same line also carries a
+    # calls-per-minute rate, and on a fast machine that rate can end in "0",
+    # which made a bare "0 calls" substring check fail at random.
+    assert controller._calls > 0
+    assert "0 calls," not in lines[0]
 
 
 def test_two_workers_produce_byte_identical_scores(
@@ -3126,3 +3131,139 @@ def test_the_client_tells_the_transport_which_stage_it_is_serving(
     assert plain.ask(EXTRACT, "b" * 64, "rht.rule-of-three", 2, "prompt")[0] == {
         "spans": []
     }
+
+
+# --- R19: the audit re-asks adjudications too ---------------------------------
+
+
+def test_the_audit_re_asks_adjudications_and_tables_them_separately(
+    tmp_path: Path, qa_tell: Tell
+) -> None:
+    """SHAKEDOWN §2.7 measured stage 1 only, which overstates the instability of
+    a published count: a span that only one call proposes still has to survive
+    an adjudicator nobody had re-asked."""
+    doc = doc_from(E2E_DOC)
+    client = make_client(tmp_path, e2e_router)
+    JudgeBackend(client).detect(qa_tell, doc)
+    entries_before = len(client.cache.entries())
+
+    report = audit_mod.audit([doc], [qa_tell], client, pct=100.0)
+    kinds = {item.kind for item in report.items}
+    assert kinds == {audit_mod.EXTRACTION, audit_mod.ADJUDICATION}
+    assert report.kind_summary(audit_mod.ADJUDICATION)["n"] >= 1
+    # Same answers replayed by the router, so both stages reproduce exactly.
+    assert report.kind_summary(audit_mod.ADJUDICATION)["mean_agreement"] == 1.0
+    assert report.mean_agreement == 1.0
+
+    adjudicated = report.per_tell_adjudication()
+    assert set(adjudicated) == {qa_tell.id}
+    assert adjudicated[qa_tell.id]["n"] == report.kind_summary(
+        audit_mod.ADJUDICATION
+    )["n"]
+    # The stage-1 table is unchanged and does not absorb the stage-2 items.
+    assert report.per_tell()[qa_tell.id]["n"] == report.kind_summary(
+        audit_mod.EXTRACTION
+    )["n"]
+    assert "adjudication" in report.summary()
+    assert len(client.cache.entries()) == entries_before, "an audit must not write"
+
+
+def test_an_adjudication_disagreement_is_all_or_nothing(
+    tmp_path: Path, qa_tell: Tell
+) -> None:
+    """Agreement is verdict AND criteria AND exclusion: two calls that reach the
+    same answer by different criteria did not reproduce the measurement."""
+    doc = doc_from(E2E_DOC)
+    client = make_client(tmp_path, e2e_router)
+    JudgeBackend(client).detect(qa_tell, doc)
+
+    def drifted(prompt: str) -> dict[str, Any] | None:
+        if "ADJUDICATE ONE SPAN" in prompt:
+            return {
+                "instance": True,
+                "criteria_met": ["a"],
+                "exclusion_triggered": None,
+                "rationale": "changed my mind",
+            }
+        return e2e_router(prompt)
+
+    client.transport.router = drifted
+    report = audit_mod.audit([doc], [qa_tell], client, pct=100.0)
+    items = report.of_kind(audit_mod.ADJUDICATION)
+    assert items, "there is at least one adjudication in the cache to re-ask"
+    for item in items:
+        assert item.agreement in {0.0, 1.0}
+        assert item.quote
+        assert item.live_criteria == ["a"]
+    assert any(item.agreement == 0.0 for item in items)
+    assert report.per_tell_adjudication()[qa_tell.id]["mean_agreement"] < 1.0
+
+
+def test_only_adjudications_the_run_paid_for_are_auditable(
+    tmp_path: Path, qa_tell: Tell
+) -> None:
+    """A span dispositioned in code or dropped by the cap has no cached answer,
+    so it never enters the pool — the audit re-asks questions that were asked."""
+    doc = doc_from(E2E_DOC)
+    client = make_client(tmp_path, e2e_router)
+    JudgeBackend(client).detect(qa_tell, doc)
+
+    cached_adjudications = sum(
+        1
+        for path in client.cache.entries()
+        if (client.cache.read(path) or {}).get("stage") == ADJUDICATE
+    )
+    report = audit_mod.audit([doc], [qa_tell], client, pct=100.0)
+    assert report.kind_summary(audit_mod.ADJUDICATION)["n"] == cached_adjudications
+
+
+def test_the_budget_cap_covers_both_stages_together(
+    tmp_path: Path, qa_tell: Tell
+) -> None:
+    doc = doc_from(E2E_DOC)
+    client = make_client(tmp_path, e2e_router)
+    JudgeBackend(client).detect(qa_tell, doc)
+
+    full = audit_mod.audit([doc], [qa_tell], client, pct=100.0)
+    assert full.n_available >= 2
+    capped = audit_mod.audit([doc], [qa_tell], client, pct=100.0, max_calls=1)
+    assert capped.n_sampled == 1
+    assert capped.capped is True
+    assert capped.max_calls == 1
+
+
+def test_the_audit_can_be_asked_for_one_stage_only(
+    tmp_path: Path, qa_tell: Tell
+) -> None:
+    doc = doc_from(E2E_DOC)
+    client = make_client(tmp_path, e2e_router)
+    JudgeBackend(client).detect(qa_tell, doc)
+
+    only_extraction = audit_mod.audit(
+        [doc], [qa_tell], client, pct=100.0, stages=(audit_mod.EXTRACTION,)
+    )
+    assert {i.kind for i in only_extraction.items} == {audit_mod.EXTRACTION}
+    only_adjudication = audit_mod.audit(
+        [doc], [qa_tell], client, pct=100.0, stages=(audit_mod.ADJUDICATION,)
+    )
+    assert {i.kind for i in only_adjudication.items} == {audit_mod.ADJUDICATION}
+
+
+def test_the_draw_round_robins_over_stages_as_well_as_tells() -> None:
+    """A tell with a deep adjudication pool must not crowd out its own
+    extractions, or another tell's."""
+    from telltale.registry import Tell as RegistryTell
+
+    def entry(tell_id: str, stage: str, i: int):
+        tell = RegistryTell(id=tell_id, name=tell_id, category="rhetorical", method="judge")
+        return (tell, f"m/doc-{i:02d}", None, stage, {}, None)
+
+    available = (
+        [entry("deep", "adjudicate", i) for i in range(40)]
+        + [entry("deep", "extract", i) for i in range(4)]
+        + [entry("thin", "extract", i) for i in range(4)]
+    )
+    picks = audit_mod._stratified_picks(available, 9, seed=11)
+    pools = [f"{available[i][0].id}|{available[i][3]}" for i in picks]
+    assert set(pools) == {"deep|adjudicate", "deep|extract", "thin|extract"}
+    assert pools.count("deep|adjudicate") == 3, "one pool cannot take the budget"
