@@ -54,6 +54,20 @@ def _sha(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+def ask_transport(transport: Any, prompt: str, stage: str | None) -> dict[str, Any]:
+    """Ask a transport, telling it which stage it is serving if it cares.
+
+    The stage is bookkeeping, not content: the CLI transport counts parse
+    failures per stage (SHAKEDOWN §2.4) and nothing else uses it. A transport
+    that does not advertise `accepts_stage` — a stub in a test, a discovery lens
+    — is asked the plain question, so adding the counter changed no other
+    caller's signature.
+    """
+    if getattr(transport, "accepts_stage", False):
+        return transport.ask(prompt, stage=stage)
+    return transport.ask(prompt)
+
+
 def cache_key(
     chunk_sha: str,
     tell_id: str,
@@ -209,7 +223,7 @@ class JudgeClient:
                 "this client is not allowed to call the judge"
             )
 
-        payload = self.transport.ask(prompt)
+        payload = ask_transport(self.transport, prompt, stage)
         with self._stats_lock:
             self.stats["live_calls"] = self.stats.get("live_calls", 0) + 1
         if self.on_call is not None:
@@ -241,5 +255,6 @@ __all__ = [
     "CacheStats",
     "JudgeCache",
     "JudgeClient",
+    "ask_transport",
     "cache_key",
 ]

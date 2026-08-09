@@ -3055,3 +3055,74 @@ def test_the_r16_gate_reaches_the_extraction_prompt(registry: Registry) -> None:
     )
     assert "OVER-EXTRACT" in other
     assert "APPLY CRITERION (c)" not in other
+
+
+# --- SHAKEDOWN rec 3: parse failures are counted per stage --------------------
+
+
+def test_a_parse_failure_is_counted_against_the_stage_that_asked() -> None:
+    """§2.4 is a code-reading hypothesis with no observed instances. A counter
+    is what turns it into a rate the canonical run can report."""
+    cli = fake_cli(envelope("not json at all"), envelope("still not json"))
+    transport = CliJudgeTransport(model=JUDGE_MODEL_DEFAULT, transport=cli)
+    with pytest.raises(JudgeError, match="not JSON"):
+        transport.ask("go", stage=ADJUDICATE)
+    stats = transport.stats.as_dict()
+    assert stats["parse_failures"] == {ADJUDICATE: 1}
+    assert stats["parse_failures_total"] == 1
+    assert stats["retries"] == 1, "the fence retry still happens first"
+    assert stats["failures"] == 1
+
+
+def test_parse_failures_do_not_pool_across_stages() -> None:
+    transport = CliJudgeTransport(
+        model=JUDGE_MODEL_DEFAULT, transport=fake_cli(envelope("prose"))
+    )
+    for stage in (EXTRACT, ADJUDICATE, ADJUDICATE, STRUCTURAL):
+        with pytest.raises(JudgeError):
+            transport.ask("go", stage=stage)
+    assert transport.stats.as_dict()["parse_failures"] == {
+        ADJUDICATE: 2,
+        EXTRACT: 1,
+        STRUCTURAL: 1,
+    }
+
+
+def test_a_recovered_parse_failure_is_not_counted() -> None:
+    """The fence retry working is not a failure — only the second miss is."""
+    cli = fake_cli(envelope('```json\n{"spans": []}\n```'))
+    transport = CliJudgeTransport(model=JUDGE_MODEL_DEFAULT, transport=cli)
+    assert transport.ask("go", stage=EXTRACT) == {"spans": []}
+    assert transport.stats.as_dict()["parse_failures"] == {}
+
+
+def test_the_client_tells_the_transport_which_stage_it_is_serving(
+    tmp_path: Path,
+) -> None:
+    """The stage reaches the transport through the cache client, and a transport
+    that does not want it is asked the plain question."""
+    seen: list[str | None] = []
+
+    class Recording:
+        model = JUDGE_MODEL_DEFAULT
+        accepts_stage = True
+
+        def ask(self, prompt: str, stage: str | None = None) -> dict[str, Any]:
+            seen.append(stage)
+            return {"spans": []}
+
+    class Plain:
+        model = JUDGE_MODEL_DEFAULT
+
+        def ask(self, prompt: str) -> dict[str, Any]:
+            return {"spans": []}
+
+    client = JudgeClient(transport=Recording(), cache=JudgeCache(tmp_path / "recording"))
+    client.ask(EXTRACT, "a" * 64, "rht.rule-of-three", 2, "prompt")
+    client.ask(ADJUDICATE, "a" * 64, "rht.rule-of-three", 2, "prompt", quote="q")
+    assert seen == [EXTRACT, ADJUDICATE]
+
+    plain = JudgeClient(transport=Plain(), cache=JudgeCache(tmp_path / "plain"))
+    assert plain.ask(EXTRACT, "b" * 64, "rht.rule-of-three", 2, "prompt")[0] == {
+        "spans": []
+    }

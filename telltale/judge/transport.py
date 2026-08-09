@@ -230,11 +230,25 @@ class TransportStats:
     substitution_retries: int = 0
     substitutions_recovered: int = 0
     substitutions_failed: int = 0
+    #: Replies that never parsed as JSON, by the stage that asked
+    #: (SHAKEDOWN §2.4, recommendation 3). The exposure is real and the observed
+    #: rate is zero, which is exactly the pair of facts a counter turns into a
+    #: number: adjudication rationales quote business prose back at the parser,
+    #: and a mis-escaped quotation mark fails a whole measurement silently. The
+    #: split by stage is the point — one shared total could not tell "the
+    #: adjudicator is quoting badly" from "the extractor is wrapping fences".
+    parse_failures: dict[str, int] = field(default_factory=dict)
     _lock: "threading.Lock" = field(default_factory=lambda: threading.Lock(), repr=False)
 
     def bump(self, field_name: str, amount: float = 1) -> None:
         with self._lock:
             setattr(self, field_name, getattr(self, field_name) + amount)
+
+    def bump_parse_failure(self, stage: str | None) -> None:
+        """Record one unparseable reply against the stage that asked for it."""
+        name = str(stage or "unknown")
+        with self._lock:
+            self.parse_failures[name] = self.parse_failures.get(name, 0) + 1
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -247,6 +261,8 @@ class TransportStats:
             "substitution_retries": self.substitution_retries,
             "substitutions_recovered": self.substitutions_recovered,
             "substitutions_failed": self.substitutions_failed,
+            "parse_failures": dict(sorted(self.parse_failures.items())),
+            "parse_failures_total": sum(self.parse_failures.values()),
         }
 
 
@@ -267,7 +283,12 @@ class CliJudgeTransport:
 
     name = "cli"
 
-    def ask(self, prompt: str) -> dict[str, Any]:
+    #: Tells a caller this transport records which stage a call served. A
+    #: transport without it is asked the plain question, so a stub in a test or
+    #: a lens transport in discovery needs no signature change.
+    accepts_stage = True
+
+    def ask(self, prompt: str, stage: str | None = None) -> dict[str, Any]:
         """Send one prompt, return the parsed JSON object.
 
         Three independent retries, for three different kinds of wrong, each with
@@ -289,7 +310,7 @@ class CliJudgeTransport:
         substituted = False
         while True:
             try:
-                answer = self._ask_parsed(prompt)
+                answer = self._ask_parsed(prompt, stage)
             except ModelSubstitutionError:
                 if not substitution_left:
                     self.stats.bump("substitutions_failed")
@@ -310,7 +331,7 @@ class CliJudgeTransport:
                 self.stats.bump("substitutions_recovered")
             return answer
 
-    def _ask_parsed(self, prompt: str) -> dict[str, Any]:
+    def _ask_parsed(self, prompt: str, stage: str | None = None) -> dict[str, Any]:
         """One call, with the JSON-parse retry."""
         payload = prompt
         for attempt in (0, 1):
@@ -320,6 +341,7 @@ class CliJudgeTransport:
             except JudgeError:
                 if attempt == 1:
                     self.stats.bump("failures")
+                    self.stats.bump_parse_failure(stage)
                     raise
                 self.stats.bump("retries")
                 payload = f"{prompt}\n\n{RETRY_SUFFIX}"
