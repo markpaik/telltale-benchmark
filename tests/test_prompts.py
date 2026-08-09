@@ -21,18 +21,19 @@ def test_real_bank_lints_clean():
     assert violations == [], "\n".join(violations)
 
 
-def test_real_bank_has_fifteen_formats_and_120_prompts():
-    # 14 evidence formats at 8 scenarios each, plus the 8-draw exploratory annex.
+def test_real_bank_has_fifteen_formats_and_128_prompts():
+    # 14 evidence formats at 8 scenarios each = 112, plus the exploratory annex,
+    # which R20 as amended runs at 16 repeat draws.
     bank = prompts.load_prompt_bank(BANK)
     assert sorted(bank) == sorted(FORMATS)
-    assert sum(len(spec.prompts) for spec in bank.values()) == 120
+    assert sum(len(spec.prompts) for spec in bank.values()) == 128
 
 
-def test_all_120_ids_are_unique():
+def test_all_128_ids_are_unique():
     bank = prompts.load_prompt_bank(BANK)
     ids = [p.id for spec in bank.values() for p in spec.prompts]
-    assert len(ids) == 120
-    assert len(set(ids)) == 120
+    assert len(ids) == 128
+    assert len(set(ids)) == 128
 
 
 def test_bundle_flags_match_the_design():
@@ -387,16 +388,17 @@ FREE_WRITING_TEXT = (
 )
 
 
-def test_the_annex_format_carries_no_length_ask_and_eight_identical_draws():
+def test_the_annex_format_carries_no_length_ask_and_sixteen_identical_draws():
     spec = prompts.load_prompt_bank(BANK)["free-writing"]
     assert spec.exploratory is True
     assert spec.bundle is False
     assert spec.target_words == 0
     assert spec.min_words == 0
     assert spec.output_convention == ""
-    assert [p.id for p in spec.prompts] == [f"free-writing-{i:02d}" for i in range(1, 9)]
-    # The eight draws are the same blank page eight times: the variation being
-    # measured is the model's, not the prompt's.
+    assert [p.id for p in spec.prompts] == [f"free-writing-{i:02d}" for i in range(1, 17)]
+    # The sixteen draws are the same blank page sixteen times: the variation
+    # being measured is the model's, not the prompt's. R20 as amended doubled
+    # the original octet to n=16 to tighten the taste-cluster intervals.
     assert len({p.scenario for p in spec.prompts}) == 1
     assert len({p.sha256 for p in spec.prompts}) == 1
 

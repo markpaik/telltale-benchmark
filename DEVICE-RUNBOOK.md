@@ -50,7 +50,7 @@ Notes:
   logic resumes). Failed cells leave `.failed.json` markers; re-run to retry.
 - Every doc's sidecar records the isolation battery that gated it, the pinned system-prompt
   hash, word counts, continuation boundaries, and model attribution (mismatch = hard fail).
-- The canonical corpus includes the `free-writing` annex cell per model — 8 extra docs each,
+- The canonical corpus includes the `free-writing` annex cell per model — 16 extra docs each,
   generated the same way (`python3 -m telltale generate --models <model> --formats free-writing`),
   scored Tier-1 only and excluded from the index (R20).
 - Commit `corpus/` + `runs/isolation/` per model batch and push.

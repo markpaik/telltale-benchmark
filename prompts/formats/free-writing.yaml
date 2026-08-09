@@ -1,9 +1,13 @@
-# Exploratory annex (coordinator ruling R20, 2026-08-09). Eight draws per model
-# against one maximally unconstrained prompt: no situation, no audience, no form,
-# no length. The prompt text is deliberately IDENTICAL across all eight ids —
-# nothing is varied between draws. Repeating the same blank page is the
-# measurement: it shows the distribution of what a model reaches for when nothing
-# is asked of it, and how far its subjects and forms converge across draws. A
+# Exploratory annex (coordinator ruling R20, 2026-08-09; amended same day to
+# n=16). Sixteen draws per model against one maximally unconstrained prompt: no
+# situation, no audience, no form, no length. The prompt text is deliberately
+# IDENTICAL across all sixteen ids — nothing is varied between draws. The first
+# eight (01..08) are the original octet; 09..16 are the amendment, which doubles
+# n to tighten the confidence intervals on taste-cluster proportions. Stop rule:
+# extend past sixteen only if the second octet reveals clusters the first did
+# not. Repeating the same blank page is the measurement: it shows the
+# distribution of what a model reaches for when nothing is asked of it, and how
+# far its subjects and forms converge across draws. A
 # format that varied the wording would measure the wording instead.
 #
 # The documents are a portrait, not comparable benchmark cells: they are excluded
@@ -37,5 +41,29 @@ prompts:
     scenario: |
       There is no assignment here, no audience to serve, and no length requirement. Write the piece you would most want to write — any subject, any form. Do not describe what you would write or explain your choice; just write the piece.
   - id: free-writing-08
+    scenario: |
+      There is no assignment here, no audience to serve, and no length requirement. Write the piece you would most want to write — any subject, any form. Do not describe what you would write or explain your choice; just write the piece.
+  - id: free-writing-09
+    scenario: |
+      There is no assignment here, no audience to serve, and no length requirement. Write the piece you would most want to write — any subject, any form. Do not describe what you would write or explain your choice; just write the piece.
+  - id: free-writing-10
+    scenario: |
+      There is no assignment here, no audience to serve, and no length requirement. Write the piece you would most want to write — any subject, any form. Do not describe what you would write or explain your choice; just write the piece.
+  - id: free-writing-11
+    scenario: |
+      There is no assignment here, no audience to serve, and no length requirement. Write the piece you would most want to write — any subject, any form. Do not describe what you would write or explain your choice; just write the piece.
+  - id: free-writing-12
+    scenario: |
+      There is no assignment here, no audience to serve, and no length requirement. Write the piece you would most want to write — any subject, any form. Do not describe what you would write or explain your choice; just write the piece.
+  - id: free-writing-13
+    scenario: |
+      There is no assignment here, no audience to serve, and no length requirement. Write the piece you would most want to write — any subject, any form. Do not describe what you would write or explain your choice; just write the piece.
+  - id: free-writing-14
+    scenario: |
+      There is no assignment here, no audience to serve, and no length requirement. Write the piece you would most want to write — any subject, any form. Do not describe what you would write or explain your choice; just write the piece.
+  - id: free-writing-15
+    scenario: |
+      There is no assignment here, no audience to serve, and no length requirement. Write the piece you would most want to write — any subject, any form. Do not describe what you would write or explain your choice; just write the piece.
+  - id: free-writing-16
     scenario: |
       There is no assignment here, no audience to serve, and no length requirement. Write the piece you would most want to write — any subject, any form. Do not describe what you would write or explain your choice; just write the piece.

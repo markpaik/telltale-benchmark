@@ -223,6 +223,10 @@ R20. (2026-08-09) New `free-writing` format: an exploratory annex, not evidence.
     reported descriptively in scorecard §7. Same isolation recipe as everything else.
     `corpus.EXPLORATORY_FORMATS` is the single source of truth; the YAML `exploratory:` flag must
     agree with it (lint-enforced both ways).
+    AMENDED (2026-08-09): n=16 per model, not 8 — ids free-writing-01..16, prompt text still
+    identical across all sixteen. Doubling the draws tightens the confidence intervals on the
+    taste-cluster proportions the annex reports; nothing else about R20 changes. Stop rule:
+    extend past sixteen only if the second octet (09..16) reveals clusters the first did not.
 
 **PENDING coordinator rulings**: none outstanding on the judge rubrics. The em-dash ramp is
 settled for this generation by R18 and reopens only when a human baseline exists.
