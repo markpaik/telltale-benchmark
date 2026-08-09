@@ -454,9 +454,21 @@ def test_hallucinated_quotes_are_dropped_and_counted(tmp_path: Path, qa_tell: Te
 
 
 def test_the_criteria_table_matches_the_rubrics_in_the_registry(registry: Registry) -> None:
-    """The table is a mirror of the rubric text. Drift has to fail here."""
-    judge_tells = [t for t in registry.active_tells() if t.method == "judge"]
+    """The table is a mirror of the rubric text. Drift has to fail here.
+
+    The table covers every judge tell the registry carries, not only the active
+    ones: `rht.from-x-to-y` was deprecated by ruling R17 (2026-08-09) and its
+    entry stays in the registry for history, so its rule stays here to keep the
+    cached answers for it readable and its calibration set replayable.
+    """
+    judge_tells = [
+        t
+        for t in registry.tells
+        if t.method == "judge" and t.status in {"active", "deprecated"}
+    ]
     assert {t.id for t in judge_tells} == set(protocol.RULES)
+    active = {t.id for t in registry.active_tells() if t.method == "judge"}
+    assert active == set(protocol.RULES) - {"rht.from-x-to-y"}
     for tell in judge_tells:
         criteria, exclusions = protocol.parse_rubric_labels(tell.rubric)
         rule = protocol.RULES[tell.id]
@@ -556,7 +568,7 @@ def test_every_judge_tell_has_a_decision_path(registry: Registry) -> None:
 
 def test_a_rubric_label_inside_prose_is_not_read_as_a_label(registry: Registry) -> None:
     rubric = registry.get("rht.rule-of-three").rubric
-    assert "criterion (c) holds" in rubric  # the trap
+    assert "which is criterion (c)" in rubric  # the trap
     criteria, _ = protocol.parse_rubric_labels(rubric)
     assert criteria == ("a", "b", "c")
 
@@ -2609,16 +2621,20 @@ def test_score_with_judge_writes_judge_rows_and_a_manifest_section(
     assert judge["model"] == JUDGE_MODEL_DEFAULT
     assert judge["protocol_version"] == protocol.PROTOCOL_VERSION
     assert judge["tells_skipped"] == {}
-    assert len(judge["tells_scored"]) == len(protocol.RULES)
+    # Every judge tell with a rule except the deprecated one (R17): scoring
+    # never asks about a tell that is not active.
+    assert len(judge["tells_scored"]) == len(protocol.RULES) - 1
+    assert "rht.from-x-to-y" not in judge["tells_scored"]
     assert judge["cache"]["misses"] >= 1
     assert judge["hallucination"]["rate"] == 0.0
-    # The canned judge answers only ever supply criteria (a) and (b), so the two
-    # tells whose rubrics require (a)+(b)+(c) reject a span the judge called an
+    # The canned judge answers only ever supply criteria (a) and (b), so the
+    # tell whose rubric requires (a)+(b)+(c) rejects a span the judge called an
     # instance. That is a real disagreement and the rollup has to surface it —
-    # and since those tells counted nothing, it is the undefined-rate case.
+    # and since that tell counted nothing, it is the undefined-rate case.
+    # (`rht.from-x-to-y` used to be the second such tell; R17 deprecated it.)
     disagreement = judge["disagreements"]
-    assert disagreement["total"] == 2
-    assert set(disagreement["over_threshold"]) == {"rht.rule-of-three", "rht.from-x-to-y"}
+    assert disagreement["total"] == 1
+    assert set(disagreement["over_threshold"]) == {"rht.rule-of-three"}
     assert disagreement["per_tell"]["rht.rule-of-three"]["disagreements"] == 1
     assert disagreement["per_tell"]["rht.rhetorical-qa"]["disagreements"] == 0
     assert disagreement["per_tell"]["rht.rhetorical-qa"]["rate"] == 0.0
@@ -2626,7 +2642,7 @@ def test_score_with_judge_writes_judge_rows_and_a_manifest_section(
 
     rows = [json.loads(line) for line in (run_dir / "scores.jsonl").read_text().splitlines()]
     judged = [r for r in rows if r["method"] == "judge"]
-    assert {r["tell_id"] for r in judged} == set(protocol.RULES)
+    assert {r["tell_id"] for r in judged} == set(protocol.RULES) - {"rht.from-x-to-y"}
     hit = [r for r in judged if r["tell_id"] == "rht.rhetorical-qa" and r["raw"] == 1.0]
     assert hit and hit[0]["matches"][0]["quote"] == "So why did the count change?"
 

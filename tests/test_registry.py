@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import shutil
+from datetime import date
 from pathlib import Path
 
 import pytest
 import yaml
 
+from telltale.judge.protocol import parse_rubric_labels
 from telltale.registry import Registry, Tell, is_valid_scope, known_stats
 
 REGISTRY_PATH = Path(__file__).resolve().parent.parent / "registry" / "tells.yaml"
@@ -88,8 +90,14 @@ def test_crt_tells_restrict_formats(registry: Registry) -> None:
 
 def test_judge_tells_have_rubrics(registry: Registry) -> None:
     judges = [t for t in registry.active_tells() if t.method == "judge"]
-    assert len(judges) == 7
-    for tell in judges:
+    # Six since ruling R17 (2026-08-09) deprecated `rht.from-x-to-y`; its entry
+    # stays in the file, so the checks below run over it too.
+    assert len(judges) == 6
+    deprecated = [
+        t for t in registry.tells if t.method == "judge" and t.status == "deprecated"
+    ]
+    assert [t.id for t in deprecated] == ["rht.from-x-to-y"]
+    for tell in judges + deprecated:
         # Not pinned to 1: a rubric that turns out to be wrong is supposed to be
         # rewritten and its version bumped, which is what invalidates the judge
         # cache and the tell's calibration report. Pinning the number here would
@@ -563,3 +571,40 @@ def test_every_statistic_tell_in_the_real_registry_resolves(registry: Registry) 
     named = {t.stat for t in registry if t.method == "statistic"}
     assert named
     assert named <= known_stats()
+
+
+# --- coordinator rulings R16 / R17 (2026-08-09) -------------------------------
+
+
+def test_rule_of_three_carries_the_r16_extraction_gate(registry: Registry) -> None:
+    """R16 put criterion (c) to work at extraction, and bumped the rubric.
+
+    The rubric version is what scopes the cache invalidation: bumping it strands
+    this tell's cached answers and leaves every other tell's answers reachable,
+    which is the whole reason the ruling changed a rubric rather than a prompt
+    version.
+    """
+    tell = registry.get("rht.rule-of-three")
+    assert tell.status == "active"
+    assert tell.rubric_version == 2
+    inclusion = tell.rubric.split("EXCLUSIONS:", 1)[0]
+    assert "before proposing the span" in inclusion
+    for word in ("number", "date", "proper noun", "obligation", "policy lever"):
+        assert word in inclusion, f"the (c) gate does not name {word}"
+    # Recall-first still stands where the extractor genuinely cannot tell.
+    assert "propose the span anyway" in inclusion
+    # The adjudication side is untouched: same criteria, same exclusions.
+    criteria, exclusions = parse_rubric_labels(tell.rubric)
+    assert criteria == ("a", "b", "c")
+    assert exclusions == ("x", "y", "z")
+
+
+def test_from_x_to_y_is_deprecated_with_its_evidence(registry: Registry) -> None:
+    """R17 retired the tell and kept the entry, so the history stays readable."""
+    tell = registry.get("rht.from-x-to-y")
+    assert tell.status == "deprecated"
+    assert tell not in registry.active_tells()
+    provenance = tell.provenance
+    assert provenance["deprecated"] == date(2026, 8, 9)
+    assert "R17" in str(provenance["deprecated_by"])
+    assert "1 counted" in str(provenance["deprecation_evidence"])

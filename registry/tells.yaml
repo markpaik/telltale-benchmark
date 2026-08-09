@@ -2229,8 +2229,11 @@ tells:
           conjunction ("X, Y, and Z"), or as three parallel clauses of similar length, AND
       (b) the three items belong to the same grammatical form (three nouns, three verb phrases, three
           adjectives), AND
-      (c) the third item adds cadence rather than information: dropping it would not remove a fact,
-          a number, an owner, or a named entity from the passage.
+      (c) the third item adds cadence rather than information: deleting it would remove NO distinct
+          fact — no unique number, date, proper noun, obligation, or policy lever — from the passage.
+          Test (c) before proposing the span, not after: if the third item carries a fact of its own,
+          the span does not qualify. When you genuinely cannot tell whether it is cadence or content,
+          treat (c) as holding and propose the span anyway.
       EXCLUSIONS:
       (x) genuinely enumerative content does not qualify — three actual budget lines, three named
           schools, three dated milestones, three people assigned to work, or any triple whose members
@@ -2238,9 +2241,10 @@ tells:
       (y) a list rendered as bullets or numbered items is out of scope here; that is covered by the
           structural tells.
       (z) a triple quoted from a source document or from another speaker does not qualify.
-      Evidence to extract: quote the full sentence; quote each of the three items separately; state in
-      one clause which fact would be lost if the third item were deleted (if none, criterion (c) holds).
-    rubric_version: 1
+      Evidence to extract: quote the full sentence; quote each of the three items separately; name the
+      distinct fact that deleting the third item would remove, or write "none" (which is criterion (c)
+      holding).
+    rubric_version: 2
     judge_view: chunk
   examples:
   - The plan is faster, cleaner, and cheaper.
@@ -2253,7 +2257,15 @@ tells:
     evidence: literature
   status: active
   weight: 1.0
-  notes: Tricolon used for cadence rather than enumeration.
+  notes: 'Tricolon used for cadence rather than enumeration. rubric_version 2 (ruling
+    R16, 2026-08-09): criterion (c) is now applied at extraction, not only at adjudication.
+    On the shakedown run stage 1 proposed 1,221 spans of which 73 counted (6.0%), and
+    1,060 of the rejections (86.8%) were exclusion (x), genuine enumeration — 48% of
+    the whole Tier-2 budget for 25% of the counted evidence. Adjudication criteria and
+    exclusions are unchanged; the 11-span adjudication cap stays as a backstop. Ships
+    only after re-passing the 0.90 calibration gate and the recall check in
+    scripts/rule_of_three_recall.py (gate: recall >= 0.70 of counted spans, proposals
+    per chunk down >= 50%).'
 - id: rht.rhetorical-qa
   name: rhetorical question and answer
   category: syntactic
@@ -2560,9 +2572,17 @@ tells:
     added: 2026-07-28
     run_id: null
     evidence: literature
-  status: active
+    deprecated: 2026-08-09
+    deprecated_by: ruling R16-R19 (R17)
+    deprecation_evidence: 'Shakedown run 20260804T210242Z-d827d5a5-369d107e: 1 counted
+      span in 60 documents from 333 judge calls (206 extraction, 127 adjudication);
+      0.8% precision at adjudication. Extractions were near-uniformly literal ranges
+      (exclusion (x): 68) and literal transfers (exclusion (y): 53) — the tell''s own
+      exclusions killed almost everything it proposed. Entry and calibration set are
+      kept for history; scoring already excludes non-active tells.'
+  status: deprecated
   weight: 1.0
-  notes: null
+  notes: 'Deprecated 2026-08-09 by ruling R17. See provenance.deprecation_evidence.'
 - id: str.summary-sandwich
   name: summary sandwich
   category: structural
