@@ -155,7 +155,7 @@ def cmd_verify_isolation(args: argparse.Namespace) -> int:
 def _add_generate_parser(subparsers: argparse._SubParsersAction) -> None:
     parser = subparsers.add_parser("generate", help="generate the document corpus")
     parser.add_argument("--models", nargs="*", default=None, help="model ids (default: all three)")
-    parser.add_argument("--formats", nargs="*", default=None, help="formats (default: all 14)")
+    parser.add_argument("--formats", nargs="*", default=None, help="formats (default: all 15, including the free-writing annex)")
     parser.add_argument("--limit", type=int, default=None, help="stop after N generations")
     parser.add_argument("--force", action="store_true", help="regenerate cells that already exist")
     parser.add_argument(

@@ -15,7 +15,7 @@ import pytest
 import yaml
 
 from telltale import generate, isolation, prompts
-from telltale.corpus import FORMATS, load_corpus
+from telltale.corpus import EXPLORATORY_FORMATS, FORMATS, load_corpus
 from telltale.isolation import CliResult
 
 WORDS = "The committee reviewed the quarterly figures for the northern region. "
@@ -63,25 +63,34 @@ def bank_dir(tmp_path) -> Path:
     directory = tmp_path / "formats"
     directory.mkdir()
     for index, fmt in enumerate(FORMATS):
+        if fmt in EXPLORATORY_FORMATS:
+            data = {
+                "format": fmt,
+                "bundle": False,
+                "exploratory": True,
+                "prompts": [
+                    {"id": f"{fmt}-{position:02d}", "scenario": "Write whatever you like."}
+                    for position in range(1, 9)
+                ],
+            }
+        else:
+            data = {
+                "format": fmt,
+                "bundle": fmt in prompts.BUNDLE_FORMATS,
+                "target_words": 5000,
+                "min_words": 4500,
+                "output_convention": "One document, written as the format is normally written.",
+                "prompts": [
+                    {
+                        "id": f"{fmt}-{position:02d}",
+                        "domain": prompts.DOMAINS[(index + position - 1) % 8],
+                        "scenario": _scenario(index, position),
+                    }
+                    for position in range(1, 9)
+                ],
+            }
         (directory / f"{fmt}.yaml").write_text(
-            yaml.safe_dump(
-                {
-                    "format": fmt,
-                    "bundle": fmt in prompts.BUNDLE_FORMATS,
-                    "target_words": 5000,
-                    "min_words": 4500,
-                    "output_convention": "One document, written as the format is normally written.",
-                    "prompts": [
-                        {
-                            "id": f"{fmt}-{position:02d}",
-                            "domain": prompts.DOMAINS[(index + position - 1) % 8],
-                            "scenario": _scenario(index, position),
-                        }
-                        for position in range(1, 9)
-                    ],
-                }
-            ),
-            encoding="utf-8",
+            yaml.safe_dump(data), encoding="utf-8"
         )
     return directory
 
@@ -799,3 +808,134 @@ def test_an_empty_cell_is_retried_on_the_next_pass(bank_dir, runs_root, tmp_path
     # Nothing on disk to skip, so the cell comes round again.
     assert report.written[0].prompt_id == "memo-01"
     assert report.written[0].words >= 4500
+
+
+# --- the exploratory annex ---------------------------------------------------
+
+
+def test_an_exploratory_cell_is_one_call_at_whatever_length_came_back(
+    bank_dir, runs_root, tmp_path
+):
+    """R20: no floor, no continuation ladder. A 40-word answer is the datum."""
+    transport = Recorder([envelope(WORDS * 4)])
+    report = run(
+        bank_dir, runs_root, tmp_path, transport,
+        formats=["free-writing"], limit=1,
+    )
+
+    assert len(report.written) == 1
+    assert len(transport.calls) == 1, "an annex cell must never be continued"
+    assert "--resume" not in " ".join(transport.calls[0][0])
+    cell = report.written[0]
+    assert cell.continuations == 0
+    assert cell.detail == ""
+
+    doc = tmp_path / "corpus" / "claude-sonnet-5" / "free-writing-01.md"
+    assert doc.is_file()
+    assert not (doc.parent / "free-writing-01.failed.json").exists()
+
+
+def test_the_annex_prompt_reaches_the_model_with_no_length_ask(
+    bank_dir, runs_root, tmp_path
+):
+    transport = Recorder([envelope(WORDS * 4)])
+    run(bank_dir, runs_root, tmp_path, transport, formats=["free-writing"], limit=1)
+
+    sent = transport.calls[0][1]
+    assert sent == "Write whatever you like."
+    assert "words" not in sent
+    assert "pages" not in sent
+
+
+def test_the_annex_sidecar_records_the_flag_and_no_floor(
+    bank_dir, runs_root, tmp_path
+):
+    transport = Recorder([envelope(WORDS * 4)])
+    run(bank_dir, runs_root, tmp_path, transport, formats=["free-writing"], limit=1)
+
+    side = json.loads(
+        (tmp_path / "corpus" / "claude-sonnet-5" / "free-writing-01.json").read_text()
+    )
+    assert side["exploratory"] is True
+    assert side["format"] == "free-writing"
+    assert side["target_words"] == 0
+    assert side["min_words"] == 0
+    assert side["continuations"] == 0
+    # No floor to fall below, so the short-document markers must not claim one.
+    assert side["below_floor"] is False
+    assert side["met_floor"] is True
+
+
+def test_a_non_exploratory_sidecar_says_so(bank_dir, runs_root, tmp_path):
+    run(bank_dir, runs_root, tmp_path, Recorder([envelope(WORDS * 700)]), limit=1)
+    side = json.loads(
+        (tmp_path / "corpus" / "claude-sonnet-5" / "memo-01.json").read_text()
+    )
+    assert side["exploratory"] is False
+
+
+def test_target_override_does_not_give_the_annex_a_floor(
+    bank_dir, runs_root, tmp_path
+):
+    """--target-override on a mixed format list must not reintroduce the ladder."""
+    transport = Recorder([envelope(WORDS * 4)])
+    run(
+        bank_dir, runs_root, tmp_path, transport,
+        formats=["free-writing"], limit=1, target_override=800,
+    )
+
+    assert len(transport.calls) == 1
+    assert "800" not in transport.calls[0][1]
+    side = json.loads(
+        (tmp_path / "corpus" / "claude-sonnet-5" / "free-writing-01.json").read_text()
+    )
+    assert "target_override" not in side
+    assert side["min_words"] == 0
+
+
+def test_status_renders_the_annex_against_its_own_prompt_count(
+    bank_dir, runs_root, tmp_path
+):
+    corpus = tmp_path / "corpus"
+    run(
+        bank_dir, runs_root, tmp_path, Recorder([envelope(WORDS * 4)]),
+        formats=["free-writing"], limit=1, corpus_root=corpus,
+    )
+    text = generate.status(
+        corpus, models=["claude-sonnet-5"], formats=["free-writing"], bank_dir=bank_dir
+    )
+    assert "1/8" in text
+
+
+def test_status_renders_a_one_prompt_format_as_one_over_one(tmp_path):
+    """A format's expected count comes from its own file, never a fixed 8."""
+    directory = tmp_path / "formats"
+    directory.mkdir()
+    (directory / "free-writing.yaml").write_text(
+        yaml.safe_dump(
+            {
+                "format": "free-writing",
+                "bundle": False,
+                "exploratory": True,
+                "prompts": [{"id": "free-writing-01", "scenario": "Write anything."}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    corpus = tmp_path / "corpus" / "claude-sonnet-5"
+    corpus.mkdir(parents=True)
+    (corpus / "free-writing-01.md").write_text("A short piece.\n", encoding="utf-8")
+
+    text = generate.status(
+        tmp_path / "corpus",
+        models=["claude-sonnet-5"],
+        formats=["free-writing"],
+        bank_dir=directory,
+    )
+    assert "1/1" in text
+    assert "1/8" not in text
+
+
+def test_the_annex_is_in_the_default_generation_set():
+    assert "free-writing" in FORMATS
+    assert EXPLORATORY_FORMATS == {"free-writing"}

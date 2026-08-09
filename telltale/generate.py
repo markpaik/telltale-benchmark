@@ -234,6 +234,12 @@ def generate_one(
 ) -> CellResult:
     """Generate, continue to the floor if short, and write doc + sidecar."""
     effective = spec
+    if target_override is not None and spec.exploratory:
+        # An exploratory cell has no length ask to shrink, and giving it one
+        # would hand the smoke path a floor — the one thing this format must
+        # never have. Ignored rather than errored so `--target-override` can
+        # still be used on a mixed format list.
+        target_override = None
     if target_override is not None:
         # Smoke path: shrink the ask without touching the bank on disk. The
         # floor moves with it, so a smoke document is still checked against a
@@ -246,6 +252,7 @@ def generate_one(
             output_convention=spec.output_convention,
             prompts=spec.prompts,
             path=spec.path,
+            exploratory=spec.exploratory,
         )
 
     composed = prompt_bank.compose_prompt(effective, prompt)
@@ -285,7 +292,14 @@ def generate_one(
     text = envelope.result
     words = isolation.textstat_words(text)
 
-    while words < effective.min_words and continuations < MAX_CONTINUATIONS:
+    # An exploratory cell is one call, accepted at whatever length it came back
+    # at: the length a model chooses when nothing was asked for is the
+    # measurement, and continuing it would overwrite that with our own ask.
+    while (
+        not effective.exploratory
+        and words < effective.min_words
+        and continuations < MAX_CONTINUATIONS
+    ):
         if not session_id:
             notes.append("no session_id returned; cannot continue")
             break
@@ -355,6 +369,11 @@ def generate_one(
         "system_prompt_sha256": isolation.SYSTEM_PROMPT_SHA256,
         "timestamp": _now(),
         "words": words,
+        # Annex provenance travels with the document: an exploratory cell was
+        # generated with no length ask and no continuation ladder, so its
+        # target_words/min_words of 0 and its met_floor of True mean something
+        # different from every other document's.
+        "exploratory": bool(spec.exploratory),
         "target_words": effective.target_words,
         "min_words": effective.min_words,
         "met_floor": words >= effective.min_words,
