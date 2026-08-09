@@ -225,12 +225,18 @@ def test_the_retry_tells_the_judge_to_drop_the_fences() -> None:
 
 
 def test_a_model_mismatch_is_a_hard_error() -> None:
-    transport = CliJudgeTransport(
-        model=JUDGE_MODEL_DEFAULT,
-        transport=fake_cli(envelope('{"spans": []}', model="claude-haiku-4-5")),
-    )
+    """A model that is not the harness's side-model answering is fatal at once.
+
+    R16-era recommendation 2 made the haiku substitution retryable; it did not
+    make "some other judge answered" retryable, and this is the case that keeps
+    the two apart.
+    """
+    cli = fake_cli(envelope('{"spans": []}', model="claude-opus-4-7"))
+    transport = CliJudgeTransport(model=JUDGE_MODEL_DEFAULT, transport=cli)
     with pytest.raises(JudgeError, match="model mismatch"):
         transport.ask("go")
+    assert len(cli.calls) == 1, "and it costs exactly one call"
+    assert transport.stats.substitutions_detected == 0
 
 
 def test_a_failed_call_is_an_error_not_an_empty_answer() -> None:
@@ -2087,13 +2093,83 @@ def test_empty_model_usage_is_transient_but_a_real_mismatch_is_not() -> None:
     with pytest.raises(TransientJudgeError, match="empty modelUsage"):
         transport.ask("go")
 
-    substituted = CliJudgeTransport(
+    wrong_judge = CliJudgeTransport(
         model=JUDGE_MODEL_DEFAULT,
-        transport=fake_cli(envelope('{"spans": []}', model="claude-haiku-4-5")),
+        transport=fake_cli(envelope('{"spans": []}', model="claude-opus-4-7")),
     )
     with pytest.raises(JudgeError, match="model mismatch") as caught:
-        substituted.ask("go")
+        wrong_judge.ask("go")
     assert not isinstance(caught.value, TransientJudgeError)
+
+
+def test_a_haiku_substitution_is_retried_once_and_recovers() -> None:
+    """SHAKEDOWN §2.3: the main call died and the harness's side-call is all
+    that is left in the envelope. Nothing judged the passage, so one more try
+    costs a call and buys back a measurement — nine of them, in the run that
+    found this."""
+    from telltale.judge.transport import ModelSubstitutionError
+
+    slept: list[float] = []
+    cli = fake_cli(
+        envelope('{"spans": []}', model="claude-haiku-4-5"),
+        envelope('{"spans": [{"quote": "q", "location_hint": ""}]}'),
+    )
+    transport = CliJudgeTransport(
+        model=JUDGE_MODEL_DEFAULT, transport=cli, sleep=slept.append
+    )
+    answer = transport.ask("go")
+    assert answer["spans"][0]["quote"] == "q"
+    assert len(cli.calls) == 2
+    assert cli.calls[0][1] == cli.calls[1][1], "the retry asks the same question"
+    assert slept == [], "a substitution is not congestion; there is nothing to wait out"
+    stats = transport.stats.as_dict()
+    assert stats["substitutions_detected"] == 1
+    assert stats["substitution_retries"] == 1
+    assert stats["substitutions_recovered"] == 1
+    assert stats["substitutions_failed"] == 0
+    assert stats["failures"] == 0, "a recovered substitution is not a failure"
+    assert issubclass(ModelSubstitutionError, JudgeError)
+
+
+def test_a_second_substitution_hard_fails() -> None:
+    """One retry, then it is a fact about the run like any other mismatch."""
+    from telltale.judge.transport import ModelSubstitutionError
+
+    cli = fake_cli(
+        envelope('{"spans": []}', model="claude-haiku-4-5"),
+        envelope('{"spans": []}', model="claude-haiku-4-5"),
+    )
+    transport = CliJudgeTransport(model=JUDGE_MODEL_DEFAULT, transport=cli)
+    with pytest.raises(ModelSubstitutionError, match="model substitution"):
+        transport.ask("go")
+    assert len(cli.calls) == 2, "exactly one retry, never two"
+    stats = transport.stats.as_dict()
+    assert stats["substitutions_detected"] == 2
+    assert stats["substitution_retries"] == 1
+    assert stats["substitutions_recovered"] == 0
+    assert stats["substitutions_failed"] == 1
+    assert stats["failures"] == 1
+
+
+def test_a_side_model_alongside_the_judge_is_not_a_mismatch_at_all() -> None:
+    """The harness always makes side-calls; only their standing alone is the bug."""
+    both = json.dumps(
+        {
+            "result": '{"spans": []}',
+            "session_id": "s-1",
+            "num_turns": 1,
+            "is_error": False,
+            "modelUsage": {
+                JUDGE_MODEL_DEFAULT: {"outputTokens": 40},
+                "claude-haiku-4-5": {"outputTokens": 3},
+            },
+        }
+    )
+    cli = fake_cli(both)
+    transport = CliJudgeTransport(model=JUDGE_MODEL_DEFAULT, transport=cli)
+    assert transport.ask("go") == {"spans": []}
+    assert transport.stats.substitutions_detected == 0
+    assert len(cli.calls) == 1
 
 
 def test_a_transient_failure_gets_one_retry_then_succeeds() -> None:
@@ -2227,20 +2303,39 @@ def test_a_substituted_judge_fails_the_measurement_immediately(
     """The other half: if some other model really answered, that is not a blip.
 
     Retrying would be worse than useless — it would spend a second call to
-    reach the same wrong judge, and might quietly succeed on it.
+    reach the same wrong judge, and might quietly succeed on it. The harness's
+    own side-model is the one exception, covered by the test below.
     """
     from telltale import scoring
 
-    wrong = envelope('{"spans": []}', model="claude-haiku-4-5")
+    wrong = envelope('{"spans": []}', model="claude-opus-4-7")
     backend, wire, calls = _cli_backend(tmp_path, e2e_router, script=[wrong])
     df = scoring.detect_all([doc_from(E2E_DOC)], [registry.get("rht.rhetorical-qa")], judge=backend)
 
     errors = df.attrs["judge_errors"]
     assert len(errors) == 1
     assert "model mismatch" in errors[0]["error"]
-    assert "claude-haiku-4-5" in errors[0]["error"], "it names the model that answered"
+    assert "claude-opus-4-7" in errors[0]["error"], "it names the model that answered"
     assert wire.stats.transient_retries == 0, "a real mismatch is never retried"
+    assert wire.stats.substitution_retries == 0
     assert len(calls) == 1, "and it costs exactly one call"
+
+
+def test_a_substituted_judge_is_retried_and_the_measurement_lands(
+    tmp_path: Path, registry: Registry
+) -> None:
+    """End to end: the substitution costs a call, not a measurement."""
+    from telltale import scoring
+
+    substituted = envelope('{"spans": []}', model="claude-haiku-4-5")
+    backend, wire, calls = _cli_backend(tmp_path, e2e_router, script=[substituted])
+    df = scoring.detect_all([doc_from(E2E_DOC)], [registry.get("rht.rhetorical-qa")], judge=backend)
+
+    assert df.attrs["judge_errors"] == [], "the retry recovered it"
+    assert len(df) == 1
+    assert wire.stats.substitutions_detected == 1
+    assert wire.stats.substitutions_recovered == 1
+    assert calls[0] == calls[1], "the retry re-asks the same question"
 
 
 class _ProbeDriver:

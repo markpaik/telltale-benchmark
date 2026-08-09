@@ -23,6 +23,11 @@ Fence-stripping and one retry cover the two failure modes seen in practice
 error rather than a zero — a judge tell that silently returns "no instances"
 is indistinguishable from clean prose downstream, and that would understate
 every model at once.
+
+The same reasoning, applied to model attribution, is why a reply carrying only
+the harness's own side-model usage gets one retry (SHAKEDOWN §2.3) while a reply
+naming some other real judge does not. The first means nothing judged the
+passage; the second means something did, and that is a fact about the run.
 """
 
 from __future__ import annotations
@@ -90,6 +95,35 @@ class TransientJudgeError(JudgeError):
     as measurement failures burns the queue during an outage instead of waiting
     it out. That happened, at scale, and this class is the difference.
     """
+
+
+class ModelSubstitutionError(JudgeError):
+    """The harness answered with its own side-model instead of the judge.
+
+    Nine of 175 live calls in the shakedown came back attributed to
+    `claude-haiku-4-5` when `claude-opus-4-6` was asked (SHAKEDOWN §2.3), every
+    one of them on the longest prompt in the stack, and every one of them cost a
+    measurement. That is a different fact from "some other model answered": the
+    haiku here is the harness's own small side-call standing alone in
+    `modelUsage` because the main call died, so nothing judged anything. It is
+    worth one retry. A mismatch naming any other model is not — see `_call`.
+    """
+
+
+#: The models the harness itself calls alongside a request. A reply attributed
+#: only to one of these is the substitution signature, not a second opinion.
+_HARNESS_SIDE_MODEL = re.compile(r"haiku", re.IGNORECASE)
+
+
+def is_harness_side_model(name: str) -> bool:
+    """Whether a modelUsage key names one of the harness's own side-models."""
+    return bool(_HARNESS_SIDE_MODEL.search(str(name or "")))
+
+
+def is_substitution(model_usage: dict[str, Any]) -> bool:
+    """Whether a mismatched envelope carries only harness side-model usage."""
+    names = list(model_usage or {})
+    return bool(names) and all(is_harness_side_model(name) for name in names)
 
 
 #: Failures that say "the network is down", not "this call was bad".
@@ -187,6 +221,15 @@ class TransportStats:
     transient_retries: int = 0
     failures: int = 0
     seconds: float = 0.0
+    #: The substitution ledger (SHAKEDOWN §2.3, recommendation 2). Detected
+    #: counts every envelope carrying only side-model usage; retried, recovered
+    #: and failed say what the one retry bought. A run that recovers ten
+    #: substitutions and a run that never saw one both report zero failures, and
+    #: only these numbers tell them apart.
+    substitutions_detected: int = 0
+    substitution_retries: int = 0
+    substitutions_recovered: int = 0
+    substitutions_failed: int = 0
     _lock: "threading.Lock" = field(default_factory=lambda: threading.Lock(), repr=False)
 
     def bump(self, field_name: str, amount: float = 1) -> None:
@@ -200,6 +243,10 @@ class TransportStats:
             "transient_retries": self.transient_retries,
             "failures": self.failures,
             "seconds": round(self.seconds, 2),
+            "substitutions_detected": self.substitutions_detected,
+            "substitution_retries": self.substitution_retries,
+            "substitutions_recovered": self.substitutions_recovered,
+            "substitutions_failed": self.substitutions_failed,
         }
 
 
@@ -223,22 +270,45 @@ class CliJudgeTransport:
     def ask(self, prompt: str) -> dict[str, Any]:
         """Send one prompt, return the parsed JSON object.
 
-        Two independent retries, for two different kinds of wrong. A reply that
-        is not JSON gets one more try immediately, because the model can be
-        asked again to drop its code fences. A call that never reached the API
-        gets one more try after a pause, because a blip should not cost a
-        measurement — while a genuine mismatch, where some other model really
-        did answer, stays immediately fatal and is never retried.
+        Three independent retries, for three different kinds of wrong, each with
+        a budget of one. A reply that is not JSON gets one more try immediately,
+        because the model can be asked again to drop its code fences. A call that
+        never reached the API gets one more try after a pause, because a blip
+        should not cost a measurement. And a call the harness answered with its
+        own side-model gets one more try with no pause — nothing judged anything,
+        so there is nothing to wait out, and the shakedown's nine substitutions
+        would all have been recovered by exactly this (SHAKEDOWN §2.3).
+
+        A mismatch that names any other model is still immediately fatal. Some
+        model really did answer there, and retrying would either reach the same
+        wrong judge again or, worse, quietly succeed and put an unaudited judge
+        behind a number.
         """
-        for attempt in (0, 1):
+        transient_left = 1
+        substitution_left = 1
+        substituted = False
+        while True:
             try:
-                return self._ask_parsed(prompt)
-            except TransientJudgeError:
-                if attempt == 1:
+                answer = self._ask_parsed(prompt)
+            except ModelSubstitutionError:
+                if not substitution_left:
+                    self.stats.bump("substitutions_failed")
+                    self.stats.bump("failures")
                     raise
+                substitution_left -= 1
+                substituted = True
+                self.stats.bump("substitution_retries")
+                continue
+            except TransientJudgeError:
+                if not transient_left:
+                    raise
+                transient_left -= 1
                 self.stats.bump("transient_retries")
                 self.sleep(self.retry_delay_s)
-        raise AssertionError("unreachable")  # pragma: no cover
+                continue
+            if substituted:
+                self.stats.bump("substitutions_recovered")
+            return answer
 
     def _ask_parsed(self, prompt: str) -> dict[str, Any]:
         """One call, with the JSON-parse retry."""
@@ -262,6 +332,17 @@ class CliJudgeTransport:
         self.stats.bump("seconds", float(result.duration_s or 0.0))
         envelope = isolation.parse_envelope(result.stdout, requested_model=self.model)
         if envelope.model_mismatch:
+            if is_substitution(envelope.model_usage):
+                # The harness's own side-model, alone in modelUsage: the main
+                # call died and nothing judged the passage. Retryable once, and
+                # counted whether or not the retry works, so the substitution
+                # rate stays visible in the manifest instead of disappearing
+                # into a successful run.
+                self.stats.bump("substitutions_detected")
+                raise ModelSubstitutionError(
+                    f"model substitution: asked for {self.model}, only harness "
+                    f"side-model usage {sorted(envelope.model_usage)}"
+                )
             self.stats.bump("failures")
             if not envelope.model_usage:
                 # Nothing was billed to any model, so nothing reached the API.
@@ -358,9 +439,12 @@ __all__ = [
     "JUDGE_SYSTEM_PROMPT_SHA256",
     "CliJudgeTransport",
     "JudgeError",
+    "ModelSubstitutionError",
     "TransportStats",
     "assert_judge_model",
     "build_judge_cmd",
+    "is_harness_side_model",
+    "is_substitution",
     "judge_flags",
     "parse_json_reply",
     "probe_judge",
