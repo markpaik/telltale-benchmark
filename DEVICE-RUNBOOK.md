@@ -35,7 +35,8 @@ python3 -m telltale verify-isolation --model claude-opus-5
 python3 -m telltale verify-isolation --model claude-fable-5
 python3 -m telltale verify-isolation --model claude-sonnet-5
 
-# Full corpus: 3 models × 14 formats × 8 docs ≈ 336 docs, ~4–8 min each, resumable.
+# Full corpus: 3 models × 15 formats × 8 docs = 360 docs (336 evidence + 24 annex),
+# ~4–8 min each, resumable.
 # Run per-model, under caffeinate (macOS) so sleep can't freeze the run:
 caffeinate -i python3 -m telltale generate --models claude-opus-5
 caffeinate -i python3 -m telltale generate --models claude-fable-5
@@ -49,6 +50,9 @@ Notes:
   logic resumes). Failed cells leave `.failed.json` markers; re-run to retry.
 - Every doc's sidecar records the isolation battery that gated it, the pinned system-prompt
   hash, word counts, continuation boundaries, and model attribution (mismatch = hard fail).
+- The canonical corpus includes the `free-writing` annex cell per model — 8 extra docs each,
+  generated the same way (`python3 -m telltale generate --models <model> --formats free-writing`),
+  scored Tier-1 only and excluded from the index (R20).
 - Commit `corpus/` + `runs/isolation/` per model batch and push.
 
 ## Scoring (can run on either machine once the corpus is pushed)

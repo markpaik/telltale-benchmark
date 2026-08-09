@@ -211,6 +211,19 @@ R19. (2026-08-09) The 3-model Tier-2 sweep runs on a stratified sample of 135 (4
     scaled to three models. The consistency audit extends to re-ask adjudications as well as
     extractions.
 
+R20. (2026-08-09) New `free-writing` format: an exploratory annex, not evidence. Eight draws per
+    model against ONE maximally unconstrained prompt, sent verbatim, IDENTICAL across all eight
+    ids (free-writing-01..08) — repeat draws of the same blank page are the measurement: what a
+    model reaches for when nothing is asked, and how far subject and form converge across draws.
+    Varying the wording would measure the wording. No word floor, no continuation ladder, no
+    output convention, no domain: natural length is the datum, so one call is accepted at whatever
+    length comes back. Excluded from the AI-Tell Index, the category rollups, `matrix.csv`, the
+    bootstrap, the pooled winsorization cap, and the Tier-2 judge sample (sampled or not). Tier-1
+    still runs: per-doc rows land in scores.jsonl and as their own rows in matrix_by_format.csv,
+    reported descriptively in scorecard §7. Same isolation recipe as everything else.
+    `corpus.EXPLORATORY_FORMATS` is the single source of truth; the YAML `exploratory:` flag must
+    agree with it (lint-enforced both ways).
+
 **PENDING coordinator rulings**: none outstanding on the judge rubrics. The em-dash ramp is
 settled for this generation by R18 and reopens only when a human baseline exists.
 
