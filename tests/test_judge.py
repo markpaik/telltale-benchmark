@@ -2789,3 +2789,174 @@ def test_a_measurement_that_failed_live_replays_as_a_failure_not_a_lost_input(
         scoring.detect_all(
             docs, tells, judge=JudgeBackend(make_client(tmp_path, e2e_router, cache_only=True))
         )
+
+
+# --- R16: scoped cache invalidation ------------------------------------------
+
+#: sha256 of every judge prompt this repo could render, captured at commit
+#: 2335ee3 — the last commit before ruling R16 changed the stage-1 rules for
+#: `rht.rule-of-three`. These are the "before" side of the scoping claim, and
+#: they cannot be recomputed after the fact, which is why they are literals.
+_PROMPT_HASHES_BEFORE_R16: dict[str, dict[str, str]] = {
+    "rht.fragment-emphasis": {
+        "extraction": "a3dc712de3acfeeb04238bba631c49970e4285e26c9aac85a44cac40d0f351c1",
+        "adjudication": "5c8f2f1ab89aa487d91f98ffb738a79ea86af6420f4045b26f1fc01186692e9c",
+    },
+    "rht.from-x-to-y": {
+        "extraction": "22f7544da4cc4d0b002f233ee6137764ba15ae3e206380020f0fa5e5f2cc8571",
+        "adjudication": "011572ce7e9da09e6b5407b2e8dbe43d48b82b823738ca4f8e1ca0abbabbada4",
+    },
+    "rht.rhetorical-qa": {
+        "extraction": "192a80f35cffe1545b8efe3820ad58743c8d3c27d2a09aa3928be200f7638d8c",
+        "adjudication": "1e7fc73d3bf048b70ae360715c43c3c67611c2dcd82584c930c3bbbd81ecbcdb",
+    },
+    "rht.rule-of-three": {
+        "extraction": "11851bc209bf31d026277672d7817e406d6ed6e7eaabd45a4c8b15b1beffe067",
+        "adjudication": "ce4b2e6cae67e4b024a2a71cd3ed793e237e3e8c04784b50711cdbcc9e9274ab",
+    },
+    "str.parallel-bullet-grammar": {
+        "structural": "1c5bf60d2b80ce27f2593589d2b02467fbf608b6a7f3147e3d1d34dac46c0c11",
+    },
+    "str.summary-sandwich": {
+        "structural": "1fd0c997df3adf362e8cace31a417351515658e25269ca6113ce8a533af8f5ab",
+    },
+    "str.table-overuse": {
+        "structural": "d414a72dc2cfd0aea78c7a846c4bf0b6925c6ecfa75ac465bc31e7e32849a1c0",
+    },
+}
+
+#: Cache keys under the same pre-R16 conditions: a fixed chunk sha, the pinned
+#: judge, and each tell's rubric_version as it stood then (rule-of-three at 1).
+_CACHE_KEYS_BEFORE_R16: dict[str, dict[str, str]] = {
+    "rht.fragment-emphasis": {
+        "extract": "9d0c6db560dfdc94924be3a5a793babf1faa1845c56b9d80912bbc6448be6b18",
+        "adjudicate": "96c0a7c821798acf6dc448d1ac65a0c1f2132158a70bf3c7d14d75f5cd541478",
+    },
+    "rht.from-x-to-y": {
+        "extract": "7ae9896de2283b984e1b11c332d77459b0825b2dc94368db2f223daa45ea0f9d",
+        "adjudicate": "67d546e94b1fafe10a425e4a84966a2981b08955efa755d25ebee7f565a5a16d",
+    },
+    "rht.rhetorical-qa": {
+        "extract": "aea4e924b13ef425407d8799519c30e5e32f53d0c308b18101f2f10355201476",
+        "adjudicate": "cce6524e52cfd32af6fc4f9b0f5e9f6ab2103cd5f46dbf220fd5f1d70bc7be7b",
+    },
+    "rht.rule-of-three": {
+        "extract": "74830e916cb8beac8ba07fded129646affe0630675bea9d4dbe495b62c96f7cd",
+        "adjudicate": "703abb6dbf638ca520c91bbd635fdaa6fe8b0b58b73a57228d1b1553256a6c3e",
+    },
+    "str.parallel-bullet-grammar": {
+        "structural": "79e141227ef739b44b2561a4865d8326e7936fa746f6af07c1b13c14ff39eb80",
+    },
+    "str.summary-sandwich": {
+        "structural": "ca8bd60077d34b3b75a1d9d40adbc6f527f6961aba77ae932d12967c496dd78b",
+    },
+    "str.table-overuse": {
+        "structural": "136acd0e9b74f624c86ca9ffa412e48c5c43b8e8bf23350a57c0ef9d416739b1",
+    },
+}
+
+_R16_CHUNK = (
+    "Alpha, beta, and gamma. From March to June we moved from intake to "
+    "reporting.\n\n- one\n- two\n"
+)
+_R16_SPAN = "Alpha, beta, and gamma."
+_R16_CHUNK_SHA = "a" * 64
+
+
+def _rendered_prompts(tell: Tell) -> dict[str, str]:
+    import hashlib
+
+    rule = protocol.RULES[tell.id]
+    if rule.kind == "structural":
+        rendered = {"structural": protocol.build_structural_prompt(tell, _R16_CHUNK)}
+    else:
+        rendered = {
+            "extraction": protocol.build_extraction_prompt(tell, _R16_CHUNK),
+            "adjudication": protocol.build_adjudication_prompt(
+                tell, _R16_SPAN, _R16_CHUNK
+            ),
+        }
+    return {
+        name: hashlib.sha256(text.encode("utf-8")).hexdigest()
+        for name, text in rendered.items()
+    }
+
+
+def _current_keys(tell: Tell) -> dict[str, str]:
+    rule = protocol.RULES[tell.id]
+    if rule.kind == "structural":
+        return {
+            "structural": cache_key(
+                _R16_CHUNK_SHA,
+                tell.id,
+                tell.rubric_version,
+                JUDGE_MODEL_DEFAULT,
+                STRUCTURAL,
+            )
+        }
+    return {
+        "extract": cache_key(
+            _R16_CHUNK_SHA, tell.id, tell.rubric_version, JUDGE_MODEL_DEFAULT, EXTRACT
+        ),
+        "adjudicate": cache_key(
+            _R16_CHUNK_SHA,
+            tell.id,
+            tell.rubric_version,
+            JUDGE_MODEL_DEFAULT,
+            ADJUDICATE,
+            _R16_SPAN,
+        ),
+    }
+
+
+def test_r16_invalidates_only_rule_of_three(registry: Registry) -> None:
+    """The scoping claim behind R16, checked rather than asserted in prose.
+
+    R16 changed what stage 1 is asked about one tell without bumping
+    PROMPT_VERSION, on the argument that the change is per-tell and that tell's
+    own rubric_version carries it. That argument is only safe if the other six
+    tells still ask byte-identical questions and still land on the same cache
+    keys — a prompt that moved without its key moving would serve a stale answer
+    to a changed question, which is the one failure a content-addressed cache
+    cannot show you.
+    """
+    for tell_id in protocol.RULES:
+        tell = registry.get(tell_id)
+        prompts = _rendered_prompts(tell)
+        keys = _current_keys(tell)
+        before_prompts = _PROMPT_HASHES_BEFORE_R16[tell_id]
+        before_keys = _CACHE_KEYS_BEFORE_R16[tell_id]
+        if tell_id == "rht.rule-of-three":
+            assert tell.rubric_version == 2
+            assert prompts["extraction"] != before_prompts["extraction"]
+            assert prompts["adjudication"] != before_prompts["adjudication"]
+            assert keys["extract"] != before_keys["extract"]
+            assert keys["adjudicate"] != before_keys["adjudicate"]
+        else:
+            assert prompts == before_prompts, f"{tell_id}: the prompt bytes moved"
+            assert keys == before_keys, f"{tell_id}: the cache key moved"
+
+
+def test_only_rule_of_three_replaces_the_recall_first_rules() -> None:
+    """Every other tell keeps the standing pair, by construction and by bytes."""
+    gated = [tid for tid, rule in protocol.RULES.items() if rule.extraction_rules]
+    assert gated == ["rht.rule-of-three"]
+
+
+def test_the_r16_gate_reaches_the_extraction_prompt(registry: Registry) -> None:
+    prompt = protocol.build_extraction_prompt(
+        registry.get("rht.rule-of-three"), _R16_CHUNK
+    )
+    assert "APPLY CRITERION (c) BEFORE YOU PROPOSE" in prompt
+    assert "OVER-EXTRACT" not in prompt, "the firehose rule is what R16 replaced"
+    assert "an enumeration of real facts" not in prompt
+    # Recall-first survives where the extractor cannot tell.
+    assert "propose it anyway" in prompt
+    # And the exclusions are still withheld: R16 moved an inclusion criterion,
+    # not the protocol-v2 split.
+    assert "EXCLUSIONS:" not in prompt
+    other = protocol.build_extraction_prompt(
+        registry.get("rht.fragment-emphasis"), _R16_CHUNK
+    )
+    assert "OVER-EXTRACT" in other
+    assert "APPLY CRITERION (c)" not in other

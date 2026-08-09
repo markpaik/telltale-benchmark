@@ -81,6 +81,16 @@ PROTOCOL_VERSION = 3
 #: to reduce. Any future change to a prompt, to the chunker, or to the rubric
 #: split must bump BOTH — the cache is only safe while this number covers
 #: everything the model sees.
+#:
+#: R16 (2026-08-09) is the one exception written into the ruling itself, and it
+#: is deliberately *not* a bump: the change it makes is per-tell — the stage-1
+#: recall rules for `rht.rule-of-three` — and that tell's own `rubric_version`
+#: went 1 -> 2, which strands its cached answers and only its cached answers.
+#: Bumping this number instead would have thrown away every other tell's paid-for
+#: answers to questions nobody changed. The safety condition is that the other
+#: six tells render byte-identical prompts, which is proved rather than argued:
+#: `test_r16_invalidates_only_rule_of_three` checks their rendered prompts and
+#: their cache keys against hashes captured before the change.
 PROMPT_VERSION = 2
 
 TARGET_WORDS = 2500
@@ -174,12 +184,46 @@ class TellRule:
     #: exclusion that needs to know what the words mean stays with the judge.
     structural_exclusions: dict[str, tuple[str, ...]] = field(default_factory=dict)
 
+    #: Replaces the two recall-first rules in the stage-1 prompt for this tell
+    #: only. Empty means the standing pair — OVER-EXTRACT, and surface a
+    #: candidate even when you suspect an exception rules it out — which is
+    #: right for every tell whose cost the adjudicator can carry. It is not
+    #: right for a tell whose defining criterion is semantic and whose
+    #: adjudicator then rejects 94% of what arrives: see `_EXTRACTION_RULES_R16`.
+    #: A tell that sets this has to bump its own `rubric_version`, because the
+    #: question the model is asked has changed and the cache keys on nothing
+    #: else per-tell.
+    extraction_rules: str = ""
+
     #: The most spans one chunk may send to adjudication, or None for no limit.
     #: A cap is a last resort — it truncates the measurement — so it is set only
     #: where the extractor's recall-first instruction produces so many spans per
     #: chunk that the cost is unbounded, and it is always reported.
     adjudication_cap: int | None = None
 
+
+#: The stage-1 recall rules for `rht.rule-of-three`, per ruling R16 (2026-08-09).
+#: It replaces the standing pair in `_EXTRACTION_TAIL`, whose rule 4 names "an
+#: enumeration of real facts" as a judgement stage 1 must not make — which is
+#: exactly the judgement this tell needs made early. On the shakedown run the
+#: extractor proposed 1,221 spans for this tell and 1,060 of the rejections were
+#: exclusion (x), genuine enumeration: 48% of the whole Tier-2 budget spent
+#: confirming that business prose lists three real things at a time.
+#:
+#: Recall-first is narrowed, not abandoned. The gate fires only where the third
+#: item plainly carries its own fact; genuine uncertainty still proposes, and
+#: the adjudication cap stays as a backstop. The recall cost is measured, not
+#: assumed — see `scripts/rule_of_three_recall.py`.
+_EXTRACTION_RULES_R16 = """\
+3. APPLY CRITERION (c) BEFORE YOU PROPOSE. Propose a three-part coordinate
+   structure ONLY when deleting the third item would remove no distinct fact
+   from the passage: no unique number, no date, no proper noun, no obligation,
+   no policy lever. If the third item carries a fact of its own, the passage is
+   an enumeration, not a candidate, and you must not propose it.
+4. That gate is the only judgement asked of you here. When you genuinely cannot
+   tell whether the third item supplies cadence or content, propose it anyway —
+   recall still matters at the margin, and every other exception (a quotation, a
+   heading, a list) is decided at a later stage, not by you."""
 
 RULES: dict[str, TellRule] = {
     "rht.rule-of-three": TellRule(
@@ -196,6 +240,8 @@ RULES: dict[str, TellRule] = {
         # not have. (x) enumerative content and (z) quotation are both about
         # what the words mean and stay judge-side.
         structural_exclusions={"y": ("list_item",)},
+        # R16: criterion (c) is applied at extraction for this tell alone.
+        extraction_rules=_EXTRACTION_RULES_R16,
         # Set to the p90 of the measured post-triage spans-per-chunk
         # distribution over the 167 cached real-corpus chunks (p50 6, p75 8,
         # p90 11, p95 13, max 22). Recall-first extraction on a densely
@@ -862,18 +908,25 @@ them. Your job is recall against the shape described here.
 {rubric}---
 """
 
+#: The standing recall-first pair, rules 3 and 4. A tell may replace them via
+#: `TellRule.extraction_rules`; nothing else in the tail is per-tell, so a tell
+#: that does not replace them renders byte-identical prompts to before the slot
+#: existed — which is what keeps its cached answers reachable.
+_EXTRACTION_RULES_DEFAULT = """\
+3. OVER-EXTRACT. Include every borderline candidate, including ones you think
+   probably do not qualify. Recall matters here; precision is decided later.
+4. Surface a candidate even when you suspect some exception ought to rule it
+   out — a quotation, a heading, a list, a question meant for a real person,
+   an enumeration of real facts. Those judgements are not yours to make at this
+   stage, and a candidate you withhold can never be reviewed."""
+
 _EXTRACTION_TAIL = """\
 RULES
 1. Copy every quote VERBATIM from the passage, character for character. Do not
    paraphrase, correct spelling, expand abbreviations, or normalize punctuation.
    A quote that is not in the passage word for word is discarded.
 2. Quote the full sentence containing the candidate, so it can be located.
-3. OVER-EXTRACT. Include every borderline candidate, including ones you think
-   probably do not qualify. Recall matters here; precision is decided later.
-4. Surface a candidate even when you suspect some exception ought to rule it
-   out — a quotation, a heading, a list, a question meant for a real person,
-   an enumeration of real facts. Those judgements are not yours to make at this
-   stage, and a candidate you withhold can never be reviewed.
+{recall_rules}
 5. Do not deduplicate near-identical candidates; quote each occurrence.
 6. If there are no candidates at all, return {{"spans": []}}.
 
@@ -1036,6 +1089,13 @@ def build_extraction_prompt(tell: Tell, passage: str) -> str:
     before any adjudication is recorded — and an instance rejected silently at
     extraction leaves nothing for a reader to check, which is the one thing this
     whole pipeline is built to prevent.
+
+    Ruling R16 carved one exception to the recall-first rules, for the one tell
+    whose adjudicator was rejecting 94% of what arrived. It is per-tell and it
+    is scoped by that tell's `rubric_version` rather than by `PROMPT_VERSION`:
+    every other tell renders the same bytes it rendered before, which
+    `test_r16_invalidates_only_rule_of_three` proves against hashes captured
+    before the change.
     """
     inclusion, _, evidence = split_rubric(tell.rubric or "")
     partial = inclusion.rstrip("\n") + "\n"
@@ -1048,7 +1108,9 @@ def build_extraction_prompt(tell: Tell, passage: str) -> str:
         rubric=partial,
     )
     examples = _examples_block(tell)
-    tail = _EXTRACTION_TAIL.format(passage=passage)
+    rule = RULES.get(tell.id)
+    recall_rules = (rule.extraction_rules if rule else "") or _EXTRACTION_RULES_DEFAULT
+    tail = _EXTRACTION_TAIL.format(passage=passage, recall_rules=recall_rules)
     return "\n".join(part for part in (head, examples, tail) if part)
 
 
