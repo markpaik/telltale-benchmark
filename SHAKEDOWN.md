@@ -782,13 +782,16 @@ worker.
 ### 6.2 Incident: session-limit churn, twice
 
 **2026-08-09 15:04Z.** The plan window closed at 39/112. (The dispatch note
-recorded this as the "13:00 window"; the sidecar timestamps put the last
-pre-stall document at 15:04:06Z and the first post-stall document at 17:19:01Z,
-so the measured stall is 15:04Z–17:19Z. The 13:00 figure is not reproducible
-from the corpus and the timestamps are what this record carries.) The driver did not
+calls this the "13:00 window", which is the Detroit-local *reset* time, not the
+hit time — the same convention as the second incident's "6:10pm", quoted
+verbatim from the limit message. Measured from sidecar timestamps: last
+pre-stall document 15:04:06Z, first post-stall document 17:19:01Z = 13:19 EDT,
+just after the 1:00pm reset. The two numbers agree.) The driver did not
 stop. It walked the remaining 73 cells, took a session-limit refusal on each,
-and recorded 73 per-cell failures — 73 log lines, 73 `.failed.json` markers,
-zero information. Work resumed at 17:19Z after the reset and all 73 cells were
+and recorded 73 per-cell failures. `runs/logs/fable-gen-20260809.log` carries
+146 session-limit lines and exactly 73 `FAILED` lines, and
+`generate.failure_path` writes a `<prompt_id>.failed.json` marker for each —
+73 markers, zero information. Work resumed at 17:19Z after the reset and all 73 cells were
 regenerated cleanly.
 
 **2026-08-09 ~18:10Z**, during free-writing annex octet 2. Same shape, 17 cells
