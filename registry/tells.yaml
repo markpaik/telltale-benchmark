@@ -1,6 +1,6 @@
-registry_version: 2
+registry_version: 3
 schema_version: 1
-updated: 2026-08-04
+updated: 2026-08-20
 tells:
 - id: lex.delve
   name: delve
@@ -2257,15 +2257,7 @@ tells:
     evidence: literature
   status: active
   weight: 1.0
-  notes: 'Tricolon used for cadence rather than enumeration. rubric_version 2 (ruling
-    R16, 2026-08-09): criterion (c) is now applied at extraction, not only at adjudication.
-    On the shakedown run stage 1 proposed 1,221 spans of which 73 counted (6.0%), and
-    1,060 of the rejections (86.8%) were exclusion (x), genuine enumeration — 48% of
-    the whole Tier-2 budget for 25% of the counted evidence. Adjudication criteria and
-    exclusions are unchanged; the 11-span adjudication cap stays as a backstop. Ships
-    only after re-passing the 0.90 calibration gate and the recall check in
-    scripts/rule_of_three_recall.py (gate: recall >= 0.70 of counted spans, proposals
-    per chunk down >= 50%).'
+  notes: 'Tricolon used for cadence rather than enumeration. rubric_version 2 (ruling R16, 2026-08-09): criterion (c) is now applied at extraction, not only at adjudication. On the shakedown run stage 1 proposed 1,221 spans of which 73 counted (6.0%), and 1,060 of the rejections (86.8%) were exclusion (x), genuine enumeration — 48% of the whole Tier-2 budget for 25% of the counted evidence. Adjudication criteria and exclusions are unchanged; the 11-span adjudication cap stays as a backstop. Ships only after re-passing the 0.90 calibration gate and the recall check in scripts/rule_of_three_recall.py (gate: recall >= 0.70 of counted spans, proposals per chunk down >= 50%).'
 - id: rht.rhetorical-qa
   name: rhetorical question and answer
   category: syntactic
@@ -2574,15 +2566,10 @@ tells:
     evidence: literature
     deprecated: 2026-08-09
     deprecated_by: ruling R16-R19 (R17)
-    deprecation_evidence: 'Shakedown run 20260804T210242Z-d827d5a5-369d107e: 1 counted
-      span in 60 documents from 333 judge calls (206 extraction, 127 adjudication);
-      0.8% precision at adjudication. Extractions were near-uniformly literal ranges
-      (exclusion (x): 68) and literal transfers (exclusion (y): 53) — the tell''s own
-      exclusions killed almost everything it proposed. Entry and calibration set are
-      kept for history; scoring already excludes non-active tells.'
+    deprecation_evidence: 'Shakedown run 20260804T210242Z-d827d5a5-369d107e: 1 counted span in 60 documents from 333 judge calls (206 extraction, 127 adjudication); 0.8% precision at adjudication. Extractions were near-uniformly literal ranges (exclusion (x): 68) and literal transfers (exclusion (y): 53) — the tell''s own exclusions killed almost everything it proposed. Entry and calibration set are kept for history; scoring already excludes non-active tells.'
   status: deprecated
   weight: 1.0
-  notes: 'Deprecated 2026-08-09 by ruling R17. See provenance.deprecation_evidence.'
+  notes: Deprecated 2026-08-09 by ruling R17. See provenance.deprecation_evidence.
 - id: str.summary-sandwich
   name: summary sandwich
   category: structural
@@ -3619,6 +3606,50 @@ tells:
       scope_z:
         claude-opus-5: 3.894115
       target_model: claude-opus-5
+      reverify:
+        run_id: fable-reverify-1
+        corpus: 3-model evidence corpus, 112 docs per model (free-writing annex excluded, R20)
+        models:
+        - claude-fable-5
+        - claude-opus-5
+        - claude-sonnet-5
+        doc_freq:
+          claude-fable-5: 0.5267857142857143
+          claude-opus-5: 0.5803571428571429
+          claude-sonnet-5: 0.32142857142857145
+        doc_hits:
+          claude-fable-5:
+          - 59
+          - 112
+          claude-opus-5:
+          - 65
+          - 112
+          claude-sonnet-5:
+          - 36
+          - 112
+        mean_rate_per_1k:
+          claude-fable-5: 0.31996827838366204
+          claude-opus-5: 0.4570969214358004
+          claude-sonnet-5: 0.18083323345941396
+        scope_z:
+          claude-opus-5: 2.7033754153582965
+        gates:
+        - gate: 2
+          name: prevalence
+          passed: true
+          detail: fires in 58% of claude-opus-5 docs, top mean rate 0.46/1k
+        - gate: 3
+          name: discrimination
+          passed: true
+          detail: fires in >= 5% of docs for 3 models (claude-fable-5, claude-opus-5, claude-sonnet-5); general
+        - gate: 5
+          name: dedup
+          passed: true
+          detail: no pattern or behavioural duplicate in the registry
+        verdict: general
+        previous_verdict: general
+        changed: false
+        note: data update only; scope and status are unchanged and remain the coordinator's ruling
   status: candidate
   weight: 1.0
   notes: 'claude-opus-5 uses an em dash as the primary structural separator in markdown heading lines (# Title — Descriptor) without any colon, at a 4:1 ratio over sonnet-5. sonnet-5 strongly prefers colons for the same heading-level separation (# Title: Descriptor), which the existing pnc.colon-subtitle-heading entry captures from the other direction.'
@@ -4129,6 +4160,50 @@ tells:
       scope_z:
         claude-sonnet-5: 1.752704
       target_model: claude-sonnet-5
+      reverify:
+        run_id: fable-reverify-1
+        corpus: 3-model evidence corpus, 112 docs per model (free-writing annex excluded, R20)
+        models:
+        - claude-fable-5
+        - claude-opus-5
+        - claude-sonnet-5
+        doc_freq:
+          claude-fable-5: 0.21428571428571427
+          claude-opus-5: 0.17857142857142858
+          claude-sonnet-5: 0.2767857142857143
+        doc_hits:
+          claude-fable-5:
+          - 24
+          - 112
+          claude-opus-5:
+          - 20
+          - 112
+          claude-sonnet-5:
+          - 31
+          - 112
+        mean_rate_per_1k:
+          claude-fable-5: 0.07081839784633519
+          claude-opus-5: 0.08255411358610455
+          claude-sonnet-5: 0.11236402173515612
+        scope_z:
+          claude-sonnet-5: 1.6675400010711632
+        gates:
+        - gate: 2
+          name: prevalence
+          passed: true
+          detail: fires in 28% of claude-sonnet-5 docs, top mean rate 0.11/1k
+        - gate: 3
+          name: discrimination
+          passed: true
+          detail: fires in >= 5% of docs for 3 models (claude-fable-5, claude-opus-5, claude-sonnet-5); general
+        - gate: 5
+          name: dedup
+          passed: true
+          detail: no pattern or behavioural duplicate in the registry
+        verdict: general
+        previous_verdict: general
+        changed: false
+        note: data update only; scope and status are unchanged and remain the coordinator's ruling
   status: candidate
   weight: 1.0
   notes: Claude-sonnet-5 consistently uses lowercase prepositions in bold metadata labels ('**Prepared by:**', '**Prepared for:**'), while claude-opus-5 frequently capitalizes them ('**Prepared By:**', '**Prepared For:**', '**Reviewed By:**'), applying a non-standard title-case convention to metadata keys.
@@ -4638,6 +4713,50 @@ tells:
       scope_z:
         claude-opus-5: 6.135507
       target_model: claude-opus-5
+      reverify:
+        run_id: fable-reverify-1
+        corpus: 3-model evidence corpus, 112 docs per model (free-writing annex excluded, R20)
+        models:
+        - claude-fable-5
+        - claude-opus-5
+        - claude-sonnet-5
+        doc_freq:
+          claude-fable-5: 0.6071428571428571
+          claude-opus-5: 0.8392857142857143
+          claude-sonnet-5: 0.44642857142857145
+        doc_hits:
+          claude-fable-5:
+          - 68
+          - 112
+          claude-opus-5:
+          - 94
+          - 112
+          claude-sonnet-5:
+          - 50
+          - 112
+        mean_rate_per_1k:
+          claude-fable-5: 0.1962848708058655
+          claude-opus-5: 0.5512419911801723
+          claude-sonnet-5: 0.14629599496597148
+        scope_z:
+          claude-opus-5: 5.5959510621264315
+        gates:
+        - gate: 2
+          name: prevalence
+          passed: true
+          detail: fires in 84% of claude-opus-5 docs, top mean rate 0.55/1k
+        - gate: 3
+          name: discrimination
+          passed: true
+          detail: fires in >= 5% of docs for 3 models (claude-fable-5, claude-opus-5, claude-sonnet-5); general
+        - gate: 5
+          name: dedup
+          passed: true
+          detail: no pattern or behavioural duplicate in the registry
+        verdict: general
+        previous_verdict: general
+        changed: false
+        note: data update only; scope and status are unchanged and remain the coordinator's ruling
   status: candidate
   weight: 1.0
   notes: The sweep shows z=+13.43 for the bigram 'it is' (opus-5=1211, sonnet-5=456). Opus-5 frequently opens sentences with the expository 'It is' to deliver definitive declarative statements, a pattern largely absent from the sonnet-5 excerpts where lowercase 'it is' appears mid-sentence instead. The capital-I regex naturally restricts to sentence-initial position; the lookahead excludes the already-regi
@@ -5148,6 +5267,50 @@ tells:
       scope_z:
         claude-opus-5: 4.545823
       target_model: claude-opus-5
+      reverify:
+        run_id: fable-reverify-1
+        corpus: 3-model evidence corpus, 112 docs per model (free-writing annex excluded, R20)
+        models:
+        - claude-fable-5
+        - claude-opus-5
+        - claude-sonnet-5
+        doc_freq:
+          claude-fable-5: 0.6160714285714286
+          claude-opus-5: 0.8125
+          claude-sonnet-5: 0.5267857142857143
+        doc_hits:
+          claude-fable-5:
+          - 69
+          - 112
+          claude-opus-5:
+          - 91
+          - 112
+          claude-sonnet-5:
+          - 59
+          - 112
+        mean_rate_per_1k:
+          claude-fable-5: 0.38208446723747586
+          claude-opus-5: 0.5432585685603197
+          claude-sonnet-5: 0.24249892101434734
+        scope_z:
+          claude-opus-5: 4.3725361871703035
+        gates:
+        - gate: 2
+          name: prevalence
+          passed: true
+          detail: fires in 81% of claude-opus-5 docs, top mean rate 0.54/1k
+        - gate: 3
+          name: discrimination
+          passed: true
+          detail: fires in >= 5% of docs for 3 models (claude-fable-5, claude-opus-5, claude-sonnet-5); general
+        - gate: 5
+          name: dedup
+          passed: true
+          detail: no pattern or behavioural duplicate in the registry
+        verdict: general
+        previous_verdict: general
+        changed: false
+        note: data update only; scope and status are unchanged and remain the coordinator's ruling
   status: candidate
   weight: 1.0
   notes: Opus-5 uses 'against' followed (within two words) by a number to express inline quantitative benchmarking—actual versus target. This collocation is absent from the sonnet-5 excerpts, where 'against' appears only in non-numerical contexts ('against a matched set'). The pattern reflects opus-5's habit of embedding numeric comparisons directly in prose via 'against' rather than 'compared to' or 'vers
@@ -5659,6 +5822,50 @@ tells:
       scope_z:
         claude-opus-5: 3.562622
       target_model: claude-opus-5
+      reverify:
+        run_id: fable-reverify-1
+        corpus: 3-model evidence corpus, 112 docs per model (free-writing annex excluded, R20)
+        models:
+        - claude-fable-5
+        - claude-opus-5
+        - claude-sonnet-5
+        doc_freq:
+          claude-fable-5: 0.7678571428571429
+          claude-opus-5: 0.9017857142857143
+          claude-sonnet-5: 0.7142857142857143
+        doc_hits:
+          claude-fable-5:
+          - 86
+          - 112
+          claude-opus-5:
+          - 101
+          - 112
+          claude-sonnet-5:
+          - 80
+          - 112
+        mean_rate_per_1k:
+          claude-fable-5: 0.9681874048519684
+          claude-opus-5: 1.2370489992871794
+          claude-sonnet-5: 0.6937828335641563
+        scope_z:
+          claude-opus-5: 3.437771173298321
+        gates:
+        - gate: 2
+          name: prevalence
+          passed: true
+          detail: fires in 90% of claude-opus-5 docs, top mean rate 1.24/1k
+        - gate: 3
+          name: discrimination
+          passed: true
+          detail: fires in >= 5% of docs for 3 models (claude-fable-5, claude-opus-5, claude-sonnet-5); general
+        - gate: 5
+          name: dedup
+          passed: true
+          detail: no pattern or behavioural duplicate in the registry
+        verdict: general
+        previous_verdict: general
+        changed: false
+        note: data update only; scope and status are unchanged and remain the coordinator's ruling
   status: candidate
   weight: 1.0
   notes: The sweep shows z=+18.44 for 'percent' (opus-5=3742, sonnet-5=1681), the third-strongest lexical signal in the entire table. The bigram 'percent of' tightens this to a specific collocation—expressing a quantity as a proportion of a named whole—and appears across four distinct opus-5 document types (business report, case study, meeting minutes, grant proposal) while appearing only once in the sonne
@@ -6169,6 +6376,50 @@ tells:
       scope_z:
         claude-sonnet-5: 2.334104
       target_model: claude-sonnet-5
+      reverify:
+        run_id: fable-reverify-1
+        corpus: 3-model evidence corpus, 112 docs per model (free-writing annex excluded, R20)
+        models:
+        - claude-fable-5
+        - claude-opus-5
+        - claude-sonnet-5
+        doc_freq:
+          claude-fable-5: 0.8035714285714286
+          claude-opus-5: 0.8392857142857143
+          claude-sonnet-5: 0.9375
+        doc_hits:
+          claude-fable-5:
+          - 90
+          - 112
+          claude-opus-5:
+          - 94
+          - 112
+          claude-sonnet-5:
+          - 105
+          - 112
+        mean_rate_per_1k:
+          claude-fable-5: 0.43031587993757786
+          claude-opus-5: 0.42658807228287926
+          claude-sonnet-5: 0.9816517227935908
+        scope_z:
+          claude-sonnet-5: 2.8915462186713383
+        gates:
+        - gate: 2
+          name: prevalence
+          passed: true
+          detail: fires in 94% of claude-sonnet-5 docs, top mean rate 0.98/1k
+        - gate: 3
+          name: discrimination
+          passed: true
+          detail: fires in >= 5% of docs for 3 models (claude-fable-5, claude-opus-5, claude-sonnet-5); general
+        - gate: 5
+          name: dedup
+          passed: true
+          detail: no pattern or behavioural duplicate in the registry
+        verdict: general
+        previous_verdict: general
+        changed: false
+        note: data update only; scope and status are unchanged and remain the coordinator's ruling
   status: candidate
   weight: 1.0
   notes: The sweep gives 'already' z=+11.41 (opus 306 occurrences vs sonnet 534; doc-freq 0.84 vs 0.94). Claude-sonnet-5 systematically inserts 'already' before verbs to mark temporal precedence or pre-established states, a habit far less frequent in the comparison model.
@@ -6679,6 +6930,50 @@ tells:
       scope_z:
         claude-sonnet-5: -2.789571
       target_model: claude-sonnet-5
+      reverify:
+        run_id: fable-reverify-1
+        corpus: 3-model evidence corpus, 112 docs per model (free-writing annex excluded, R20)
+        models:
+        - claude-fable-5
+        - claude-opus-5
+        - claude-sonnet-5
+        doc_freq:
+          claude-fable-5: 0.7678571428571429
+          claude-opus-5: 0.8660714285714286
+          claude-sonnet-5: 0.7142857142857143
+        doc_hits:
+          claude-fable-5:
+          - 86
+          - 112
+          claude-opus-5:
+          - 97
+          - 112
+          claude-sonnet-5:
+          - 80
+          - 112
+        mean_rate_per_1k:
+          claude-fable-5: 0.561171036374329
+          claude-opus-5: 0.5312065203386107
+          claude-sonnet-5: 0.45256318252571187
+        scope_z:
+          claude-sonnet-5: -2.1515090270054893
+        gates:
+        - gate: 2
+          name: prevalence
+          passed: true
+          detail: fires in 87% of claude-opus-5 docs, top mean rate 0.56/1k
+        - gate: 3
+          name: discrimination
+          passed: true
+          detail: fires in >= 5% of docs for 3 models (claude-fable-5, claude-opus-5, claude-sonnet-5); general
+        - gate: 5
+          name: dedup
+          passed: true
+          detail: no pattern or behavioural duplicate in the registry
+        verdict: general
+        previous_verdict: general
+        changed: false
+        note: data update only; scope and status are unchanged and remain the coordinator's ruling
   status: candidate
   weight: 1.0
   notes: Claude-sonnet-5 prefers 'within [time period]' to express deadlines and bounded timeframes. Three instances appear across two sonnet documents and zero in all visible opus excerpts, where the comparison model tends toward 'by [date]' formulations instead.
@@ -7189,6 +7484,50 @@ tells:
       scope_z:
         claude-opus-5: 4.642308
       target_model: claude-opus-5
+      reverify:
+        run_id: fable-reverify-1
+        corpus: 3-model evidence corpus, 112 docs per model (free-writing annex excluded, R20)
+        models:
+        - claude-fable-5
+        - claude-opus-5
+        - claude-sonnet-5
+        doc_freq:
+          claude-fable-5: 0.5982142857142857
+          claude-opus-5: 0.8035714285714286
+          claude-sonnet-5: 0.5089285714285714
+        doc_hits:
+          claude-fable-5:
+          - 67
+          - 112
+          claude-opus-5:
+          - 90
+          - 112
+          claude-sonnet-5:
+          - 57
+          - 112
+        mean_rate_per_1k:
+          claude-fable-5: 0.3374087344416013
+          claude-opus-5: 0.5178743128124721
+          claude-sonnet-5: 0.22237070756533164
+        scope_z:
+          claude-opus-5: 4.492166717757898
+        gates:
+        - gate: 2
+          name: prevalence
+          passed: true
+          detail: fires in 80% of claude-opus-5 docs, top mean rate 0.52/1k
+        - gate: 3
+          name: discrimination
+          passed: true
+          detail: fires in >= 5% of docs for 3 models (claude-fable-5, claude-opus-5, claude-sonnet-5); general
+        - gate: 5
+          name: dedup
+          passed: true
+          detail: no pattern or behavioural duplicate in the registry
+        verdict: general
+        previous_verdict: general
+        changed: false
+        note: data update only; scope and status are unchanged and remain the coordinator's ruling
   status: candidate
   weight: 1.0
   notes: Claude-opus-5 uses 'against' followed by a numeric value to benchmark a measurement against a target or reference, a comparison construction absent from the sonnet excerpts which prefer different framings ('on a $91 million general fund', 'shortfall') for equivalent juxtapositions.
@@ -7699,6 +8038,50 @@ tells:
       scope_z:
         claude-opus-5: 2.80725
       target_model: claude-opus-5
+      reverify:
+        run_id: fable-reverify-1
+        corpus: 3-model evidence corpus, 112 docs per model (free-writing annex excluded, R20)
+        models:
+        - claude-fable-5
+        - claude-opus-5
+        - claude-sonnet-5
+        doc_freq:
+          claude-fable-5: 0.44642857142857145
+          claude-opus-5: 0.6071428571428571
+          claude-sonnet-5: 0.41964285714285715
+        doc_hits:
+          claude-fable-5:
+          - 50
+          - 112
+          claude-opus-5:
+          - 68
+          - 112
+          claude-sonnet-5:
+          - 47
+          - 112
+        mean_rate_per_1k:
+          claude-fable-5: 0.16816973525916548
+          claude-opus-5: 0.2634422461681702
+          claude-sonnet-5: 0.16472970075178356
+        scope_z:
+          claude-opus-5: 3.0093951767994076
+        gates:
+        - gate: 2
+          name: prevalence
+          passed: true
+          detail: fires in 61% of claude-opus-5 docs, top mean rate 0.26/1k
+        - gate: 3
+          name: discrimination
+          passed: true
+          detail: fires in >= 5% of docs for 3 models (claude-fable-5, claude-opus-5, claude-sonnet-5); general
+        - gate: 5
+          name: dedup
+          passed: true
+          detail: no pattern or behavioural duplicate in the registry
+        verdict: general
+        previous_verdict: general
+        changed: false
+        note: data update only; scope and status are unchanged and remain the coordinator's ruling
   status: candidate
   weight: 1.0
   notes: Claude-opus-5 tags entities as extremes within their category using 'is the [superlative] [noun],' a copular identification move consistent with its elevated 'is the' bigram rate (z = +13.75) and absent from the sonnet contrast excerpts.

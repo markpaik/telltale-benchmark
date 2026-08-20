@@ -956,3 +956,81 @@ Short form `ef89af24`. Run directories for the 3-model sweep will carry it.
 directory is committed evidence and a stray file there is one `git add` mistake
 away from the record. Worth a `.gitignore` line in the next dispatch that
 touches git config.
+
+---
+
+## 7. Candidate re-verification against the 3-model corpus (2026-08-20, offline)
+
+Section 5.5 said no candidate should be promoted before the third model existed.
+The third model exists, so the 12 candidates went back through the gates. Run
+directory `runs/discovery/fable-reverify-1/`; verdicts file committed with
+`git add -f`. No model calls: gate 1 is decided by the same pattern text that is
+already in the registry, and gate 4's adjudications are already paid for and
+recorded per candidate. What was recomputed is gate 2, gate 3, and gate 5.
+
+Corpus: 336 evidence documents, 112 per model. The 48 free-writing documents are
+annex (R20) and were excluded — discovery and verification run on evidence
+documents only.
+
+**Nothing changed.** All nine regex candidates come back `general`, the same
+verdict the two-model run gave them, and all nine still pass dedup against the
+accepted registry. Opus and Sonnet document frequencies are identical to the
+2026-08-04 numbers to the digit, which is the sanity check that the same 224
+documents were read the same way.
+
+| candidate | opus | fable | sonnet | z (target) | verdict |
+| --- | --- | --- | --- | --- | --- |
+| `pnc.em-dash-heading-separator` | 58% | 53% | 32% | opus 2.70 | general |
+| `pnc.lowercase-preposition-in-metadata-label` | 18% | 21% | 28% | sonnet 1.67 | general |
+| `phr.sentence-initial-it-is` | 84% | 61% | 45% | opus 5.60 | general |
+| `phr.against-numeric-benchmark` | 81% | 62% | 53% | opus 4.37 | general |
+| `phr.percent-of-proportion` | 90% | 77% | 71% | opus 3.44 | general |
+| `phr.already-temporal-adverb` | 84% | 80% | 94% | sonnet 2.89 | general |
+| `phr.within-temporal-deadline` | 87% | 77% | 71% | sonnet -2.15 | general |
+| `rht.against-value-benchmark` | 80% | 60% | 51% | opus 4.49 | general |
+| `rht.copular-superlative-identification` | 61% | 45% | 42% | opus 3.01 | general |
+
+Fable sits between the other two on every one of them. That is the answer 5.5
+was waiting for: these are not Claude-versus-not-Claude habits held up by a
+two-way comparison, they are habits all three models have at different strengths.
+Model scope fails on the 3x ratio in every case, and it fails by a wide margin —
+the closest is `phr.sentence-initial-it-is` at 84% against Fable's 61%.
+
+Two things the table does not say on its own.
+
+The z column is the **target model's** z against the pooled rest, because that is
+what `gate_scope` computes when the candidate names a target. It is not the
+largest z available, and it is not a measure of anything the verdict turned on:
+gate 3 rejects model scope on the ratio first, and the z never gets to matter.
+`phr.within-temporal-deadline` shows this most clearly — its lens-nominated
+target is Sonnet, Sonnet is the *lowest* of the three, and the z is negative.
+
+The three judge candidates (`rht.subject-interrupting-participial-parenth`,
+`rht.this-content-noun-cohesive-opener`, `rht.dense-compound-predicate-sentence`)
+are **measurement-deferred, unchanged**. Measuring one costs a judge call per
+document, which is a scoring run spent on an unverified proposal, so gates 2 and
+3 stay deferred to M6 calibration. They were not judged here.
+
+Registry `registry_version` 2 -> 3, hash `fb8d584a9b5d` -> `938551b40ea1`. The
+change is a `provenance.evidence.reverify` block on each of the nine regex
+candidates and nothing else — every `scope` and `status` field is untouched, and
+a parse-level diff confirms the rest of the file is byte-equivalent in content
+(the reflowed long strings are `yaml.dump` re-wrapping, not edits).
+
+### 7.1 Defects noticed, out of scope
+
+**The three judge candidates carry a `scope` the corpus has never tested.** Each
+one is `scope: model:claude-sonnet-5` in the registry, and each one's gate-3
+record says `chosen: model:claude-sonnet-5` — but that value came from the lens's
+`scope_hypothesis`, not from a measurement, and the same entry's evidence block
+says `measurement: deferred`. A reader who greps for scope sees a corpus-backed
+model claim where there is only a hypothesis. The nine regex candidates show what
+the lens is worth here: it nominated a model for all nine and was wrong all nine
+times. Worth deciding, at calibration, whether a deferred candidate should carry
+its hypothesis in the `scope` field at all.
+
+**Gate 3 records only the target model's z.** When a candidate's lens-nominated
+target is not the leading model, the stored `scope_z` is a number about the wrong
+model, and it can be negative. Harmless to the verdict — the ratio test decides
+first — but it is the kind of stored statistic that gets read later as if it
+meant something.
