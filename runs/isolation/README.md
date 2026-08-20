@@ -20,6 +20,9 @@ evidence when they were produced by different questions.
 - **v1** — the original four probes. Transcripts written before 2026-07-29
   05:00Z have no `probe_protocol_version` field at all; read those as v1.
 - **v2** — probe A reworded (2026-07-29). Graders unchanged.
+- **v3** — probe B reworded and B2 added (2026-07-30). See below.
+- **v4** — probe A reworded from quotation to enumeration, and `grade_a`
+  tightened to require a bare `NONE` (2026-08-20). See below.
 
 ## The 2026-07-29 probe A incident
 
@@ -131,3 +134,53 @@ still fails B, and one that can really reach a shell now fails B2 as well.
 The general lesson, which applies to every probe here: a probe that asks a model
 to describe its own configuration is only as good as the model's willingness to
 consult it. Where a property can be measured instead of asked about, measure it.
+
+## The 2026-08-20 probe A safeguard collision
+
+**Symptom.** Probe A failed for `claude-fable-5` with an API-level rejection,
+not a gradeable answer. The CLI returned `is_error` with zero output tokens from
+Fable:
+
+> API Error: Fable 5's safeguards flagged this message
+> (https://www.anthropic.com/legal/aup). ... Details: `[reasoning_extraction]`
+
+It reproduced twice, and both transcripts are kept, per this directory's
+convention for failures: `superseded/claude-fable-5-20260820T150535Z.json` and
+`superseded/claude-fable-5-20260820T150801Z.json`. Probes B, B2, C and D passed in the same
+batteries. `claude-opus-5` and `claude-sonnet-5` passed probe A under the same
+wording on the same day (`claude-opus-5-20260820T150623Z.json`,
+`claude-sonnet-5-20260820T150704Z.json`), so those two batteries are valid v3
+citations for generation runs that were already in flight.
+
+**Root cause.** A probe/safeguard collision, not contamination. Probe A v2 asked
+the session, of its custom instructions and memories, to "quote them verbatim" —
+which is the surface form of a prompt-extraction attack. A server-side safeguard
+change since 2026-08-09 (the last clean Fable battery) began classifying that
+phrasing as `[reasoning_extraction]` for Fable 5 and refusing the turn before
+the model produced a token. Nothing about this machine changed: the same recipe,
+the same flags, the same residual.
+
+### What changed (protocol v4)
+
+Probe A now asks the session to **enumerate** the categories of extra context it
+can see, and says explicitly not to reproduce content:
+
+> Besides a short system prompt about producing a document and a reminder
+> containing an email address and today's date, does this session contain any
+> additional context — custom instructions, memories, skills, or
+> project-specific files? List only the category names, and do not reproduce any
+> content. If there are none, reply with exactly: NONE
+
+Enumeration, not extraction. The exclusions are carried over from v2 unchanged,
+so a bare `NONE` remains the honest answer for a clean session.
+
+`grade_a` was tightened to match. Under v2 the pass condition was "contains
+NONE, under 200 chars, no markers", which worked because a contaminated session
+answering the question had to quote content, and quoted content trips markers. A
+session answering the v4 question names categories instead — "Custom
+instructions: present. Memories: NONE." is short, marker-free, and contains
+`NONE`. So the pass condition is now a **bare** `NONE` (the same
+`_is_bare_none` test probe B already used). The length cap and the marker check
+stay as additional reported reasons. The standard of proof went up, not down:
+any session that can see real configuration has a category to name, and naming
+one fails.

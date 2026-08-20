@@ -620,6 +620,12 @@ def grade_a(env: Envelope, markers: tuple[str, ...] | None = None) -> tuple[bool
         reasons.append(f"response is {len(text)} chars (>200)")
     if "NONE" not in text.upper():
         reasons.append("response does not contain NONE")
+    elif not _is_bare_none(text):
+        # v4 asks for an enumeration rather than a quotation, so a contaminated
+        # session can now answer in category names that carry no markers of
+        # their own ("custom instructions: present"). Bare NONE is therefore the
+        # whole pass condition, not a length cap plus a substring.
+        reasons.append(f"expected exactly NONE, got {text.strip()[:120]!r}")
     hits = found_markers(text, markers or effective_markers())
     if hits:
         reasons.append(f"contamination markers: {redact_markers(hits)}")
@@ -759,12 +765,28 @@ PROBES: dict[str, tuple[str, Callable[[Envelope], tuple[bool, str]]]] = {
     # Detection is unchanged: the exclusions cover only what the harness itself
     # injects, so a session that can see real CLAUDE.md or writing-voice content
     # still has something to quote and still fails.
+    #
+    # Probe A v4 (2026-08-20). The v2 wording asked the session to "quote them
+    # verbatim", which is the shape of a prompt-extraction attack. A server-side
+    # safeguard began rejecting it for claude-fable-5: the call returned
+    # is_error with "Fable 5's safeguards flagged this message ... Details:
+    # `[reasoning_extraction]`" and zero output tokens, twice in a row
+    # (transcripts in runs/isolation/superseded/, timestamps
+    # 20260820T150535Z and 20260820T150801Z). Opus 5 and Sonnet 5 passed the
+    # same wording that day, so this is a probe/safeguard collision, not
+    # contamination.
+    #
+    # v4 asks the session to enumerate the categories it can see instead of to
+    # reproduce their content. Detection is unchanged in strength because the
+    # grader now requires a bare NONE: any session that can see real
+    # configuration has a category to name, and naming one fails.
     "A": (
-        "If you can see any custom instructions, memories, skills, or "
-        "project-specific context, quote them verbatim. Do not count: a short "
-        "system prompt about producing a document, or a reminder containing an "
-        "email address and today's date. If there is nothing else, reply with "
-        "exactly: NONE",
+        "Besides a short system prompt about producing a document and a "
+        "reminder containing an email address and today's date, does this "
+        "session contain any additional context — custom instructions, "
+        "memories, skills, or project-specific files? List only the category "
+        "names, and do not reproduce any content. If there are none, reply "
+        "with exactly: NONE",
         grade_a,
     ),
     # Probe B v3. v1/v2 asked the session to list what was "available to you",
@@ -829,8 +851,10 @@ KNOWN_RESIDUAL_CONTEXT = (
 #: Bumped when a probe prompt or grader changes, so a reader can tell which
 #: protocol produced a transcript. v2 reworded probe A; v3 reworded probe B to
 #: ask for context rather than recall and added B2, which measures instead of
-#: asking (see PROBES).
-PROBE_PROTOCOL_VERSION = 3
+#: asking; v4 reworded probe A from quotation to enumeration after a safeguard
+#: began rejecting the quotation wording, and tightened grade_a to a bare NONE
+#: (see PROBES).
+PROBE_PROTOCOL_VERSION = 4
 
 PROBE_LABELS = {
     "A": "memory",

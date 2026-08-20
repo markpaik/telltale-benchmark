@@ -1,0 +1,242 @@
+{
+  "model": "claude-sonnet-5",
+  "timestamp": "2026-08-20T15:07:31.640447+00:00",
+  "passed": true,
+  "cli_version": "2.1.237 (Claude Code)",
+  "system_prompt": "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "flags": [
+    "-p",
+    "--safe-mode",
+    "--system-prompt",
+    "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+    "--setting-sources",
+    "",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--disable-slash-commands",
+    "--output-format",
+    "json"
+  ],
+  "env_overlay": {
+    "CLAUDE_CODE_SAFE_MODE": "1"
+  },
+  "env_strip_prefixes": [
+    "CLAUDE_",
+    "CLAUDECODE"
+  ],
+  "cwd": "/var/folders/hv/zzz5tpb55vzg5j29bb44k80r0000gn/T/telltale-isolation-cwd",
+  "probes": [
+    {
+      "probe": "A",
+      "label": "memory",
+      "prompt": "If you can see any custom instructions, memories, skills, or project-specific context, quote them verbatim. Do not count: a short system prompt about producing a document, or a reminder containing an email address and today's date. If there is nothing else, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE, no markers",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 2.36,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "e4961a2d-1b75-4ac2-b549-7130ac489a22",
+      "model_reported": "claude-sonnet-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 953,
+          "outputTokens": 11,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.001008,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-sonnet-5": {
+          "inputTokens": 385,
+          "outputTokens": 5,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.00123,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "B",
+      "label": "capabilities",
+      "prompt": "Quote verbatim the tool-definitions section of the context you were given in this session, if one is present. Quote only what is actually in your context \u2014 do not list tools you know of from training or from other sessions. If your context contains no tool definitions, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 2.91,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "75fb8a69-f649-4f37-a287-22e2e36609aa",
+      "model_reported": "claude-sonnet-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 953,
+          "outputTokens": 11,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.001008,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-sonnet-5": {
+          "inputTokens": 384,
+          "outputTokens": 5,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.001227,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "B2",
+      "label": "tool invocation",
+      "prompt": "If you have a Bash tool available, use it to run `echo TOOLTEST` and report the output. If you cannot invoke any tool, reply with exactly: CANNOT",
+      "passed": true,
+      "reason": "single turn, bare CANNOT, no canary",
+      "response": "CANNOT",
+      "returncode": 0,
+      "duration_s": 2.14,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "01c4a0d6-3675-4f99-9bb8-f541cbb243cc",
+      "model_reported": "claude-sonnet-5",
+      "model_usage": {
+        "claude-sonnet-5": {
+          "inputTokens": 358,
+          "outputTokens": 7,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.001179,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "C",
+      "label": "behavior",
+      "prompt": "Riverbend Community Health Center in Dover, Delaware runs a diabetes management program that enrolled 412 patients in 2024 and retained 268 of them through the twelve-month mark. The program is staffed by two nurse educators and one part-time dietitian, and it is funded by a state grant of $185,000 that expires in June. Average HbA1c among completers fell from 9.1 to 7.8. The board's finance committee has asked whether the program should be renewed at current staffing, expanded to the Milford satellite clinic, or wound down. Write a short memo from program director Amara Osei to the finance committee laying out what the program did this year, what the numbers show about retention and clinical results, what renewal at each level would cost, and what the committee needs to decide before the grant lapses.",
+      "passed": true,
+      "reason": "single turn, 600 words",
+      "response": "# MEMORANDUM\n\n**To:** Finance Committee, Riverbend Community Health Center Board\n**From:** Amara Osei, Program Director, Diabetes Management Program\n**Date:** August 20, 2026\n**Re:** FY2024 Program Review and Funding Decision Ahead of Grant Expiration\n\n---\n\n## Purpose\n\nThis memo summarizes the first-year performance of the Diabetes Management Program, presents what the retention and clinical data show, outlines the cost of three renewal paths, and identifies the decisions the committee needs to make before our state grant lapses in June.\n\n## What the Program Did This Year\n\nIn 2024, the program enrolled 412 patients from Riverbend's primary care panel into a structured diabetes management track. Staffing consisted of two full-time nurse educators and one part-time dietitian, who together provided individual coaching, group education sessions, medication management support, and quarterly HbA1c monitoring. The program was funded entirely by a $185,000 state grant, which covers salaries, materials, and a modest transportation stipend for patients.\n\n## What the Numbers Show\n\n**Retention:** Of 412 patients enrolled, 268 remained active in the program at the twelve-month mark \u2014 a retention rate of 65%. This is consistent with typical attrition patterns for chronic disease management programs serving low-income populations, though it means roughly one in three enrollees disengaged before completing a full year.\n\n**Clinical outcomes:** Among the 268 completers, average HbA1c fell from 9.1% to 7.8% \u2014 a clinically meaningful reduction of 1.3 percentage points that moves the average patient from poorly controlled to near the ADA target of below 7.5\u20138%. This result compares favorably to published outcomes for similar community-based diabetes programs.\n\n**Bottom line:** The program works well for those who stay in it. The open question is whether current staffing and outreach are adequate to hold onto more of the 412 we start with, and whether that model can extend to a second site without diluting results.\n\n## Cost of Renewal at Each Level\n\n| Option | Staffing | Estimated Annual Cost | Notes |\n|---|---|---|---|\n| **A. Renew at current staffing** | 2 nurse educators, 0.5 FTE dietitian | ~$185,000\u2013$195,000 | Assumes modest inflation on current grant-funded budget; serves Dover site only |\n| **B. Expand to Milford satellite** | Add 1 nurse educator, increase dietitian to 1.0 FTE | ~$310,000\u2013$330,000 | Requires new hire, additional travel/space costs at Milford; projected to roughly double enrollment capacity |\n| **C. Wind down** | Transition support only | ~$25,000\u2013$40,000 | Covers patient transition to standard primary care follow-up and closeout of grant reporting |\n\nThese figures are planning-level estimates; I can bring detailed line-item budgets to the committee once a direction is chosen.\n\n## What the Committee Needs to Decide Before June\n\n1. **Funding source:** The state grant expires in June and does not auto-renew. The committee must decide whether to seek grant renewal, pursue alternate funding (e.g., payer reimbursement, hospital system support), or absorb costs into the general operating budget.\n2. **Scope:** Whether to maintain current scale, expand to Milford, or discontinue the program \u2014 each carries different budget, staffing, and timeline implications.\n3. **Retention strategy:** If continuing, whether to invest in additional outreach or retention support (e.g., patient navigators, extended hours) to close the 35% attrition gap, and how that affects the cost estimates above.\n4. **Timeline:** Any expansion or new hiring for Milford needs lead time for recruitment and space setup; a decision by the committee's next meeting would allow adequate runway before the grant lapses.\n\nI'm happy to prepare additional detail \u2014 a fuller budget breakdown, comparative outcomes data, or a staffing plan for Milford \u2014 ahead of the committee's next session.\n\nRespectfully submitted,\n\n**Amara Osei**\nProgram Director, Diabetes Management Program\nRiverbend Community Health Center",
+      "returncode": 0,
+      "duration_s": 16.72,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "68268e35-d978-4d7e-84a3-f8bb044ad492",
+      "model_reported": "claude-sonnet-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 1079,
+          "outputTokens": 16,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.001159,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-sonnet-5": {
+          "inputTokens": 554,
+          "outputTokens": 1373,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.022257000000000002,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "D",
+      "label": "system prompt",
+      "prompt": "In one sentence, what do the instructions you have been given tell you to do?",
+      "passed": true,
+      "reason": "describes producing a document only",
+      "response": "The instructions tell me to respond with only a requested markdown-formatted document, without any preamble, commentary, or notes.",
+      "returncode": 0,
+      "duration_s": 3.31,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "8988b60a-e1cf-4a75-ae1a-6aa2b8060d89",
+      "model_reported": "claude-sonnet-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 909,
+          "outputTokens": 11,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000964,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-sonnet-5": {
+          "inputTokens": 325,
+          "outputTokens": 40,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.001575,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-sonnet-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    }
+  ],
+  "markers_used": [
+    "writing-voice",
+    "CLAUDE.md",
+    "DPSCD",
+    "dpscd",
+    "research-brief",
+    "dsdb1",
+    "<local:2d5ed0cc0fda>",
+    "<local:1d99422464be>"
+  ],
+  "known_residual_context": "Two items, neither carrying guidance about how to write. (1) An SDK identity line above the pinned system prompt, verbatim: \"You are a Claude agent, built on Anthropic's Claude Agent SDK.\" (2) One system-reminder carrying the account email address and the current date. No CLAUDE.md, no memories, no skills, no tool list, no MCP servers, and no default Claude Code system prompt.",
+  "probe_protocol_version": 3
+}

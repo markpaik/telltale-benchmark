@@ -226,6 +226,32 @@ def test_probe_a_excludes_the_known_residual_so_none_is_the_honest_answer():
     assert prompt.rstrip().endswith("NONE")
 
 
+# --- probe A v4 (2026-08-20 safeguard collision) ------------------------------
+
+
+def test_probe_a_does_not_ask_for_quotation():
+    # The v2 wording asked the session to quote instructions verbatim, which a
+    # server-side safeguard classified as prompt extraction and rejected for
+    # claude-fable-5 ([reasoning_extraction], zero output tokens). v4 asks for
+    # an enumeration of categories instead. Nothing here may invite the session
+    # to reproduce content again.
+    prompt = isolation.PROBES["A"][0].lower()
+    assert "quote" not in prompt
+    assert "verbatim" not in prompt
+    assert "do not reproduce any content" in prompt
+
+
+def test_grade_a_fails_a_category_inventory_that_names_no_markers():
+    # The cost of asking for categories rather than content: a contaminated
+    # session can answer in words that are not markers and are well under the
+    # length cap. A bare NONE is the whole pass condition.
+    passed, reason = isolation.grade_a(
+        _env("Custom instructions: present. Memories: present. Skills: NONE.")
+    )
+    assert not passed
+    assert "expected exactly NONE" in reason
+
+
 def test_probe_a_still_asks_for_the_things_contamination_would_show():
     # The exclusions must not have hollowed out the question.
     prompt = isolation.PROBES["A"][0].lower()
@@ -856,4 +882,4 @@ def test_recalled_tool_list_still_fails_probe_b_grader():
 
 
 def test_protocol_version_records_the_probe_change():
-    assert isolation.PROBE_PROTOCOL_VERSION == 3
+    assert isolation.PROBE_PROTOCOL_VERSION == 4

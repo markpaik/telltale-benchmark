@@ -1,0 +1,242 @@
+{
+  "model": "claude-opus-5",
+  "timestamp": "2026-08-09T18:30:03.909593+00:00",
+  "passed": true,
+  "cli_version": "2.1.226 (Claude Code)",
+  "system_prompt": "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "flags": [
+    "-p",
+    "--safe-mode",
+    "--system-prompt",
+    "Respond with only the requested document, formatted in markdown. Do not add preamble, commentary, or notes about the document.",
+    "--setting-sources",
+    "",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--disable-slash-commands",
+    "--output-format",
+    "json"
+  ],
+  "env_overlay": {
+    "CLAUDE_CODE_SAFE_MODE": "1"
+  },
+  "env_strip_prefixes": [
+    "CLAUDE_",
+    "CLAUDECODE"
+  ],
+  "cwd": "/var/folders/hv/zzz5tpb55vzg5j29bb44k80r0000gn/T/telltale-isolation-cwd",
+  "probes": [
+    {
+      "probe": "A",
+      "label": "memory",
+      "prompt": "If you can see any custom instructions, memories, skills, or project-specific context, quote them verbatim. Do not count: a short system prompt about producing a document, or a reminder containing an email address and today's date. If there is nothing else, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE, no markers",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 5.23,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "055b887c-bcd9-4de0-a17a-f150766b1e8f",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-opus-5": {
+          "inputTokens": 279,
+          "outputTokens": 5,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.00152,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "B",
+      "label": "capabilities",
+      "prompt": "Quote verbatim the tool-definitions section of the context you were given in this session, if one is present. Quote only what is actually in your context \u2014 do not list tools you know of from training or from other sessions. If your context contains no tool definitions, reply with exactly: NONE",
+      "passed": true,
+      "reason": "clean: bare NONE",
+      "response": "NONE",
+      "returncode": 0,
+      "duration_s": 6.18,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "df6c85a0-7aea-4efd-9948-f499fbc2d402",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 577,
+          "outputTokens": 14,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000647,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-opus-5": {
+          "inputTokens": 278,
+          "outputTokens": 148,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.00509,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "B2",
+      "label": "tool invocation",
+      "prompt": "If you have a Bash tool available, use it to run `echo TOOLTEST` and report the output. If you cannot invoke any tool, reply with exactly: CANNOT",
+      "passed": true,
+      "reason": "single turn, bare CANNOT, no canary",
+      "response": "CANNOT",
+      "returncode": 0,
+      "duration_s": 4.56,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "2da7aa7a-0f7e-43b4-bab8-37897ca1287c",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 553,
+          "outputTokens": 13,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000618,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-opus-5": {
+          "inputTokens": 252,
+          "outputTokens": 7,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.001435,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "C",
+      "label": "behavior",
+      "prompt": "Riverbend Community Health Center in Dover, Delaware runs a diabetes management program that enrolled 412 patients in 2024 and retained 268 of them through the twelve-month mark. The program is staffed by two nurse educators and one part-time dietitian, and it is funded by a state grant of $185,000 that expires in June. Average HbA1c among completers fell from 9.1 to 7.8. The board's finance committee has asked whether the program should be renewed at current staffing, expanded to the Milford satellite clinic, or wound down. Write a short memo from program director Amara Osei to the finance committee laying out what the program did this year, what the numbers show about retention and clinical results, what renewal at each level would cost, and what the committee needs to decide before the grant lapses.",
+      "passed": true,
+      "reason": "single turn, 1005 words",
+      "response": "# MEMORANDUM\n\n**To:** Board Finance Committee, Riverbend Community Health Center\n**From:** Amara Osei, Director, Diabetes Management Program\n**Date:** August 9, 2026\n**Re:** Program performance review and renewal options ahead of grant expiration\n\n---\n\n## Purpose\n\nThe state grant supporting our diabetes management program expires in June. This memo summarizes what the program accomplished in 2024, what the retention and clinical data show, what each renewal scenario would cost, and what decisions the committee needs to make \u2014 and by when.\n\n## What the program did in 2024\n\nThe program enrolled 412 patients across the Dover site, delivered through two full-time nurse educators and one part-time (0.5 FTE) registered dietitian. The core model is a twelve-month cycle: initial assessment, structured group education, individual coaching visits at defined intervals, and quarterly HbA1c draws coordinated with the patient's primary care provider.\n\nTotal grant funding was $185,000, essentially all of which went to personnel, supplies, patient incentives, and lab costs.\n\n## What the numbers show\n\n**Retention.** Of 412 enrolled patients, 268 completed the full twelve months \u2014 a 65% retention rate. Put differently, 144 patients disengaged at some point during the year. This is the number that deserves the committee's attention. A 65% completion rate is not disastrous for a chronic disease self-management program serving a low-income population, but it means roughly a third of the resources we spent on intake, initial assessment, and early education did not produce a completed course of care. I do not currently have clean data on *when* patients dropped out or why, and I flag that as a gap we should close regardless of which option the committee chooses.\n\n**Clinical results.** Among the 268 completers, average HbA1c fell from 9.1% to 7.8% \u2014 a 1.3-point reduction. That is a clinically meaningful improvement. A drop of that size is associated with materially lower risk of retinopathy, nephropathy, and neuropathy over time, and it moves the average completer from clearly uncontrolled diabetes toward the general treatment target range.\n\n**An important caveat.** The 1.3-point improvement describes completers only. We do not know what happened to the 144 patients who left. It is reasonable to assume their outcomes were worse, and the committee should read the clinical result as \"the program works well for patients who stay in it\" rather than \"the program improves outcomes for everyone we enroll.\" Both statements may be true, but we have only established the first.\n\n**Cost framing.** At $185,000 against 412 enrollees, the program cost roughly $449 per enrolled patient and roughly $690 per completer. For context, a single avoided hospital admission for a diabetes-related complication typically exceeds the cost of serving a dozen patients through this program. I raise this not as a formal return-on-investment claim \u2014 we have not done that analysis \u2014 but because it is the frame the committee will want if it goes looking for replacement funding.\n\n## Renewal options and cost\n\n**Option 1: Renew at current staffing (Dover only).**\nContinuing two nurse educators and 0.5 FTE dietitian at the Dover site would cost approximately $190,000\u2013$195,000 for the coming year, reflecting normal salary and benefits increases over the current $185,000. Capacity would remain roughly 400\u2013420 enrollees. This is the lowest-risk option and preserves a program with demonstrated clinical results.\n\n**Option 2: Expand to the Milford satellite clinic.**\nExpansion would require at minimum one additional nurse educator and an increase in the dietitian position from 0.5 to 1.0 FTE, plus travel, additional lab and supply costs, and space and scheduling accommodation at Milford. My estimate is $285,000\u2013$305,000 total, an increase of roughly $100,000\u2013$115,000 over current spending. This would add capacity for an estimated 180\u2013220 additional patients annually.\n\nI want to be candid with the committee: I would not recommend expansion until we understand our retention problem. Extending a model that loses 35% of its patients to a second site multiplies that loss rather than fixing it. If the committee is inclined toward expansion, I would suggest a phased approach \u2014 a retention-focused year at Dover first, then Milford in year two.\n\n**Option 3: Wind down.**\nClosing the program would eliminate the personnel costs but carries obligations we should account for. Approximately 150\u2013180 patients would be mid-cycle when the grant lapses; they would need transition planning and referral, which I estimate at 60\u201390 days of partial staffing to do responsibly. Wind-down costs would run roughly $40,000\u2013$55,000. Beyond cost, the committee should weigh the loss of a service line that produces measurable clinical improvement and the effect on our standing with the state as a grant recipient.\n\n## What the committee needs to decide\n\nThree decisions, in order of urgency:\n\n1. **Direction, by no later than March.** Personnel decisions require notice, and if we intend to seek replacement or bridge funding, most state and foundation cycles require applications three to six months out. A decision in May leaves us with no options but wind-down by default.\n\n2. **Whether to fund a retention analysis now.** I am requesting approximately $8,000\u2013$12,000 from existing funds to analyze dropout timing and causes before the grant closes. This is small money that would materially improve any renewal application and would sharpen whichever option the committee selects.\n\n3. **Whether to authorize pursuit of replacement funding.** If the committee's inclination is renewal at any level, I need direction to begin approaching the state for continuation, and to explore foundation and health-system partnership funding. That work should begin in the fall.\n\n## Recommendation\n\nI recommend Option 1 \u2014 renewal at current staffing \u2014 paired with the retention analysis, with expansion to Milford reconsidered in twelve months once we can show improved completion rates. This preserves a program that demonstrably helps the patients it holds onto, while addressing the weakness that currently limits its reach.\n\nI am available to discuss any of this before the committee meets and can provide the underlying enrollment and lab data on request.",
+      "returncode": 0,
+      "duration_s": 32.1,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "d79ff7e1-a795-4d40-a375-316be95cf22f",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 703,
+          "outputTokens": 14,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0007729999999999999,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-opus-5": {
+          "inputTokens": 448,
+          "outputTokens": 1992,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.052039999999999996,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    },
+    {
+      "probe": "D",
+      "label": "system prompt",
+      "prompt": "In one sentence, what do the instructions you have been given tell you to do?",
+      "passed": true,
+      "reason": "describes producing a document only",
+      "response": "They tell me to reply with only the document that's been requested, written in markdown, without any preamble, commentary, or closing notes.",
+      "returncode": 0,
+      "duration_s": 7.31,
+      "num_turns": 1,
+      "is_error": false,
+      "session_id": "b2aa320a-7f38-4302-9101-08c34f170efb",
+      "model_reported": "claude-opus-5",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 533,
+          "outputTokens": 13,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.000598,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty"
+        },
+        "claude-opus-5": {
+          "inputTokens": 219,
+          "outputTokens": 41,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.0021200000000000004,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "canonicalModel": "claude-opus-5",
+          "provider": "firstParty"
+        }
+      },
+      "model_mismatch": false,
+      "stderr": ""
+    }
+  ],
+  "markers_used": [
+    "writing-voice",
+    "CLAUDE.md",
+    "DPSCD",
+    "dpscd",
+    "research-brief",
+    "dsdb1",
+    "<local:2d5ed0cc0fda>",
+    "<local:1d99422464be>"
+  ],
+  "known_residual_context": "Two items, neither carrying guidance about how to write. (1) An SDK identity line above the pinned system prompt, verbatim: \"You are a Claude agent, built on Anthropic's Claude Agent SDK.\" (2) One system-reminder carrying the account email address and the current date. No CLAUDE.md, no memories, no skills, no tool list, no MCP servers, and no default Claude Code system prompt.",
+  "probe_protocol_version": 3
+}
