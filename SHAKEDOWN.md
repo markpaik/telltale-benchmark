@@ -744,3 +744,212 @@ the three-model corpus exists.** The gate-3 result is a falsification of the
 model-specific hypothesis, which is real and worth having. It is not a
 confirmation of the general one, and treating it as one would put roughly a
 dozen unfalsified tells into the index at once.
+
+---
+
+## 6. Fable phase generation (2026-08-09, annex closed 2026-08-20)
+
+The third model is in. The corpus is 384 documents — 112 evidence documents per
+model plus a 16-document free-writing annex per model — and this section is the
+generation record plus the close-out verification that gates the 3-model sweep.
+
+### 6.1 What Fable produced
+
+112/112 evidence cells, **584,708 words**, mean 5,220 words per document against
+a 5,000-word ask and a 4,500-word floor. **Zero below-floor documents.**
+
+First-turn yield is the headline number: **81 of 112 documents (72.3%) came back
+complete on the first turn**, 28 needed one continuation, 3 needed two. Stitch
+rate 27.7%. That sits between Opus (2.7% stitched) and Sonnet (68.8%) and is the
+first evidence that continuation dependence is a per-model property rather than
+a property of the 5,000-word ask.
+
+Wall-clock span 12:52:26Z to 18:21:36Z, 329 minutes for 112 documents — 2.94
+min/document counted naively across the whole span. The span is two segments
+either side of a 135-minute session-limit stall (§6.2), and they are not
+comparable:
+
+| segment | window (UTC) | docs | minutes | pace |
+|---|---|---|---|---|
+| pre-stall, serial | 12:52:26 – 15:04:06 | 39 | 131.7 | 3.38 min/doc |
+| post-stall, 5 workers | 17:19:01 – 18:21:36 | 73 | 62.6 | **0.86 min/doc** |
+
+The relaunch ran **5 workers in parallel** over disjoint format slices
+(`runs/logs/fable-gen-p1.log` … `p5.log`). Just under 4× the serial pace on 5
+workers, which is the expected shape once continuations serialize inside a
+worker.
+
+### 6.2 Incident: session-limit churn, twice
+
+**2026-08-09 15:04Z.** The plan window closed at 39/112. (The dispatch note
+recorded this as the "13:00 window"; the sidecar timestamps put the last
+pre-stall document at 15:04:06Z and the first post-stall document at 17:19:01Z,
+so the measured stall is 15:04Z–17:19Z. The 13:00 figure is not reproducible
+from the corpus and the timestamps are what this record carries.) The driver did not
+stop. It walked the remaining 73 cells, took a session-limit refusal on each,
+and recorded 73 per-cell failures — 73 log lines, 73 `.failed.json` markers,
+zero information. Work resumed at 17:19Z after the reset and all 73 cells were
+regenerated cleanly.
+
+**2026-08-09 ~18:10Z**, during free-writing annex octet 2. Same shape, 17 cells
+across the three models (`runs/logs/fable-freewriting-2.log`: `written 3,
+skipped 8, failed 5` for Fable). Those cells were completed on 2026-08-20.
+
+**Defect.** A session limit is a property of the account and the clock, not of
+the cell. Treating it as a per-cell failure is wrong three ways: it burns the
+remaining cells' entries in the report, it makes the failure list unreadable
+(73 identical lines), and it invites a retry loop against a wall that will not
+move for hours. `generate.py` already has the right shape for this in
+`AUTH-LOST` — a clean stop-and-wait class that halts the driver and reports one
+condition, not N failures. **Recommendation: classify session-limit responses
+into that class.** The string is stable and specific (`You've hit your session
+limit · resets <time>`), and the reset time is in the message, so the stop can
+report when to come back.
+
+Scope note: this is generation-side only. The judge transport's cascade breaker
+already handles the analogous condition for judge calls, and the 3-model sweep
+inherits it.
+
+### 6.3 Incident: generation-side model substitution, caught
+
+At 2026-08-09T17:24Z, under 5-way parallel load, `claude-fable-5/
+literature-review-02` came back served by a different model. The sidecar
+attribution check refused it:
+
+```
+FAILED claude-fable-5 literature-review-02: model mismatch: asked for
+claude-fable-5, modelUsage has ['claude-haiku-4-5-20251001', 'claude-opus-5']
+```
+
+The check did its job — no mis-attributed document reached the corpus. A manual
+re-run at 18:15:45Z recovered the cell with correct attribution (5,797 words, 0
+continuations), and it is the one Fable evidence sidecar carrying the
+`exploratory` field, because it was written after that field landed.
+
+**Defect.** The judge transport retries once on substitution (R16). `generate.py`
+does not: it fails the cell and moves on, which cost a manual re-run and would
+have cost a silent hole in the corpus if nobody had read the log. **Recommendation:
+mirror the judge transport's retry-once-on-substitution in `generate.py`.** Same
+policy, same one-retry ceiling, same refusal to accept a substituted answer.
+
+### 6.4 Probe-A safeguard collision
+
+Fable's probe A began failing on 2026-08-20 with an API-level
+`[reasoning_extraction]` refusal — a probe/safeguard collision, not
+contamination, resolved by protocol v4 (enumeration instead of extraction).
+Full incident, evidence and grader change: `runs/isolation/README.md`,
+"The 2026-08-20 probe A safeguard collision".
+
+### 6.5 Free-writing annex: n=16 per model, stopped
+
+**Coordinator verdict: stopped at 16.** Three reasons, recorded so the stop rule
+is not re-litigated:
+
+- Meta-clusters saturated. Draws 12–16 produced no cluster the first 11 had not
+  already produced.
+- Conceit drift is draw-date-correlated, not sample-size-correlated. The
+  2026-08-20 octet reads differently from the 2026-08-09 octets in ways that
+  track the draw date. More draws on more dates would widen that confound rather
+  than close it.
+- "Still" appears in both Fable and Opus title space — a cross-model collision
+  in a 32-document sample, which is the kind of observation that gets weaker,
+  not stronger, from adding draws under a drifting conceit distribution.
+
+The annex is exploratory and bypasses the floor and the continuation ladder
+(M9b). It is excluded from every aggregate (M9c). Word totals: Fable 13,677,
+Opus 20,617, Sonnet 7,861; zero continuations anywhere in the annex, by design.
+
+### 6.6 Close-out verification (2026-08-20, offline)
+
+Every number below was measured against the corpus on disk, no model calls.
+
+**Completeness.** 384 documents load, 384 `.md` files on disk, 128 per model
+(112 evidence + 16 annex), all 14 evidence formats at exactly 8 documents per
+model. **Zero `*.failed.json` markers** anywhere under `corpus/`.
+
+**Sidecar integrity. Zero hard anomalies across 384 documents.** Checked per
+document: `model_requested` matches its directory, `model_reported` matches,
+`model_mismatch` false, `prompt_sha256` recomputes from the prompt bank,
+`system_prompt_sha256` uniform (one value, `7461cf6bc32d…`, equal to
+`isolation.SYSTEM_PROMPT_SHA256`, across all 384), `words` recomputes through
+`textstats`, `doc_sha256` matches the file bytes, `exploratory` true on all 48
+annex documents and never true on an evidence document.
+
+Two benign schema-age facts, not anomalies: 335 evidence sidecars predate the
+`exploratory` field and simply omit it, and 224 Opus/Sonnet sidecars predate
+`below_floor` and carry only `met_floor`. Anything reading shorts must fall back
+to `met_floor is False` for those — reading `below_floor` alone reports zero
+Sonnet shorts, which is wrong.
+
+**Battery citations.** Every citation resolves to a passing transcript for the
+right model, and every one is inside the 24-hour window: citation-to-document
+age ranges 0.01h to 20.41h. The protocol-version mix is expected and recorded
+honestly:
+
+| model | set | battery | protocol | docs |
+|---|---|---|---|---|
+| claude-fable-5 | evidence | `20260809T124738Z` | v3 | 112 |
+| claude-fable-5 | annex | `20260809T124738Z` | v3 | 11 |
+| claude-fable-5 | annex | `20260820T151439Z` | **v4** | 5 |
+| claude-opus-5 | evidence | `20260729T121729Z` | v2 | 84 |
+| claude-opus-5 | evidence | `20260729T190810Z` | v2 | 26 |
+| claude-opus-5 | evidence | `20260730T183650Z` | v3 | 2 |
+| claude-opus-5 | annex | `20260809T182908Z` | v3 | 9 |
+| claude-opus-5 | annex | `20260820T150623Z` | v3 | 7 |
+| claude-sonnet-5 | evidence | `20260729T220027Z` | v2 | 111 |
+| claude-sonnet-5 | evidence | `20260730T185436Z` | v3 | 1 |
+| claude-sonnet-5 | annex | `20260809T183004Z` | v3 | 11 |
+| claude-sonnet-5 | annex | `20260820T150704Z` | v3 | 5 |
+
+The 2026-08-20 annex octet ran under v3 batteries for Opus and Sonnet and a v4
+battery for Fable, because Fable's v3 probe A had just been refused by the
+safeguard (§6.4) and v4 is what let it pass. Mixed-protocol citation within one
+octet, expected, recorded. The Opus and Sonnet v2 evidence citations are older
+still — the shakedown corpus was generated before v3 existed. Protocol versions
+raised the standard of proof at each bump (`runs/isolation/README.md`), so an
+older citation is a weaker gate, not an invalid one; this is a known property of
+the shakedown corpus, not a new finding.
+
+**Contamination. Zero hits across all 384 documents.** Scanned with
+`generate.scan_contamination` over document text (not sidecars — sidecars carry
+`"format": "research-brief"`, which is itself a marker and would manufacture 24
+false hits). Effective marker set: 8 markers — the 6 committed ones, plus 2
+resolved at scan time from `~/.claude.json` (the account email and its local
+part, never printed and never written down). No `local-markers.txt` on this
+machine.
+
+**Word and continuation stats.**
+
+| model | set | docs | words | mean | stitched | stitch % | below floor |
+|---|---|---|---|---|---|---|---|
+| claude-fable-5 | evidence | 112 | 584,708 | 5,220 | 31 | 27.7% | 0 |
+| claude-fable-5 | annex | 16 | 13,677 | 854 | 0 | 0.0% | 0 |
+| claude-opus-5 | evidence | 112 | 717,150 | 6,403 | 3 | 2.7% | 0 |
+| claude-opus-5 | annex | 16 | 20,617 | 1,288 | 0 | 0.0% | 0 |
+| claude-sonnet-5 | evidence | 112 | 552,530 | 4,933 | 77 | 68.8% | **9** |
+| claude-sonnet-5 | annex | 16 | 7,861 | 491 | 0 | 0.0% | 0 |
+| **total** | | **384** | **1,896,543** | | **111** | | **9** |
+
+Sonnet's 9 shorts are the known ones from the old policy, retained per R7:
+`executive-summary-01` (4,355), `executive-summary-04` (4,345),
+`executive-summary-08` (3,867), `performance-review-01` (3,318),
+`performance-review-02` (4,122), `performance-review-05` (3,708),
+`performance-review-07` (3,720), `postmortem-06` (4,142), `sop-06` (4,004), all
+against a 4,500-word floor. Fable and Opus have none.
+
+**Freeze hash** over all 384 documents, same recipe as the 224-document
+`d827d5a5…` (sha256 over sorted `doc_id:sha256` lines, sha256 of raw file
+bytes):
+
+```
+ef89af247437136061e394aa2b707e2415011213fe01e57d77a8f22faac25c94
+```
+
+Short form `ef89af24`. Run directories for the 3-model sweep will carry it.
+
+### 6.7 Defect noticed, out of scope
+
+`runs/isolation/` contains `.DS_Store`. It is untracked and harmless, but the
+directory is committed evidence and a stray file there is one `git add` mistake
+away from the record. Worth a `.gitignore` line in the next dispatch that
+touches git config.

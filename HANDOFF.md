@@ -36,11 +36,24 @@ Core design commitments (Mark's non-negotiables — do not relitigate):
   exclusion-leak test — correct behavior).
 - **Registry**: v2, hash `fb8d584a9b5d`, 120 active tells + 1 deprecated (`rht.from-x-to-y`, R17)
   + 12 discovery candidates (status `candidate`) = 133 entries. NO promotions permitted until the 3-model corpus exists (§6 R12).
-- **Corpus (shakedown, LOCAL ONLY — untracked by discipline, never commit)**: 224 docs frozen —
-  claude-opus-5 112/112 (717,150 words, ~zero continuations), claude-sonnet-5 112/112 (552,530
-  words, 69% stitched via continuations, 9 below-floor accepted as shorts). Freeze hash
-  `d827d5a5c146480dc34c060dd5943f57943b438cdf0eeaea8d1fb6517e143e9d`.
-  **claude-fable-5: 0/112 — intentionally deferred to Mark's usage reset (cost).**
+- **Corpus (LOCAL ONLY — untracked by discipline, never commit): COMPLETE, 384 docs frozen.**
+  Three models × (112 evidence + 16 free-writing annex). 1,896,543 words total. Close-out
+  verification passed offline 2026-08-20 (SHAKEDOWN.md §6.6): zero `*.failed.json` markers, zero
+  hard sidecar anomalies, zero contamination hits across all 384 docs, every battery citation
+  passing and inside the 24h window.
+  - claude-opus-5 112 evidence (717,150 w, 2.7% stitched, 0 below-floor) + 16 annex (20,617 w)
+  - claude-sonnet-5 112 evidence (552,530 w, 68.8% stitched, **9 below-floor** retained per R7)
+    + 16 annex (7,861 w)
+  - claude-fable-5 112 evidence (584,708 w, 27.7% stitched, 0 below-floor, 72.3% first-turn
+    yield) + 16 annex (13,677 w) — generated 2026-08-09, annex closed 2026-08-20
+  - **Freeze hash `ef89af247437136061e394aa2b707e2415011213fe01e57d77a8f22faac25c94`**
+    (short `ef89af24`; supersedes the 224-doc `d827d5a5c146…`, same recipe).
+  - Battery-protocol mix is intentional and recorded: Fable evidence v3, Opus/Sonnet evidence
+    mostly v2 (predate v3), 2026-08-20 annex octet v3 for Opus/Sonnet and **v4 for Fable** (probe-A
+    safeguard collision — `runs/isolation/README.md`).
+  - Sidecar schema age: 335 evidence sidecars predate `exploratory`; 224 Opus/Sonnet sidecars
+    predate `below_floor` and carry only `met_floor`. Read shorts via `met_floor is False` for
+    those, or `below_floor` alone reports zero Sonnet shorts.
 - **Authoritative run**: `runs/20260804T210242Z-d827d5a5-369d107e` (supersedes 20260803T145220Z;
   recorded in `runs/README.md`). Judge sample n=60 stratified (seed 7), 7 judge tells, 0 skipped.
 - **Judge cache**: `cache/judge/` (~3,000 entries, gitignored, PERMANENT — lives only on this
@@ -133,7 +146,9 @@ DEVICE-RUNBOOK.md    sanitized-device setup/generate/score procedure.
    growing it. This unblocks: em-dash recalibrate-vs-saturation decision, absence-tells, AI-vs-
    human discovery axis.
 
-**Gated on Mark's usage reset:**
+**Item 4 is in progress — (a) rulings applied, (b) generation complete, (c) close-out verified;
+(d) the 3-model sweep is the NEXT dispatch. Caveat: (a) still carries two live sub-items — the
+0.90 calibration-gate re-pass for `rht.rule-of-three` and `scripts/rule_of_three_recall.py`.**
 
 4. **fable-phase** — In order: (a) rulings R16–R19 APPLIED 2026-08-09 (registry hash
    `369d107eef40` -> `fb8d584a9b5d`, 120 active tells; rht.rule-of-three rubric_version 2,
@@ -143,11 +158,14 @@ DEVICE-RUNBOOK.md    sanitized-device setup/generate/score procedure.
    spans, ~57 live calls) — both live, both in a separate dispatch; (b) launch Fable generation:
    `caffeinate -is python3 scratchpad-or-scripts/corpus_driver.py
    claude-fable-5` — driver takes models from argv, runs its own v3 battery first, skip logic
-   touches only Fable's 112 cells, M4e policy (2-continuation cap, shorts retained); NOTE the old
+   touches only Fable's 112 cells, M4e policy (2-continuation cap, shorts retained) — DONE 2026-08-09,
+   112/112, with two session-limit churn incidents and one caught model substitution, both written
+   up with defect recommendations in SHAKEDOWN.md §6.2–§6.3; NOTE the old
    driver script lived in a session scratchpad that gets wiped — if missing, regenerate it or run
    `python3 -m telltale verify-isolation --model claude-fable-5` then `caffeinate -is python3 -m
    telltale generate --models claude-fable-5` directly (equivalent); (c) close-out verification
-   (all cells, hashes, contamination scan incl. account email, battery citations); (d) full
+   DONE 2026-08-20 — 384/384 docs, freeze hash `ef89af24…`, zero contamination hits, zero hard
+   sidecar anomalies, all battery citations valid (SHAKEDOWN.md §6.6); **(d) NEXT — full**
    3-model Tier-1 + judge sweep (R19: stratified sample of 135, 45/model, seed 7; full ≈ 11k calls/37h
    at 5/min — less after rubric fixes), consistency audit, seam analysis; (e) re-verify all 12
    discovery candidates against 3 models (gate 3 with a real third model; "general" becomes
