@@ -491,6 +491,9 @@ def _top_tells(
 
 
 def _evidence_section(df: pd.DataFrame) -> list[str]:
+    # Both floors are statements about what the ranked claims rest on, and the
+    # atlas holds up no ranked claim, so it is not counted here.
+    df = scoring.tells_only(df)
     flags = scoring.min_evidence_flags(df)
     total = len(flags)
     flagged = flags[flags["flagged"]] if total else flags
@@ -538,6 +541,10 @@ def _evidence_section(df: pd.DataFrame) -> list[str]:
 
 
 def _dormant_section(df: pd.DataFrame, meta: Mapping[str, Any]) -> list[str]:
+    # "They stay in the index denominator" is false of an atlas entry, which is
+    # never in the denominator at all. Counting one here would make the sentence
+    # a lie about the number in front of it.
+    df = scoring.tells_only(df)
     dormant = scoring.dormant_tells(df)
     scored = sorted(df["tell_id"].unique().tolist())
     lines = ["## 5. Dormant tells", ""]

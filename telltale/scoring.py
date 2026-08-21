@@ -504,8 +504,9 @@ def dormant_tells(df: pd.DataFrame) -> list[str]:
 def is_atlas(df: pd.DataFrame) -> bool:
     """True when every row of this frame belongs to the atlas profile layer.
 
-    Read off the `status` column that detection already writes, so a frame
-    recovered from scores.jsonl classifies the same way the live one did.
+    Read off the `status` column that detection writes. scores.jsonl drops that
+    column to keep the file small, and the scorecard re-attaches it from the
+    manifest's tell metadata before calling anything here.
     """
     if df.empty or "status" not in df.columns:
         return False
@@ -517,6 +518,19 @@ def atlas_rows(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty or "status" not in df.columns:
         return df.iloc[0:0]
     return df[df["status"].astype(str) == ATLAS_STATUS]
+
+
+def tells_only(df: pd.DataFrame) -> pd.DataFrame:
+    """Everything but the atlas profile layer.
+
+    The counterpart of `atlas_rows`, for the places that talk *about* the index:
+    the evidence-floor accounting and the dormant-tell list are claims about
+    what the index rests on, and an atlas entry rests under nothing. Idempotent,
+    and a no-op on a frame that has no status column.
+    """
+    if df.empty or "status" not in df.columns:
+        return df
+    return df[df["status"].astype(str) != ATLAS_STATUS]
 
 
 def comparable(df: pd.DataFrame) -> pd.DataFrame:
@@ -1028,6 +1042,7 @@ __all__ = [
     "atlas_rows",
     "comparable",
     "is_atlas",
+    "tells_only",
     "detect_all",
     "dormant_tells",
     "indices",

@@ -364,3 +364,58 @@ def test_the_manifest_records_whether_the_atlas_was_measured(tmp_path: Path) -> 
     )
     assert manifest["registry"]["include_atlas"] is True
     assert manifest["registry"]["include_candidates"] is False
+
+
+# --- the scorecard's claims about the index ----------------------------------
+
+
+def test_the_whole_scorecard_is_unchanged_by_measuring_the_atlas(tmp_path: Path) -> None:
+    """End to end: two runs over one corpus, one with the atlas and one without.
+
+    The only line allowed to differ is the count of tells measured, which is a
+    fact about the run rather than a claim about the index. Sections 4 and 5 are
+    covered by this too: the evidence floors and the dormant list describe what
+    the ranked claims rest on, and the atlas holds up nothing.
+    """
+    from telltale import report
+
+    corpus = tmp_path / "corpus"
+    for model in ("m1", "m2"):
+        folder = corpus / model / "memo"
+        folder.mkdir(parents=True)
+        for index in range(9):
+            (folder / f"memo-{index:02d}.md").write_text(
+                f"# Memo {index}\n\nWe delve into the widget data, and it is "
+                f"crucial. {'However, the count is late. ' * (index % 3)}\n"
+                "Let us look at the numbers. The plan is fast, cheap, and fair.\n",
+                encoding="utf-8",
+            )
+
+    cards = {}
+    for name, flag in (("with", True), ("without", False)):
+        run_dir = report.score_run(
+            corpus_root=corpus,
+            registry_path=REGISTRY_PATH,
+            run_dir=tmp_path / name,
+            include_atlas=flag,
+            bootstrap_n=10,
+        )
+        cards[name] = [
+            line
+            for line in (run_dir / "scorecard.md").read_text(encoding="utf-8").splitlines()
+            if not line.startswith("| Tells scored |")
+        ]
+
+    assert cards["with"] == cards["without"]
+    # The atlas run measured more, and said so. Computed from the registry so
+    # this does not have to be edited every time a tell is added.
+    measured = len(
+        [
+            t
+            for t in REGISTRY.active_tells(include_atlas=True)
+            if t.method != "judge"
+        ]
+    )
+    assert f"| Tells scored | {measured} |" in (
+        (tmp_path / "with" / "scorecard.md").read_text(encoding="utf-8")
+    )
