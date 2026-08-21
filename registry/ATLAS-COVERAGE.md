@@ -2,7 +2,7 @@
 
 Checked 433 figure names from the Silva Rhetoricae index against the `atlas.*` registry family (69 entries).
 
-Audited 2026-08-21 against registry v4, content hash `c11d41efebf3`. Maintained by hand: an atlas entry added or renamed should be reflected here in the same commit.
+Audited 2026-08-21 against registry v5, content hash `bb93d958d499`. Maintained by hand: an atlas entry added or renamed should be reflected here in the same commit.
 
 | verdict | names | share |
 | --- | --- | --- |

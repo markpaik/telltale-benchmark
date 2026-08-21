@@ -1,4 +1,4 @@
-registry_version: 4
+registry_version: 5
 schema_version: 1
 updated: 2026-08-21
 atlas_deferred:
@@ -10422,10 +10422,11 @@ tells:
     pattern: \b(?:might|may|perhaps|possibly|arguably|roughly|somewhat|relatively|fairly|appears?\s+to|seems?\s+to|suggests?\s+that|to\s+some\s+extent)\b
     flags:
     - IGNORECASE
+    proper_noun_guard: true
   examples:
   - The drop may be a reporting artefact.
   counter_examples:
-  - The drop was a reporting artefact.
+  - The board met on May 3 and asked for the file.
   provenance:
     source: atlas-m9e
     added: '2026-08-21'
@@ -10433,7 +10434,7 @@ tells:
     evidence: literature
   status: atlas
   weight: 1.0
-  notes: 'Hyland interactional: commitment withheld, dialogue left open.'
+  notes: 'Hyland interactional: commitment withheld, dialogue left open. The proper-noun guard is load-bearing here: without it the month of May was 309 of 1,319 matches across the first 120 corpus documents. A sentence-initial "May" still counts, which is the guard''s known residual.'
 - id: atlas.md-self-mention
   name: 'metadiscourse: self mention'
   category: lexical

@@ -289,9 +289,10 @@ def _guard_registry(tmp_path: Path, detection: dict, **overrides) -> Registry:
 
 def test_proper_noun_guard_defaults_to_off(registry: Registry) -> None:
     unguarded = [t for t in registry if not t.proper_noun_guard]
-    # Twelve tells plus one atlas entry (atlas.hyperbole-marker, which collides
-    # with product names like "Infinite Campus") opt in.
-    assert len(unguarded) == len(list(registry)) - 13
+    # Twelve tells plus two atlas entries opt in: atlas.hyperbole-marker
+    # (product names like "Infinite Campus") and atlas.md-hedges (the month
+    # of May against the hedge "may").
+    assert len(unguarded) == len(list(registry)) - 14
 
 
 def test_proper_noun_guard_round_trips(tmp_path: Path) -> None:

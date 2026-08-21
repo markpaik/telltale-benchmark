@@ -419,3 +419,40 @@ def test_the_whole_scorecard_is_unchanged_by_measuring_the_atlas(tmp_path: Path)
     assert f"| Tells scored | {measured} |" in (
         (tmp_path / "with" / "scorecard.md").read_text(encoding="utf-8")
     )
+
+
+# --- the coverage audit stays true -------------------------------------------
+
+COVERAGE_PATH = REGISTRY_PATH.parent / "ATLAS-COVERAGE.md"
+
+
+def test_the_coverage_table_names_every_atlas_entry() -> None:
+    text = COVERAGE_PATH.read_text(encoding="utf-8")
+    for tell in ATLAS:
+        assert f"`{tell.id}`" in text, tell.id
+
+
+def test_the_coverage_table_agrees_with_the_registrys_deferred_list() -> None:
+    """The two files must not disagree about what we chose not to measure.
+
+    A qualified name ("chiasmus (grammatical, ...)") defers one sense of a
+    figure whose other sense is measured, so only bare names bind.
+    """
+    text = COVERAGE_PATH.read_text(encoding="utf-8")
+    rows = {}
+    for line in text.splitlines():
+        if not line.startswith("| ") or line.startswith("| ---"):
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        if len(cells) == 3 and cells[1] in {
+            "in-atlas",
+            "deferred-semantic",
+            "not-measurable",
+        }:
+            rows[cells[0]] = cells[1]
+    assert len(rows) > 400, "the verdict table did not parse"
+
+    declared = [n for n in (REGISTRY._raw.get("atlas_deferred") or []) if " (" not in n]
+    for name in declared:
+        if name in rows:
+            assert rows[name] == "deferred-semantic", name
