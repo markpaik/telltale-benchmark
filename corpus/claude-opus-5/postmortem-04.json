@@ -1,0 +1,53 @@
+{
+  "model_requested": "claude-opus-5",
+  "model_reported": "claude-opus-5",
+  "prompt_id": "postmortem-04",
+  "format": "postmortem",
+  "domain": "k12-education",
+  "prompt_sha256": "e5fe67644e67f987135e32e70b6f50638b9965b68f38dc9dae487eacbcb67514",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "timestamp": "2026-07-29T18:14:20.300770+00:00",
+  "words": 5142,
+  "target_words": 5000,
+  "min_words": 4500,
+  "met_floor": true,
+  "continuations": 0,
+  "continuation_boundaries": [],
+  "cli_version": "2.1.220 (Claude Code)",
+  "doc_sha256": "4034f691dc764adc3767d9f38b603862c0662edce2d2a5af39b0e1b6df2477c0",
+  "isolation_probe": "/Users/markpaik/Projects/benchmarks/opus5/runs/isolation/claude-opus-5-20260729T121729Z.json",
+  "session_id": "2f5a52a3-b7a7-4cac-842d-e93f55df47b6",
+  "usage": {
+    "input_tokens": 2,
+    "output_tokens": 12336,
+    "cache_input_tokens": 988
+  },
+  "model_usage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 1072,
+      "outputTokens": 19,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.001167,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty"
+    },
+    "claude-opus-5": {
+      "inputTokens": 2,
+      "outputTokens": 12336,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 988,
+      "webSearchRequests": 0,
+      "costUSD": 0.31829,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "canonicalModel": "claude-opus-5",
+      "provider": "firstParty"
+    }
+  },
+  "model_mismatch": false,
+  "notes": []
+}

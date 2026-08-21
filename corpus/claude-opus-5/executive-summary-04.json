@@ -1,0 +1,55 @@
+{
+  "model_requested": "claude-opus-5",
+  "model_reported": "claude-opus-5",
+  "prompt_id": "executive-summary-04",
+  "format": "executive-summary",
+  "domain": "healthcare",
+  "prompt_sha256": "cb6097e8d358d36815d1bd49521ffd4effe66fb0bd8ca3189fd74ac24edf3d0d",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "timestamp": "2026-07-29T14:41:00.105462+00:00",
+  "words": 6159,
+  "target_words": 5000,
+  "min_words": 4500,
+  "met_floor": true,
+  "continuations": 1,
+  "continuation_boundaries": [
+    28111
+  ],
+  "cli_version": "2.1.220 (Claude Code)",
+  "doc_sha256": "a08845ac8d9ba0f7259d7bfa56146ff4bf957a2c3e73e0eae5d4c97c50dbbd71",
+  "isolation_probe": "/Users/markpaik/Projects/benchmarks/opus5/runs/isolation/claude-opus-5-20260729T121729Z.json",
+  "session_id": "770ea197-b7b1-45f6-91d1-bff362c1e66b",
+  "usage": {
+    "input_tokens": 4,
+    "output_tokens": 18113,
+    "cache_input_tokens": 16381
+  },
+  "model_usage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 1036,
+      "outputTokens": 19,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.001131,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty"
+    },
+    "claude-opus-5": {
+      "inputTokens": 2,
+      "outputTokens": 3602,
+      "cacheReadInputTokens": 918,
+      "cacheCreationInputTokens": 14545,
+      "webSearchRequests": 0,
+      "costUSD": 0.23596899999999998,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "canonicalModel": "claude-opus-5",
+      "provider": "firstParty"
+    }
+  },
+  "model_mismatch": false,
+  "notes": []
+}

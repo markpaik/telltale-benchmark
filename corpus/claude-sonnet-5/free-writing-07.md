@@ -1,0 +1,15 @@
+# The Weight of Small Rooms
+
+The apartment on Delancey had a window that faced a brick wall, close enough that in summer you could hear the couple next door arguing about money, always money, never anything more interesting than that. I lived there for two years and told myself it was temporary, the way everyone tells themselves everything is temporary until it becomes the shape of a life.
+
+There was a radiator that clanked at 3 a.m. like something trying to get out. I used to lie awake and listen to it and think: this is what a body sounds like when it wants to be somewhere else. I never fixed it. I never called the landlord. I just learned its rhythm the way you learn a person's breathing when you've slept beside them long enough — not fondly, exactly, but with the particular intimacy of things you didn't choose.
+
+I think about that apartment more than I think about the ones that came after, the ones with light and space and views of something other than brick. There's a theory that we remember constraint better than comfort, that the mind files away the rooms where we had to make ourselves smaller to fit. I don't know if that's true. I know that I can still feel the exact place on the fire escape where the metal gave slightly under my weight, still smell the specific mustiness of the hallway carpet, still hear that radiator's three-beat clank like a code I never bothered to decipher.
+
+What I didn't understand then — what you can't understand while you're still inside a small room — is that the smallness wasn't a failure of circumstance. It was just where I was. The wall outside my window wasn't hiding a better view; it was the view. The couple's arguments about money weren't an interruption to some quieter life I was owed; they were the soundtrack of the only life happening, which was mine, in that room, at that time.
+
+I moved out on a Tuesday in March. The landlord's son helped me carry boxes down four flights and didn't say much, and neither did I. I remember looking back at the building from the sidewalk and feeling nothing in particular, which surprised me — I'd expected grief, or relief, or something with a name. Instead there was just the brick, the window, the fact of having lived somewhere and now not living there, a fact with no more weight than a sentence in the past tense.
+
+Sometimes I wonder if the radiator still clanks at 3 a.m. for whoever lives there now. If they lie awake and give it a different meaning, or no meaning at all, just noise, just pipes contracting in the cold the way pipes do, nothing to do with wanting or leaving or any of the stories I built around it. Probably that's closer to the truth. Probably I was just a person in a small room, making meaning out of the only materials available, because that's what the mind does when it's kept awake by something it can't fix and won't call anyone about.
+
+I don't miss it. But I keep it, the way you keep a stone from a place you'll never go back to — not because it's beautiful, but because your hand closed around it once, and some part of you is still that hand, still closing.

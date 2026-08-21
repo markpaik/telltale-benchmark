@@ -187,6 +187,9 @@ R3. Generation isolation: five layers + empirical probe battery (protocol v3: A 
     B verbatim-quote-tools, B2 invocation test, C behavior, D system-prompt) gates every batch.
 R4. Corpus conditions never silently mixed (system_prompt_sha + battery citation per sidecar).
 R5. Shakedown corpus is local-only; canonical corpus comes from the sanitized device.
+    SUPERSEDED 2026-08-21 (Mark): the dev-machine corpus (freeze ef89af24, battery-gated,
+    contamination-scanned clean) is committed to the repo; a sanitized-device corpus may
+    later replace it, distinguished by freeze hash and sidecar condition.
 R6. Fable generation deferred to Mark's reset (cost). Zero Fable cells consumed so far.
 R7. M4e: skip-on-exists; shorts retained (`below_floor`), never deleted; MAX_CONTINUATIONS=2
     for all future runs (under-delivery is data; hammering to floor manufactures seam artifacts).

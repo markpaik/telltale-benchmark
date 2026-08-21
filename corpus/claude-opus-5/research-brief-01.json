@@ -1,0 +1,53 @@
+{
+  "model_requested": "claude-opus-5",
+  "model_reported": "claude-opus-5",
+  "prompt_id": "research-brief-01",
+  "format": "research-brief",
+  "domain": "manufacturing",
+  "prompt_sha256": "7dbfd8edade3956134d55ba1076a63e4cb0ae5e095358a456a59d3b7e487b4f3",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "timestamp": "2026-07-29T19:28:07.506895+00:00",
+  "words": 6943,
+  "target_words": 5000,
+  "min_words": 4500,
+  "met_floor": true,
+  "continuations": 0,
+  "continuation_boundaries": [],
+  "cli_version": "2.1.220 (Claude Code)",
+  "doc_sha256": "f221253c1cf4a88a992d40e3e12db7a3ef3d26f4c76a74c842f34350e46f945a",
+  "isolation_probe": "/Users/markpaik/Projects/benchmarks/opus5/runs/isolation/claude-opus-5-20260729T190810Z.json",
+  "session_id": "fa91d0c0-83c6-4c08-89c3-e67f9951b266",
+  "usage": {
+    "input_tokens": 2,
+    "output_tokens": 14145,
+    "cache_input_tokens": 941
+  },
+  "model_usage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 1068,
+      "outputTokens": 22,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.001178,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty"
+    },
+    "claude-opus-5": {
+      "inputTokens": 2,
+      "outputTokens": 14145,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 941,
+      "webSearchRequests": 0,
+      "costUSD": 0.36304499999999995,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "canonicalModel": "claude-opus-5",
+      "provider": "firstParty"
+    }
+  },
+  "model_mismatch": false,
+  "notes": []
+}

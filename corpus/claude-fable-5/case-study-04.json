@@ -1,0 +1,55 @@
+{
+  "model_requested": "claude-fable-5",
+  "model_reported": "claude-fable-5",
+  "prompt_id": "case-study-04",
+  "format": "case-study",
+  "domain": "logistics",
+  "prompt_sha256": "fdebbed020eb6ad210297dd4961dd6d860baf6a9617d2995dbc2ecab508612e0",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "timestamp": "2026-08-09T13:29:03.215346+00:00",
+  "words": 5254,
+  "target_words": 5000,
+  "min_words": 4500,
+  "met_floor": true,
+  "below_floor": false,
+  "continuations": 0,
+  "max_continuations": 2,
+  "continuation_boundaries": [],
+  "cli_version": "2.1.226 (Claude Code)",
+  "doc_sha256": "d98cc3fd25b92f7e54aedcade1ed6f51bb3e7824fa47e56947a912cef43dfa21",
+  "isolation_probe": "/Users/markpaik/Projects/benchmarks/opus5/runs/isolation/claude-fable-5-20260809T124738Z.json",
+  "session_id": "208da788-61f0-4fc1-b333-b44eefdf708d",
+  "usage": {
+    "input_tokens": 2,
+    "output_tokens": 11337,
+    "cache_input_tokens": 951
+  },
+  "model_usage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 1065,
+      "outputTokens": 21,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.00117,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty"
+    },
+    "claude-fable-5": {
+      "inputTokens": 2,
+      "outputTokens": 11337,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 951,
+      "webSearchRequests": 0,
+      "costUSD": 0.58589,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "canonicalModel": "claude-fable-5",
+      "provider": "firstParty"
+    }
+  },
+  "model_mismatch": false,
+  "notes": []
+}

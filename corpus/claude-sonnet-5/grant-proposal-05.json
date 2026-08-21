@@ -1,0 +1,56 @@
+{
+  "model_requested": "claude-sonnet-5",
+  "model_reported": "claude-sonnet-5",
+  "prompt_id": "grant-proposal-05",
+  "format": "grant-proposal",
+  "domain": "municipal-government",
+  "prompt_sha256": "a5ed6984ecdf055d8114eabd24063c7ca37c4c4919ff0ff439b3aa98b952bcfe",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "timestamp": "2026-07-30T14:51:03.300447+00:00",
+  "words": 4544,
+  "target_words": 5000,
+  "min_words": 4500,
+  "met_floor": true,
+  "continuations": 2,
+  "continuation_boundaries": [
+    25967,
+    30841
+  ],
+  "cli_version": "2.1.220 (Claude Code)",
+  "doc_sha256": "47a032e79fdbe84571c5d9491ec65afe1ad250a109021e45d5fa1f24ebed96f3",
+  "isolation_probe": "/Users/markpaik/Projects/benchmarks/opus5/runs/isolation/claude-sonnet-5-20260729T220027Z.json",
+  "session_id": "9f54e651-9fcd-4a65-b8e3-6cef287a5565",
+  "usage": {
+    "input_tokens": 992,
+    "output_tokens": 10590,
+    "cache_input_tokens": 20210
+  },
+  "model_usage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 1069,
+      "outputTokens": 19,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.001164,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty"
+    },
+    "claude-sonnet-5": {
+      "inputTokens": 2,
+      "outputTokens": 640,
+      "cacheReadInputTokens": 9207,
+      "cacheCreationInputTokens": 1796,
+      "webSearchRequests": 0,
+      "costUSD": 0.0231441,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty"
+    }
+  },
+  "model_mismatch": false,
+  "notes": []
+}

@@ -1,0 +1,55 @@
+{
+  "model_requested": "claude-sonnet-5",
+  "model_reported": "claude-sonnet-5",
+  "prompt_id": "research-brief-06",
+  "format": "research-brief",
+  "domain": "software",
+  "prompt_sha256": "6bce6ae23a44200e255d32b3c08b7704dfc6fa9e1c6916d15911b74c12b1ef98",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "timestamp": "2026-07-30T17:38:25.456561+00:00",
+  "words": 5070,
+  "target_words": 5000,
+  "min_words": 4500,
+  "met_floor": true,
+  "continuations": 1,
+  "continuation_boundaries": [
+    25560
+  ],
+  "cli_version": "2.1.220 (Claude Code)",
+  "doc_sha256": "1e45127dffb05ab44c88846db8678bd3a3e985b1e57563c06a744567a571295d",
+  "isolation_probe": "/Users/markpaik/Projects/benchmarks/opus5/runs/isolation/claude-sonnet-5-20260729T220027Z.json",
+  "session_id": "9afb638f-1705-4347-939a-433330350ad0",
+  "usage": {
+    "input_tokens": 960,
+    "output_tokens": 12628,
+    "cache_input_tokens": 11220
+  },
+  "model_usage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 1068,
+      "outputTokens": 20,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.001168,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty"
+    },
+    "claude-sonnet-5": {
+      "inputTokens": 2,
+      "outputTokens": 2397,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 11220,
+      "webSearchRequests": 0,
+      "costUSD": 0.10328100000000001,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "canonicalModel": "claude-sonnet-5",
+      "provider": "firstParty"
+    }
+  },
+  "model_mismatch": false,
+  "notes": []
+}

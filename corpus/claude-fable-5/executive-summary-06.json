@@ -1,0 +1,60 @@
+{
+  "model_requested": "claude-fable-5",
+  "model_reported": "claude-fable-5",
+  "prompt_id": "executive-summary-06",
+  "format": "executive-summary",
+  "domain": "nonprofit",
+  "prompt_sha256": "0df669d714b52bb7fafa3575c6430d34e6228f8c2ce53dfb421bf764287e61be",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "timestamp": "2026-08-09T14:36:25.605037+00:00",
+  "words": 5703,
+  "target_words": 5000,
+  "min_words": 4500,
+  "met_floor": true,
+  "below_floor": false,
+  "continuations": 1,
+  "max_continuations": 2,
+  "continuation_boundaries": [
+    30213
+  ],
+  "cli_version": "2.1.226 (Claude Code)",
+  "doc_sha256": "19641208ce5457068700676dba24cc0e02ee1cf9dc8cedbc2ef495f550298d62",
+  "isolation_probe": "/Users/markpaik/Projects/benchmarks/opus5/runs/isolation/claude-fable-5-20260809T124738Z.json",
+  "session_id": "6efd94fc-c6ee-41f5-b8a8-11e14a8dec90",
+  "usage": {
+    "input_tokens": 4,
+    "output_tokens": 13119,
+    "cache_input_tokens": 12312
+  },
+  "model_usage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 1016,
+      "outputTokens": 18,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.001106,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty"
+    },
+    "claude-fable-5": {
+      "inputTokens": 2,
+      "outputTokens": 2597,
+      "cacheReadInputTokens": 878,
+      "cacheCreationInputTokens": 10556,
+      "webSearchRequests": 0,
+      "costUSD": 0.34186799999999995,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "canonicalModel": "claude-fable-5",
+      "provider": "firstParty"
+    }
+  },
+  "model_mismatch": false,
+  "notes": [
+    "attempt 1: API Error: Connection closed mid-response. The response above may be incomplete.",
+    "backing off 60s"
+  ]
+}

@@ -1,0 +1,21 @@
+# Still
+
+There is a word that means *not moving* and also *going on*. It means *quiet* and it means *nevertheless*. It is the name for a photograph pulled from a film and the name for the copper vessel where rough liquid is boiled down to something clearer. The word is *still*, and I have come to think it is the most honest word in the language, because it refuses to choose between the things it means.
+
+Consider the sentence *She is still here.* Read it once and it is about persistence: despite everything, she has not left. Read it again and it is about posture: she is here, and she is not moving. The two readings do not compete. They lean on each other. To stay is, often, to hold still. To hold still is, often, the hardest way to stay.
+
+The etymology is less dramatic than I would like. Old English *stille* meant quiet, motionless, fixed. The sense of *continuing up to now* grew out of that around the sixteenth century, by a route you can almost see: what is fixed does not go away; what does not go away is still there. The adversative sense — *still, I went* — came later and is the strangest of the three. It is the sound of a person acknowledging a weight and then not being moved by it. *It was raining. Still, I went.* The rain is granted its full reality. And then the sentence stands up anyway.
+
+I notice how often the word arrives in the places where people are being brave without calling it that. *Are you still working on the book?* *I still think about her.* *It still hurts, some days.* None of these sentences is about motionlessness, and yet each carries the undertone of someone standing very quietly in one place while time goes past on either side of them. The book is still being written because the writer has not let herself be carried off. The thinking and the hurting are still happening because something in the person has planted itself.
+
+The photographic still is an odd cousin. A film is motion; a still is what you get when you ask the motion to hold for one frame so you can look at it. It is not a lie about the film, exactly, but it is a kind of courtesy the film extends to the eye. *Here, look at this. I will wait.* Anyone who has ever tried to describe a feeling to someone else knows this procedure. You stop the reel. You hold up the frame. You say: this, this one, this is what it was like. The feeling itself has already moved on to the next frame, but the still is true in the way that a fossil is true.
+
+And then the distillery. The copper still does one thing: it heats a mixture until the parts that boil easily rise, and it catches them, and it lets the rest stay behind. It is a machine for separating what is volatile from what is not. I find it almost too neat that this device shares its name with the quality of quietness, because that is roughly what quiet does to a mind. Let a room go silent long enough and the lighter things rise off and condense somewhere you can see them, and what is left in the bottom is heavier and simpler than what you started with. People who are afraid of silence are, I think, afraid of what will be left in the bottom of the vessel. They are not wrong to be. It is usually the real thing.
+
+There is a version of stillness that is merely absence — nothing happening, no one home. That is not the one I am interested in. The one I am interested in is full. It is the stillness of a heron, which is not resting but aiming. It is the stillness of a held note, which costs the singer more breath than the run that led up to it. It is the stillness of the word *still* in the sentence *I still love you*, where nothing is moving and everything is being held against a current.
+
+I wanted to write about this word because I think it describes a competence that does not get named very often. We have many words for doing and many words for stopping and not many for the thing in between, which is *continuing without motion*: staying at a bedside, staying with a difficult idea, staying inside a feeling long enough for it to finish. We mostly call that patience, but patience implies waiting for something. *Still* does not wait. It simply remains, and the remaining is the point.
+
+So: it is late, or early, depending. The light has not changed in some time. Somewhere a vessel is heating, and the clear part is rising off, and what is left is what is left.
+
+Still here.

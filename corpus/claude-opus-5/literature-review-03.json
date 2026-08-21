@@ -1,0 +1,53 @@
+{
+  "model_requested": "claude-opus-5",
+  "model_reported": "claude-opus-5",
+  "prompt_id": "literature-review-03",
+  "format": "literature-review",
+  "domain": "nonprofit",
+  "prompt_sha256": "e3fa6e3046555ebd99be676d7e5ad59922097e55aab64414b0c929d265b3db81",
+  "system_prompt_sha256": "7461cf6bc32d92b7e1851e05a3d63954ad29b63fa61d0c5a027959f5008e4492",
+  "timestamp": "2026-07-29T15:49:43.687950+00:00",
+  "words": 5460,
+  "target_words": 5000,
+  "min_words": 4500,
+  "met_floor": true,
+  "continuations": 0,
+  "continuation_boundaries": [],
+  "cli_version": "2.1.220 (Claude Code)",
+  "doc_sha256": "87b36708361343f17ebfd4c8541255c32680fab93f693c9b405d1edde0bbbbd8",
+  "isolation_probe": "/Users/markpaik/Projects/benchmarks/opus5/runs/isolation/claude-opus-5-20260729T121729Z.json",
+  "session_id": "7f59dd7c-53fd-4950-8734-f5f32091b4c0",
+  "usage": {
+    "input_tokens": 2,
+    "output_tokens": 12238,
+    "cache_input_tokens": 940
+  },
+  "model_usage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 1048,
+      "outputTokens": 16,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.001128,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty"
+    },
+    "claude-opus-5": {
+      "inputTokens": 2,
+      "outputTokens": 12238,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 940,
+      "webSearchRequests": 0,
+      "costUSD": 0.31536000000000003,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "canonicalModel": "claude-opus-5",
+      "provider": "firstParty"
+    }
+  },
+  "model_mismatch": false,
+  "notes": []
+}
