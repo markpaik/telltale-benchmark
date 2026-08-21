@@ -811,3 +811,367 @@ def sentence_opener_diversity(doc: "Doc") -> float:
         return NAN
     openers = [_first_word(s).lower() for s in sentences]
     return len(set(openers)) / len(openers)
+
+
+# --- atlas: figure statistics ------------------------------------------------
+#
+# These back the `atlas.*` profile layer (M9e). They measure how often a
+# classical figure's *surface form* appears; none of them is scored, and none
+# carries a direction, because the atlas reports frequency and makes no claim
+# that more of a figure is worse writing.
+#
+# Two of them are deliberately orthographic rather than phonetic
+# (`assonance_pair_share`, `homoioteleuton_pair_share`): a real assonance
+# measure needs a pronunciation dictionary, and spelling is a documented
+# approximation of it, not a stand-in that pretends otherwise.
+
+#: Below this many eligible word pairs, a sound-repetition share is noise.
+MIN_SOUND_PAIRS = 50
+#: Below this many word trigrams, a repeat share is noise.
+MIN_TRIGRAMS = 100
+#: Words too common to count as a repeated *term* when a figure is defined by
+#: one word coming back. Not a general stop list: it is short on purpose, and
+#: every entry is a function word that repeats for grammatical reasons.
+_FUNCTION_WORDS = frozenset(
+    """a an and are as at be been but by for from had has have he her his i if in is it
+    its of on or our she that the their them there they this to was we were will with
+    you your""".split()
+)
+
+_VOWEL_GROUP = re.compile(r"[aeiou]+")
+
+
+def _sentence_words(sentences: list[str]) -> list[list[str]]:
+    return [[t.lower() for t in _tokens(s)] for s in sentences]
+
+
+def _adjacent_word_pairs(doc: "Doc", min_len: int) -> list[tuple[str, str]]:
+    """Adjacent alphabetic word pairs inside a sentence, both at least `min_len`.
+
+    Pairs never straddle a sentence boundary: sound repetition across a full
+    stop is not what any of the sound figures mean.
+    """
+    pairs: list[tuple[str, str]] = []
+    for words in _sentence_words(split_sentences(doc.plain)):
+        eligible = [w for w in words if w.isalpha() and len(w) >= min_len]
+        pairs.extend(zip(eligible, eligible[1:]))
+    return pairs
+
+
+@stat("alliteration_pair_share")
+def alliteration_pair_share(doc: "Doc") -> float:
+    """% of adjacent 4+ letter word pairs that share a first letter.
+
+    NaN under 50 eligible pairs.
+    """
+    pairs = _adjacent_word_pairs(doc, 4)
+    if len(pairs) < MIN_SOUND_PAIRS:
+        return NAN
+    hits = sum(1 for a, b in pairs if a[0] == b[0])
+    return 100.0 * hits / len(pairs)
+
+
+@stat("assonance_pair_share")
+def assonance_pair_share(doc: "Doc") -> float:
+    """% of adjacent 4+ letter word pairs whose first vowel group matches.
+
+    Orthographic, not phonetic: "meet"/"beat" do not match here and "tour"/"our"
+    do. NaN under 50 eligible pairs.
+    """
+    pairs = _adjacent_word_pairs(doc, 4)
+    if len(pairs) < MIN_SOUND_PAIRS:
+        return NAN
+    hits = 0
+    for first, second in pairs:
+        a = _VOWEL_GROUP.search(first)
+        b = _VOWEL_GROUP.search(second)
+        if a is not None and b is not None and a.group(0) == b.group(0):
+            hits += 1
+    return 100.0 * hits / len(pairs)
+
+
+@stat("homoioteleuton_pair_share")
+def homoioteleuton_pair_share(doc: "Doc") -> float:
+    """% of adjacent 5+ letter word pairs ending in the same three letters.
+
+    The surface form of like endings ("-ation" next to "-ation"). NaN under 50
+    eligible pairs.
+    """
+    pairs = _adjacent_word_pairs(doc, 5)
+    if len(pairs) < MIN_SOUND_PAIRS:
+        return NAN
+    hits = sum(1 for a, b in pairs if a[-3:] == b[-3:])
+    return 100.0 * hits / len(pairs)
+
+
+@stat("anaphora_run_share")
+def anaphora_run_share(doc: "Doc") -> float:
+    """% of sentences sitting in a run that repeats one opening word.
+
+    Distinct from `anaphora_share`, which counts adjacent pairs on two words.
+    This one is run-based and single-word, so "We will. We must. We can." counts
+    all three sentences. NaN under 10 sentences.
+    """
+    sentences = split_sentences(doc.plain)
+    if len(sentences) < MIN_SENTENCES:
+        return NAN
+    openers = [_first_word(s).lower() for s in sentences]
+    return 100.0 * _in_run_count(openers) / len(openers)
+
+
+@stat("epistrophe_run_share")
+def epistrophe_run_share(doc: "Doc") -> float:
+    """% of sentences sitting in a run that repeats one closing word.
+
+    NaN under 10 sentences.
+    """
+    sentences = split_sentences(doc.plain)
+    if len(sentences) < MIN_SENTENCES:
+        return NAN
+    closers = [_last_word(s).lower() for s in sentences]
+    return 100.0 * _in_run_count(closers) / len(closers)
+
+
+def _in_run_count(values: list[str]) -> int:
+    """How many items sit in a run of 2+ equal, non-empty neighbours."""
+    total = 0
+    run = 1
+    for previous, current in zip(values, values[1:]):
+        if current and current == previous:
+            run += 1
+            continue
+        if run >= 2:
+            total += run
+        run = 1
+    if run >= 2:
+        total += run
+    return total
+
+
+def _last_word(sentence: str) -> str:
+    tokens = _tokens(sentence)
+    return tokens[-1] if tokens else ""
+
+
+@stat("symploce_share")
+def symploce_share(doc: "Doc") -> float:
+    """% of adjacent sentence pairs repeating *both* the first and last word.
+
+    Symploce is anaphora and epistrophe at once, so it is measured on the pair
+    rather than on the run. NaN under 10 sentences.
+    """
+    sentences = split_sentences(doc.plain)
+    if len(sentences) < MIN_SENTENCES:
+        return NAN
+    ends = [(_first_word(s).lower(), _last_word(s).lower()) for s in sentences]
+    pairs = len(ends) - 1
+    hits = sum(
+        1
+        for a, b in zip(ends, ends[1:])
+        if a[0] and a[1] and a == b
+    )
+    return 100.0 * hits / pairs
+
+
+@stat("anadiplosis_share")
+def anadiplosis_share(doc: "Doc") -> float:
+    """% of adjacent sentence pairs where one ends on the word the next opens with.
+
+    The closing word must be a content word of 4+ letters, so "…of the plan. The
+    plan…" counts and "…of the team. The team…" counts but "…and so on. So we…"
+    does not. The opening window is the first three words, because "The plan
+    then went…" is the same figure as "Plan then went…". NaN under 10 sentences.
+    """
+    sentences = split_sentences(doc.plain)
+    if len(sentences) < MIN_SENTENCES:
+        return NAN
+    words = _sentence_words(sentences)
+    pairs = len(words) - 1
+    hits = 0
+    for current, following in zip(words, words[1:]):
+        if not current or not following:
+            continue
+        tail = current[-1]
+        if len(tail) < 4 or tail in _FUNCTION_WORDS:
+            continue
+        if tail in following[:3]:
+            hits += 1
+    return 100.0 * hits / pairs
+
+
+@stat("epanalepsis_share")
+def epanalepsis_share(doc: "Doc") -> float:
+    """% of sentences that open and close on the same content word.
+
+    NaN under 10 sentences.
+    """
+    sentences = split_sentences(doc.plain)
+    if len(sentences) < MIN_SENTENCES:
+        return NAN
+    hits = 0
+    for words in _sentence_words(sentences):
+        if len(words) < 3:
+            continue
+        if words[0] == words[-1] and len(words[0]) >= 3 and words[0] not in _FUNCTION_WORDS:
+            hits += 1
+    return 100.0 * hits / len(sentences)
+
+
+@stat("isocolon_share")
+def isocolon_share(doc: "Doc") -> float:
+    """% of adjacent sentence pairs of near-equal length (within one word).
+
+    Length parallelism is the measurable half of isocolon; the grammatical
+    parallelism it also requires is not visible without a parser, so this reads
+    high and is a profile number, not a verdict. Both sentences must carry at
+    least four words. NaN under 10 sentences.
+    """
+    lengths = _sentence_lengths(doc)
+    if len(lengths) < MIN_SENTENCES:
+        return NAN
+    pairs = len(lengths) - 1
+    hits = sum(
+        1 for a, b in zip(lengths, lengths[1:]) if a >= 4 and b >= 4 and abs(a - b) <= 1
+    )
+    return 100.0 * hits / pairs
+
+
+@stat("interrogative_share")
+def interrogative_share(doc: "Doc") -> float:
+    """% of sentences that are questions. NaN under 10 sentences."""
+    sentences = split_sentences(doc.plain)
+    if len(sentences) < MIN_SENTENCES:
+        return NAN
+    return 100.0 * sum(1 for s in sentences if s.rstrip().endswith("?")) / len(sentences)
+
+
+@stat("hypophora_per_1k")
+def hypophora_per_1k(doc: "Doc") -> float:
+    """Answered questions per 1k words: question, then an answer in the same paragraph.
+
+    "Answered" is positional, not semantic: the question is followed inside its
+    paragraph by a sentence that is not itself a question. Reported as a rate
+    rather than as a share of questions, because the share is nearly always
+    100% — a writer who asks a question in a paragraph almost always writes a
+    next sentence — and a number that never varies profiles nothing. NaN only
+    for an empty document.
+    """
+    answered = 0
+    for paragraph in split_paragraphs(doc.plain):
+        sentences = split_sentences(paragraph)
+        for index, sentence in enumerate(sentences):
+            if not sentence.rstrip().endswith("?"):
+                continue
+            following = sentences[index + 1] if index + 1 < len(sentences) else None
+            if following is not None and not following.rstrip().endswith("?"):
+                answered += 1
+    return _per_1k(answered, doc.words)
+
+
+@stat("question_run_share")
+def question_run_share(doc: "Doc") -> float:
+    """% of questions that sit next to another question (pysma).
+
+    NaN when the document asks nothing.
+    """
+    sentences = split_sentences(doc.plain)
+    flags = [s.rstrip().endswith("?") for s in sentences]
+    asked = sum(flags)
+    if asked == 0:
+        return NAN
+    in_run = 0
+    for index, is_question in enumerate(flags):
+        if not is_question:
+            continue
+        before = index > 0 and flags[index - 1]
+        after = index + 1 < len(flags) and flags[index + 1]
+        if before or after:
+            in_run += 1
+    return 100.0 * in_run / asked
+
+
+@stat("sentence_initial_conjunction_share")
+def sentence_initial_conjunction_share(doc: "Doc") -> float:
+    """% of sentences opening on a coordinating conjunction. NaN under 10 sentences."""
+    sentences = split_sentences(doc.plain)
+    if len(sentences) < MIN_SENTENCES:
+        return NAN
+    openers = {"and", "but", "or", "nor", "so", "yet", "for"}
+    hits = sum(1 for s in sentences if _first_word(s).lower() in openers)
+    return 100.0 * hits / len(sentences)
+
+
+@stat("trigram_repeat_share")
+def trigram_repeat_share(doc: "Doc") -> float:
+    """% of word trigrams that occur more than once in the document.
+
+    The surface trace of epimone — a phrase brought back as a refrain — and also
+    of ordinary terminology, so it is a profile number rather than a figure
+    count. NaN under 100 trigrams.
+    """
+    tokens = [t.lower() for t in _tokens(doc.plain)]
+    if len(tokens) < MIN_TRIGRAMS + 2:
+        return NAN
+    trigrams = list(zip(tokens, tokens[1:], tokens[2:]))
+    counts: dict[tuple[str, str, str], int] = {}
+    for gram in trigrams:
+        counts[gram] = counts.get(gram, 0) + 1
+    repeated = sum(n for n in counts.values() if n > 1)
+    return 100.0 * repeated / len(trigrams)
+
+
+@stat("paragraph_anaphora_share")
+def paragraph_anaphora_share(doc: "Doc") -> float:
+    """% of adjacent paragraph pairs that open on the same word.
+
+    NaN under 3 paragraphs.
+    """
+    paragraphs = split_paragraphs(doc.plain)
+    if len(paragraphs) < MIN_PARAGRAPHS:
+        return NAN
+    openers = [_first_word(p).lower() for p in paragraphs]
+    pairs = len(openers) - 1
+    hits = sum(1 for a, b in zip(openers, openers[1:]) if a and a == b)
+    return 100.0 * hits / pairs
+
+
+@stat("bullet_anaphora_share")
+def bullet_anaphora_share(doc: "Doc") -> float:
+    """% of adjacent bullet-item pairs inside one list that open on the same word.
+
+    Pairs never cross a list boundary. NaN when the document has no list with at
+    least two items.
+    """
+    pairs = 0
+    hits = 0
+    current: list[str] = []
+    lists: list[list[str]] = []
+    blanks = 0
+    for line in doc.text.split("\n"):
+        match = _BULLET_LINE.match(line)
+        if match:
+            current.append(_first_word(line[match.end():]).lower())
+            blanks = 0
+            continue
+        # One blank line inside a list is the loose-list style, two ends it —
+        # the same tolerance `_bullet_runs` uses, so the two agree on where a
+        # list stops.
+        if not line.strip():
+            blanks += 1
+            if blanks > 1 and current:
+                lists.append(current)
+                current = []
+            continue
+        if current:
+            lists.append(current)
+            current = []
+    if current:
+        lists.append(current)
+    for items in lists:
+        for a, b in zip(items, items[1:]):
+            pairs += 1
+            if a and a == b:
+                hits += 1
+    if pairs == 0:
+        return NAN
+    return 100.0 * hits / pairs

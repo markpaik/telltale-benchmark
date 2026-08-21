@@ -1,4 +1,4 @@
-"""Text utilities and the 18 registered statistics.
+"""Text utilities and the 34 registered statistics.
 
 Every expected value here is worked out by hand from a small fixture and written
 as arithmetic, not as a number copied back out of the implementation.
@@ -307,8 +307,9 @@ def test_word_count_treats_hyphens_as_joiners_only(text: str, expected: int) -> 
 # --- stat registry -----------------------------------------------------------
 
 
-def test_eighteen_stats_are_registered() -> None:
-    assert len(ts.STATS) == 18
+def test_thirty_four_stats_are_registered() -> None:
+    """18 for the tells, 16 for the atlas profile layer."""
+    assert len(ts.STATS) == 34
     assert all(callable(fn) for fn in ts.STATS.values())
 
 

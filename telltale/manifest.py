@@ -59,6 +59,7 @@ def build_manifest(
     corpus_root: Path,
     judge_skipped: Sequence[str],
     include_candidates: bool = False,
+    include_atlas: bool = False,
     cli_args: Sequence[str] | None = None,
     bootstrap: dict[str, Any] | None = None,
     now: datetime.datetime | None = None,
@@ -98,6 +99,7 @@ def build_manifest(
             "n_active": len(registry.active_tells()),
             "n_scored": len(scored_tells),
             "include_candidates": bool(include_candidates),
+            "include_atlas": bool(include_atlas),
             "judge_skipped": len(judge_skipped),
             "judge_skipped_ids": sorted(judge_skipped),
             "tells": scoring.tell_meta(scored_tells),
@@ -269,6 +271,10 @@ def verify(run_dir: Path) -> VerifyResult:
             registry_path=registry_path,
             run_dir=replay,
             include_candidates=bool(manifest["registry"].get("include_candidates", False)),
+            # Replayed like include_candidates: the set of entries a run scored
+            # is part of the recipe, and a replay that quietly dropped the atlas
+            # would re-derive a different scores.jsonl and call it a mismatch.
+            include_atlas=bool(manifest["registry"].get("include_atlas", False)),
             cli_args=list(manifest.get("cli_args") or []),
             run_id=manifest.get("run_id"),
             # The replicate count and seed are part of the recipe: a scorecard

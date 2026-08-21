@@ -18,7 +18,13 @@ CATEGORIES = {"lexical", "punctuation", "syntactic", "structural", "statistical"
 # latter as "model:<model-id>", e.g. "model:claude-opus-5".
 SCOPES = {"general"}
 MODEL_SCOPE_PATTERN = re.compile(r"^model:[a-z0-9][a-z0-9.-]*$")
-STATUSES = {"active", "candidate", "deprecated"}
+# "atlas" is the profile layer (M9e): a device inventory measured for frequency
+# only. Atlas entries are validated and detected like any other entry, but they
+# are not tells — they carry no ramp, they score NaN, and every aggregate that
+# rolls tells up filters on status == "active", so they cannot reach the
+# AI-Tell Index or a category rollup until one is individually promoted.
+STATUSES = {"active", "candidate", "deprecated", "atlas"}
+ATLAS_STATUS = "atlas"
 METHODS = {"regex", "statistic", "judge"}
 UNITS = {"count", "binary", "value"}
 DIRECTIONS = {"high_is_telling", "low_is_telling"}
@@ -35,7 +41,10 @@ PREFIX_CATEGORY = {
     "sta": "statistical",
 }
 
-ID_PATTERN = re.compile(r"^(lex|phr|crt|cl|pnc|rht|str|sta)\.[a-z0-9-]+$")
+# "atlas" is the only prefix with no PREFIX_CATEGORY entry: the atlas spans
+# every category (alliteration is lexical, tricolon is structural), so the id
+# names the device and the `category` field carries the classification.
+ID_PATTERN = re.compile(r"^(lex|phr|crt|cl|pnc|rht|str|sta|atlas)\.[a-z0-9-]+$")
 
 FLAG_MAP = {
     "IGNORECASE": re.IGNORECASE,
@@ -259,9 +268,24 @@ class Registry:
         canonical = "\n".join(line.strip() for line in dumped.splitlines()).strip()
         return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
-    def active_tells(self, include_candidates: bool = False) -> list[Tell]:
+    def active_tells(
+        self, include_candidates: bool = False, include_atlas: bool = False
+    ) -> list[Tell]:
+        """The entries a run measures.
+
+        `include_atlas` adds the profile layer. It is off by default and
+        separate from `include_candidates` on purpose: a candidate is a tell
+        that has not been promoted yet, an atlas entry is not a tell at all, so
+        a run that wants one should not silently get the other.
+        """
         wanted = {"active", "candidate"} if include_candidates else {"active"}
+        if include_atlas:
+            wanted = wanted | {ATLAS_STATUS}
         return [t for t in self._tells if t.status in wanted]
+
+    def atlas_tells(self) -> list[Tell]:
+        """The profile layer alone, in registry order."""
+        return [t for t in self._tells if t.status == ATLAS_STATUS]
 
     def get(self, tell_id: str) -> Tell:
         for tell in self._tells:
@@ -316,7 +340,17 @@ class Registry:
 
             errors.extend(self._validate_detection(tell, tid, stats))
 
-            if tell.unit == "value":
+            if tell.unit == "value" and tell.status == ATLAS_STATUS:
+                # An atlas entry reports a number, it does not judge one. A ramp
+                # is the encoding of "more of this is worse", which is exactly
+                # the claim the profile layer does not make; requiring its
+                # absence also means promoting an atlas statistic to a tell
+                # fails validation until someone supplies a real ramp.
+                if tell.direction is not None:
+                    errors.append(f"{tid}: atlas entries carry no direction")
+                if tell.ramp is not None:
+                    errors.append(f"{tid}: atlas entries carry no ramp")
+            elif tell.unit == "value":
                 if tell.direction is None:
                     errors.append(f"{tid}: value unit requires direction")
                 elif tell.direction not in DIRECTIONS:

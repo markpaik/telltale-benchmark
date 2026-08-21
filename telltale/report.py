@@ -938,6 +938,7 @@ def score_run(
     out_root: Path | None = None,
     run_dir: Path | None = None,
     include_candidates: bool = False,
+    include_atlas: bool = False,
     cli_args: Sequence[str] | None = None,
     bootstrap_n: int = 1000,
     seed: int = 7,
@@ -971,7 +972,9 @@ def score_run(
     corpus_root = Path(corpus_root)
     registry = Registry(Path(registry_path))
     docs = load_corpus(corpus_root)
-    tells = registry.active_tells(include_candidates=include_candidates)
+    tells = registry.active_tells(
+        include_candidates=include_candidates, include_atlas=include_atlas
+    )
 
     backend, tells, judge_section = _judge_setup(
         judge=judge,
@@ -1058,6 +1061,7 @@ def score_run(
         corpus_root=corpus_root,
         judge_skipped=judge_skipped,
         include_candidates=include_candidates,
+        include_atlas=include_atlas,
         cli_args=cli_args,
         bootstrap={
             "n": bootstrap_n,

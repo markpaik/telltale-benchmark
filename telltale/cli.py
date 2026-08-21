@@ -267,6 +267,7 @@ def cmd_score(args: argparse.Namespace) -> int:
         registry_path=args.registry,
         out_root=args.out,
         include_candidates=args.include_candidates,
+        include_atlas=args.include_atlas,
         cli_args=sys.argv[1:],
         bootstrap_n=args.bootstrap,
         seed=args.seed,
@@ -432,6 +433,11 @@ def _add_score_parser(subparsers: argparse._SubParsersAction) -> None:
         "--include-candidates",
         action="store_true",
         help="also detect candidate tells (they are reported but stay out of the index)",
+    )
+    parser.add_argument(
+        "--include-atlas",
+        action="store_true",
+        help="also measure the atlas profile layer (frequency only; never scored)",
     )
     parser.add_argument("--bootstrap", type=int, default=1000, help="bootstrap replicates")
     parser.add_argument("--seed", type=int, default=7)

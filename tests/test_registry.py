@@ -289,7 +289,9 @@ def _guard_registry(tmp_path: Path, detection: dict, **overrides) -> Registry:
 
 def test_proper_noun_guard_defaults_to_off(registry: Registry) -> None:
     unguarded = [t for t in registry if not t.proper_noun_guard]
-    assert len(unguarded) == len(list(registry)) - 12
+    # Twelve tells plus one atlas entry (atlas.hyperbole-marker, which collides
+    # with product names like "Infinite Campus") opt in.
+    assert len(unguarded) == len(list(registry)) - 13
 
 
 def test_proper_noun_guard_round_trips(tmp_path: Path) -> None:
@@ -564,7 +566,8 @@ def test_known_stats_matches_the_textstats_registry() -> None:
     from telltale.textstats import STATS
 
     assert known_stats() == set(STATS)
-    assert len(known_stats()) == 18
+    # 18 tell statistics plus the 16 the atlas profile layer added.
+    assert len(known_stats()) == 34
 
 
 def test_every_statistic_tell_in_the_real_registry_resolves(registry: Registry) -> None:

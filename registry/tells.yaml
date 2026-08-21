@@ -1,6 +1,39 @@
-registry_version: 3
+registry_version: 4
 schema_version: 1
-updated: 2026-08-20
+updated: 2026-08-21
+atlas_deferred:
+- allegory
+- anacoluthon
+- antanaclasis
+- antonomasia
+- apostrophe (address to the absent)
+- catachresis
+- chiasmus (grammatical, without word repetition)
+- climax (gradatio)
+- conduplicatio
+- ellipsis (grammatical omission)
+- enthymeme
+- epithet
+- euphemismus
+- hendiadys
+- hyperbaton
+- hypotyposis (enargia)
+- irony
+- metaphor
+- metonymy
+- oxymoron
+- paradox
+- paronomasia (pun)
+- personification (prosopopoeia)
+- polyptoton
+- sententia (aphorism)
+- sermocinatio (invented speech)
+- syllepsis
+- synecdoche
+- synonymia
+- tapinosis (belittling)
+- tmesis
+- zeugma
 tells:
 - id: lex.delve
   name: delve
@@ -9409,3 +9442,1535 @@ tells:
   status: candidate
   weight: 1.0
   notes: Claude-sonnet-5 frequently packs multiple distinct, detail-laden actions into a single sentence governed by one grammatical subject, creating dense compound-predicate constructions that often exceed 50 words. The contrast model tends to break such multi-action sequences into separate sentences or uses simpler constructions with compound objects rather than compound predicates.
+- id: atlas.adhortatio
+  name: hortative appeal (adhortatio)
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:let(?:'|\u2019)?s|let us)\b(?!\s+know\b)
+    flags:
+    - IGNORECASE
+  examples:
+  - Let us look at the numbers before anyone commits.
+  - Let's keep the pilot small this year.
+  counter_examples:
+  - Please let us know if the date changes.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Exhortation to joint action. The 'let us know' request is excluded.
+- id: atlas.alliteration
+  name: alliteration
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: alliteration_pair_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Adjacent 4+ letter words sharing a first letter. Orthographic, so 'know'/'no' do not pair and 'city'/'cent' do.
+- id: atlas.anadiplosis
+  name: anadiplosis
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: anadiplosis_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: A sentence ending on the content word the next sentence opens with. Gradatio (a chain of these) is deferred.
+- id: atlas.anaphora
+  name: anaphora
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: anaphora_run_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Runs of sentences opening on the same word. The tell `rht.anaphora` measures adjacent pairs on two words; this is the run-based, single-word form.
+- id: atlas.anaphora-paragraph
+  name: anaphora (paragraph level)
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: paragraph_anaphora_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Adjacent paragraphs opening on the same word.
+- id: atlas.antimetabole
+  name: antimetabole
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(\w{4,})\b[^.!?]{1,20}?\b(\w{4,})\b[^.!?]{1,30}?\b\2\b[^.!?]{1,20}?\b\1\b
+    flags:
+    - IGNORECASE
+  examples:
+  - We plan the work and work the plan.
+  counter_examples:
+  - The team reviewed the data and the data was clean.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Two content words returning in reversed order (A B ... B A). The gaps are capped at twenty to thirty characters, so a long antimetabole is missed; grammatical chiasmus without word repetition is deferred entirely.
+- id: atlas.antithesis-frame
+  name: antithesis frame
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bnot\s+(?!only\b)[^,.;]{2,25}\s+but\s+|,\s+not\s+\w
+    flags:
+    - IGNORECASE
+  examples:
+  - The problem is not the budget but the calendar.
+  - This is a staffing question, not a funding one.
+  counter_examples:
+  - We could not confirm the figure before the deadline, but the trend held.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Explicit contrast frames only. The 25-character cap on the middle is what keeps ordinary clause negation ('did not X ... but Y') out; longer antitheses are missed, which is the trade this pattern makes.
+- id: atlas.aporia
+  name: professed doubt (aporia)
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:it(?:'|\u2019)?s|it is)\s+(?:hard|difficult)\s+to\s+say\b|\bi(?:'|\u2019)?m\s+not\s+sure\s+(?:whether|if)\b|\bone\s+hardly\s+knows\b|\bwhere\s+to\s+begin\b
+    flags:
+    - IGNORECASE
+  examples:
+  - It is hard to say which factor moved first.
+  - I'm not sure whether the drop is real.
+  counter_examples:
+  - The analyst said the cause was hard to pin down.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Staged uncertainty about how to proceed, as a fixed frame.
+- id: atlas.aposiopesis
+  name: breaking off (aposiopesis)
+  category: punctuation
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: (?:\.\.\.|\u2026)[\"\u201d']?\s*$
+    flags:
+    - MULTILINE
+  examples:
+  - If the money does not arrive by June…
+  counter_examples:
+  - The report covers 2019...2024 enrollment.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: A sentence trailing off at end of line. Mid-line ellipsis (ranges, elided quotations) is excluded.
+- id: atlas.appositive
+  name: appositive insertion
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: ',\s+(?:an?|the)\s+[^,.;]{3,40},(?!\s*(?:and|or)\b)'
+    flags:
+    - IGNORECASE
+  examples:
+  - Ms. Reed, the attendance lead, joined the call.
+  counter_examples:
+  - We reviewed May, the budget, and June.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Comma-bounded noun phrase renaming what precedes it. The lookahead drops the middle item of a three-part list, which has the same shape.
+- id: atlas.assonance
+  name: assonance
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: assonance_pair_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Adjacent words sharing a first vowel group. An orthographic approximation of a phonetic figure, and named as one.
+- id: atlas.asyndeton
+  name: asyndeton
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b\w+(?:\s+\w+)?,\s+(?!and\b|or\b|nor\b|but\b|though\b|which\b|who\b)\w+(?:\s+\w+)?,\s+(?!and\b|or\b|nor\b|but\b)\w+(?:\s+\w+)?\s*[.;]
+    flags:
+    - IGNORECASE
+  examples:
+  - We cut cost, trimmed travel, froze hiring.
+  counter_examples:
+  - We cut cost, trimmed travel, and froze hiring.
+  - The receivables are not, on present evidence, money that is lost.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: A three-part series that omits its final conjunction. Members are capped at two words, which is what keeps comma-bounded parentheticals out; longer asyndetic series are missed.
+- id: atlas.bullet-anaphora
+  name: bullet-list anaphora
+  category: structural
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: bullet_anaphora_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Bullet items inside one list opening on the same word.
+- id: atlas.colon-rate
+  name: colon
+  category: punctuation
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \w:\s
+    flags:
+    - IGNORECASE
+  examples:
+  - 'The finding is simple: attendance drives everything.'
+  counter_examples:
+  - The dashboard lives at https://example.org/dash.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Colons introducing an expansion or a list. The URL case is excluded by requiring whitespace after the colon.
+- id: atlas.congeries
+  name: heaping (congeries)
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: (?:\b\w+(?:\s+\w+){0,2},\s+){3,}
+    flags:
+    - IGNORECASE
+  examples:
+  - The plan touches staffing, transport, food, and safety.
+  counter_examples:
+  - On May 3, 2026, the board met.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Four or more items piled into one series.
+- id: atlas.correctio
+  name: self-correction (correctio)
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:or\s+rather|or\s+better|more\s+precisely|to\s+put\s+it\s+(?:another|better)\s+way|what\s+I\s+mean\s+is)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The pilot stalled, or rather it never started.
+  counter_examples:
+  - The board asked for a better plan by June.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Correcting a word just used, in the open.
+- id: atlas.deliberative-question
+  name: deliberative question (anacoenosis)
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:what|how|why|where)\s+(?:should|can|do|must|will)\s+we\b[^?]{0,60}\?
+    flags:
+    - IGNORECASE
+  examples:
+  - What should we do about the three schools that never reported?
+  counter_examples:
+  - We asked how we should handle the three schools.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: A question that puts the decision to the reader as a shared one.
+- id: atlas.diacope
+  name: diacope
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?<!\d )(?!million\b|billion\b|thousand\b|percent\b|dollars?\b|students?\b)(\w{4,})\b(?!\s\d)(?:\W+\w+){1,3}\W+(?<!\d )\1\b(?!\s\d)
+    flags:
+    - IGNORECASE
+  examples:
+  - The work is hard, honest work.
+  counter_examples:
+  - We reviewed the data and then reviewed the notes.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: A word returning after one to three intervening words. Wider gaps are ordinary repetition, not the figure. Measure phrases are excluded on both sides ('$4.3 million ... $34 million', 'Section 7 ... Section 8'), which was most of what an unguarded pattern found, along with the measure nouns themselves.
+- id: atlas.distinctio
+  name: distinctio
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bby\s+[\"\u201c']?\w+[\"\u201d']?,?\s+I\s+mean\b|\bwhat\s+I\s+mean\s+by\b
+    flags:
+    - IGNORECASE
+  examples:
+  - By “engagement”, I mean weekly contact with a family.
+  counter_examples:
+  - We agreed on what engagement means before we measured it.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Stopping to define a term the writer has just used.
+- id: atlas.emphatic-negation
+  name: emphatic negation (asphalia)
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:by\s+no\s+means|under\s+no\s+circumstances|in\s+no\s+way|at\s+no\s+point)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The pilot is by no means finished.
+  counter_examples:
+  - No school was excluded from the sample.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Categorical denial as a fixed frame.
+- id: atlas.epanalepsis
+  name: epanalepsis
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: epanalepsis_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Sentences opening and closing on the same content word.
+- id: atlas.epimone
+  name: epimone
+  category: statistical
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: trigram_repeat_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Share of word trigrams that recur. Catches refrains and also ordinary terminology, so it profiles repetition rather than isolating the figure.
+- id: atlas.epistrophe
+  name: epistrophe
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: epistrophe_run_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Runs of sentences closing on the same word.
+- id: atlas.epizeuxis
+  name: epizeuxis
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?!had\b|that\b|the\b)(\w{2,})\b[ ,]+\1\b
+    flags:
+    - IGNORECASE
+  examples:
+  - This is very, very late.
+  counter_examples:
+  - She had had enough of the delay.
+  - He said that that report was late.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: A word repeated with nothing between it. Grammatical doublings ('had had', 'that that') are excluded by name.
+- id: atlas.exclamation
+  name: exclamation (ecphonesis)
+  category: punctuation
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: '!(?!\[)'
+    flags:
+    - IGNORECASE
+  examples:
+  - The team hit the target!
+  counter_examples:
+  - '![chart](chart.png) shows the trend.'
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Exclamation marks in prose. Markdown image syntax is excluded.
+- id: atlas.exemplum-frame
+  name: example frame (exemplum)
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:consider\s+the\s+case\s+of|take\s+the\s+(?:example|case)\s+of|one\s+school\s+in\s+particular|a\s+case\s+in\s+point)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Take the case of the two schools that reported late.
+  counter_examples:
+  - The case was closed in April.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Announcing an illustrative instance.
+- id: atlas.homoioteleuton
+  name: homoioteleuton
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: homoioteleuton_pair_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Adjacent words ending in the same three letters. Orthographic, not phonetic.
+- id: atlas.hyperbole-marker
+  name: hyperbole marker
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:literally|endless|endlessly|countless|infinite|a\s+million|never\s+in\s+history|beyond\s+measure)\b
+    flags:
+    - IGNORECASE
+    proper_noun_guard: true
+  examples:
+  - The intake form asks countless questions.
+  counter_examples:
+  - Enrollment fell by one million students statewide.
+  - The district moved to Infinite Campus in 2024.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Overstatement signalled by a word, not by a claim. A literal 'a million dollars' will register; the register is the point of a profile layer.
+- id: atlas.hypophora
+  name: hypophora
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: hypophora_per_1k
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Questions answered by the next sentence in the same paragraph, per 1k words.
+- id: atlas.hypophora-frame
+  name: hypophora frame
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bthe\s+(?:short\s+)?answer\s+is\b|\bthe\s+answer:\s
+    flags:
+    - IGNORECASE
+  examples:
+  - Why did the pilot stall? The short answer is staffing.
+  counter_examples:
+  - We never received an answer from the vendor.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: The writer's own answer to a question just asked. The positional version is the statistic `atlas.hypophora`.
+- id: atlas.interrogative
+  name: interrogative sentences
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: interrogative_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: 'Share of sentences that are questions. Rhetorical or not: the distinction needs a reader, and the stock forms are `atlas.rhetorical-question-stock`.'
+- id: atlas.irony-marker
+  name: distancing marker (antiphrasis)
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:so-called|supposedly|allegedly|ostensibly|purportedly)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The so-called early warning system flagged nobody.
+  counter_examples:
+  - The vendor called the system an early warning tool.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Marking a term as not the writer's own.
+- id: atlas.isocolon
+  name: isocolon
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: isocolon_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Adjacent sentences of near-equal length. Length parallelism only; grammatical parallelism needs a parser, so this number reads high.
+- id: atlas.litotes
+  name: litotes
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bnot\s+un(?!der\b|til\b|less\b)\w{3,}\b|\bnot\s+without\b|\bno\s+small\b|\bnot\s+in(?:frequent|significant|considerable)\w*\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The result is not unimpressive.
+  - This was no small change.
+  counter_examples:
+  - The invoice was not under review.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Affirmation by denying the opposite.
+- id: atlas.md-attitude
+  name: 'metadiscourse: attitude markers'
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:unfortunately|surprisingly|remarkably|importantly|strikingly|encouragingly|worryingly|it\s+is\s+(?:striking|notable|encouraging))\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Unfortunately, two schools never reported.
+  counter_examples:
+  - The result surprised the team.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: 'Hyland interactional: the writer''s affective stance toward the content.'
+- id: atlas.md-boosters
+  name: 'metadiscourse: boosters'
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:clearly|obviously|undoubtedly|certainly|definitely|of\s+course|in\s+fact|indeed|without\s+question)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The trend is clearly downward.
+  counter_examples:
+  - The chart shows a downward trend.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: 'Hyland interactional: certainty raised, dialogue closed.'
+- id: atlas.md-code-glosses
+  name: 'metadiscourse: code glosses'
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bthat\s+is,|\bnamely\b|\bin\s+other\s+words\b|\bi\.e\.|\be\.g\.|\bfor\s+(?:example|instance)\b|\bsuch\s+as\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Chronic absence, that is, missing ten percent of days, rose again.
+  counter_examples:
+  - The definition changed in 2019.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: 'Hyland interactive: restating or exemplifying the writer''s own meaning.'
+- id: atlas.md-endophoric
+  name: 'metadiscourse: endophoric markers'
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:as|see)\s+(?:noted|described|shown)\s+(?:above|below|earlier)\b|\bsee\s+(?:figure|table|section|appendix)\b|\bin\s+section\s+\d
+    flags:
+    - IGNORECASE
+  examples:
+  - As noted above, the two cohorts are not comparable.
+  counter_examples:
+  - The figure was checked against the source.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: 'Hyland interactive: pointing at another part of the same text.'
+- id: atlas.md-engagement-directives
+  name: 'metadiscourse: engagement directives'
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: (?:^|[.!?][\"\u201d)\]]?\s+)(?:consider|note|notice|recall|imagine|remember)\b|\bnote\s+that\b
+    flags:
+    - IGNORECASE
+    - MULTILINE
+  examples:
+  - Consider the three schools that never reported.
+  counter_examples:
+  - The board will consider the plan in June.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: 'Hyland interactional: instructing the reader to act. Only sentence-initial imperatives count, which is what separates the directive from the verb.'
+- id: atlas.md-engagement-pronoun
+  name: 'metadiscourse: reader pronouns'
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:you|your|yours)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - You will see the same pattern in your own building.
+  counter_examples:
+  - The principals saw the same pattern.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: 'Hyland interactional: bringing the reader into the text by name.'
+- id: atlas.md-evidentials
+  name: 'metadiscourse: evidentials'
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \baccording\s+to\b|\bresearch\s+(?:shows|suggests|finds)\b|\bstudies\s+(?:show|suggest)\b|\bper\s+the\b
+    flags:
+    - IGNORECASE
+  examples:
+  - According to the state file, the count closed in October.
+  counter_examples:
+  - The state file closed in October.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: 'Hyland interactive: sourcing a claim outside this text.'
+- id: atlas.md-frame-goal
+  name: 'metadiscourse: goal announcers'
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:my|our)\s+(?:purpose|aim|goal)\s+(?:is|here\s+is)\b|\bthis\s+(?:memo|brief|report|section|paper)\s+(?:argues|shows|sets\s+out|explains|covers)\b|\bthe\s+aim\s+of\s+this\b
+    flags:
+    - IGNORECASE
+  examples:
+  - This memo sets out three options and a recommendation.
+  counter_examples:
+  - The memo was circulated on Friday.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: 'Hyland interactive frame marker: stating what the text is doing.'
+- id: atlas.md-frame-sequencers
+  name: 'metadiscourse: sequencers'
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:first|second|third|fourth|finally|lastly)\s*,|\bto\s+conclude\b|\bto\s+begin\s+with\b
+    flags:
+    - IGNORECASE
+  examples:
+  - First, the count is late. Second, it is incomplete.
+  counter_examples:
+  - The first cohort finished in May.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: 'Hyland interactive frame marker: ordering the argument.'
+- id: atlas.md-frame-topic-shift
+  name: 'metadiscourse: topic shifters'
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bturning\s+to\b|\bwith\s+(?:regard|respect)\s+to\b|\bas\s+for\b|\bmoving\s+on\s+to\b|\bon\s+the\s+question\s+of\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Turning to transport, the picture is worse.
+  counter_examples:
+  - The bus turned to the north entrance.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: 'Hyland interactive frame marker: announcing a change of subject.'
+- id: atlas.md-hedges
+  name: 'metadiscourse: hedges'
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:might|may|perhaps|possibly|arguably|roughly|somewhat|relatively|fairly|appears?\s+to|seems?\s+to|suggests?\s+that|to\s+some\s+extent)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The drop may be a reporting artefact.
+  counter_examples:
+  - The drop was a reporting artefact.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: 'Hyland interactional: commitment withheld, dialogue left open.'
+- id: atlas.md-self-mention
+  name: 'metadiscourse: self mention'
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:i|we|my|our|me|ours)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - We ran the count twice and I checked the second pass.
+  counter_examples:
+  - The US Department of Education published the file.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: 'Hyland interactional: the author present in the text.'
+- id: atlas.md-transitions-additive
+  name: 'metadiscourse: additive transitions'
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bin\s+addition\b|\bmoreover\b|\bfurthermore\b|\badditionally\b|\bwhat(?:'|\u2019)?s\s+more\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Moreover, the two files disagree on the enrollment date.
+  counter_examples:
+  - The two files disagree on the enrollment date.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Hyland interactive transitions, addition sense.
+- id: atlas.md-transitions-consequential
+  name: 'metadiscourse: consequential transitions'
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \btherefore\b|\bthus\b|\bconsequently\b|\bas\s+a\s+result\b|\bhence\b|\baccordingly\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The count closed late; therefore the file is provisional.
+  counter_examples:
+  - The late close made the file provisional.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Hyland interactive transitions, consequence sense.
+- id: atlas.md-transitions-contrastive
+  name: 'metadiscourse: contrastive transitions'
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bhowever\b|\bnevertheless\b|\bnonetheless\b|\bby\s+contrast\b|\bon\s+the\s+other\s+hand\b|\bthat\s+said\b
+    flags:
+    - IGNORECASE
+  examples:
+  - However, the two cohorts are not comparable.
+  counter_examples:
+  - The two cohorts are not comparable.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Hyland interactive transitions, contrast sense. Overlaps the tell `rht.however-initial`, which measures sentence position, not density.
+- id: atlas.merism
+  name: merism
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bfrom\s+(?!\d)[a-z]{3,}\s+to\s+(?!\d)[a-z]{3,}\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Everyone from principals to custodians saw the memo.
+  counter_examples:
+  - Enrollment fell from 2019 to 2024.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Naming a whole by its two poles. Date and number ranges are excluded.
+- id: atlas.not-only-but-also
+  name: not only ... but also (dirimens copulatio)
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bnot\s+only\b[^.;]{1,60}\bbut\s+(?:also\b)?
+    flags:
+    - IGNORECASE
+  examples:
+  - The pilot not only cut costs but also raised attendance.
+  counter_examples:
+  - Not only the principals were surveyed.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Balanced addition that refuses to stop at the first item.
+- id: atlas.numbered-preview
+  name: numbered preview (enumeratio)
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:there\s+are|here\s+are|we\s+see)\s+(?:two|three|four|five|\d+)\s+\w+
+    flags:
+    - IGNORECASE
+  examples:
+  - There are three reasons the pilot stalled.
+  counter_examples:
+  - Three reasons explain the stall.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Announcing the count before the list.
+- id: atlas.optatio
+  name: wish (optatio)
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:I\s+hope|we\s+hope|may\s+we|would\s+that)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - We hope the June data settles the question.
+  counter_examples:
+  - The team had hopes for the June data.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: An expressed wish rather than a claim.
+- id: atlas.parenthesis
+  name: parenthesis
+  category: punctuation
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: (?<!\])\([^)\n]{3,200}\)
+    flags:
+    - IGNORECASE
+  examples:
+  - The rate (up four points) held through May.
+  counter_examples:
+  - See the [dashboard](https://example.org/dash) for detail.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: A bracketed aside. Markdown link targets are excluded.
+- id: atlas.paromologia
+  name: concession (paromologia)
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \badmittedly\b|\bgranted\b(?=,)|\bto\s+be\s+fair\b|\bit\s+is\s+true\s+that\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Admittedly, the sample is small.
+  counter_examples:
+  - The board granted the waiver in April.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Conceding a point before answering it.
+- id: atlas.parrhesia
+  name: candour marker (parrhesia)
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bfrankly\b|\bcandidly\b|\bto\s+be\s+honest\b|\bhonestly\b(?=,)|\bbluntly\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Frankly, the timeline was never realistic.
+  counter_examples:
+  - She answered honestly and at length.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Announced plain speaking.
+- id: atlas.ploce-intensive
+  name: intensifying repetition (ploce)
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:again\s+and\s+again|more\s+and\s+more|over\s+and\s+over|less\s+and\s+less|year\s+after\s+year|time\s+and\s+again)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The same three schools come up again and again.
+  counter_examples:
+  - We ran the report again in June.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: A fixed doubling used for emphasis.
+- id: atlas.polysyndeton
+  name: polysyndeton
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:and|or|nor)\b[^.!?]{3,50}\b(?:and|or|nor)\b[^.!?]{3,50}\b(?:and|or|nor)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - We hired and trained and coached and kept the staff.
+  counter_examples:
+  - We hired staff, trained them, and kept them.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Three or more coordinators inside one sentence.
+- id: atlas.praeteritio
+  name: praeteritio
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:not\s+to\s+mention|needless\s+to\s+say|to\s+say\s+nothing\s+of|I\s+will\s+not\s+dwell\s+on|leaving\s+aside)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Needless to say, the deadline moved again.
+  counter_examples:
+  - The report said nothing of the delay.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Raising a point by declining to raise it.
+- id: atlas.procatalepsis
+  name: procatalepsis
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:some\s+(?:may|might|will)\s+(?:argue|say|object)|one\s+might\s+object|critics\s+(?:will|may)\s+say|you\s+may\s+be\s+wondering|it\s+could\s+be\s+argued)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Some may argue the sample is too small to act on.
+  counter_examples:
+  - Two board members argued the sample was too small.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Answering an objection before it is made.
+- id: atlas.proverb-frame
+  name: proverb frame (paroemia)
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:as\s+the\s+saying\s+goes|there\s+is\s+an\s+old\s+saying|as\s+the\s+old\s+adage|the\s+adage\s+that)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - As the saying goes, what gets measured gets managed.
+  counter_examples:
+  - The saying was printed on the poster.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Quoting received wisdom as an authority.
+- id: atlas.pysma
+  name: pysma
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: question_run_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Share of questions that sit next to another question.
+- id: atlas.quotation
+  name: direct quotation
+  category: punctuation
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: '[\"\u201c][^\"\u201d\n]{10,200}[\"\u201d]'
+    flags:
+    - IGNORECASE
+  examples:
+  - “We need a plan by June,” the principal said.
+  counter_examples:
+  - The column is named “id”.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: A quoted span of at least ten characters, which is the surface of reported speech; invented speech (sermocinatio) is deferred.
+- id: atlas.rhetorical-question-stock
+  name: stock rhetorical question
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?:so\s+what\?|what\s+does\s+this\s+mean\?|why\s+does\s+this\s+matter\?|what\s+now\?|where\s+does\s+that\s+leave\s+us\?)
+    flags:
+    - IGNORECASE
+  examples:
+  - Why does this matter? Because families notice first.
+  counter_examples:
+  - The board asked what this means for the budget.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: The fixed rhetorical questions, as opposed to any interrogative sentence (`atlas.interrogative`).
+- id: atlas.sentence-initial-conjunction
+  name: sentence-initial conjunction
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: sentence_initial_conjunction_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Sentences opening on and, but, or, nor, so, yet, or for.
+- id: atlas.simile-marker
+  name: simile marker
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: (?<!would )\blike\s+an?\s+\w+\b|\bas\s+if\b|\bas\s+though\b|\bmuch\s+like\b
+    flags:
+    - IGNORECASE
+  examples:
+  - The intake queue behaves like a funnel with a kink in it.
+  counter_examples:
+  - We would like a copy of the report.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Explicit comparison markers. Metaphor without a marker is deferred.
+- id: atlas.superlative
+  name: superlative (auxesis)
+  category: lexical
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \bthe\s+(?:most|best|worst|largest|greatest|single\s+biggest)\b
+    flags:
+    - IGNORECASE
+  examples:
+  - Transport is the single biggest driver of late arrivals.
+  counter_examples:
+  - Most schools reported on time.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Raising a claim to its top degree.
+- id: atlas.symploce
+  name: symploce
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: statistic
+    unit: value
+    stat: symploce_share
+  examples: []
+  counter_examples: []
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: Adjacent sentences repeating both their first and their last word.
+- id: atlas.tricolon-series
+  name: tricolon
+  category: syntactic
+  scope: general
+  formats: null
+  detection:
+    method: regex
+    unit: count
+    pattern: \b(?!\d)\w+(?:\s+(?!\d)\w+){0,2},\s+(?!\d)\w+(?:\s+\w+){0,2},?\s+and\s+(?!\d)\w+
+    flags:
+    - IGNORECASE
+  examples:
+  - The plan is fast, cheap, and fair.
+  counter_examples:
+  - On May 3, 2026, and again in June, the board met.
+  provenance:
+    source: atlas-m9e
+    added: '2026-08-21'
+    run_id: null
+    evidence: literature
+  status: atlas
+  weight: 1.0
+  notes: A three-part coordinate series. Date strings are excluded by refusing numeric members.

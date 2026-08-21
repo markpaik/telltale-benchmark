@@ -23,6 +23,13 @@ email has no meaningful burstiness) yields NaN, and NaN rows are dropped from
 means rather than counted as clean. Reading them as zero would reward short
 documents, which is the opposite of what the tell measures.
 
+**The atlas is measured, never scored.** Registry entries with status "atlas"
+are a device inventory, not tells: they are detected and their raw counts and
+rates are written per document, but their `score` is NaN by construction and
+every aggregate that rolls tells up filters on status == "active". So an atlas
+entry cannot move a category rollup, the AI-Tell Index, or a Signature Index
+until someone promotes it to a real tell with a real ramp.
+
 **Dormant tells stay in the denominator.** A tell that fires nowhere in this
 corpus scores 0 for everybody. It is tempting to drop it — it adds no
 discrimination — but dropping it makes the index denominator depend on what
@@ -46,7 +53,7 @@ import pandas as pd
 
 from telltale.corpus import EXPLORATORY_FORMATS, Doc
 from telltale.detectors import build
-from telltale.registry import Tell
+from telltale.registry import ATLAS_STATUS, Tell
 
 # Category weights for the AI-Tell Index. They sum to 1.0 and are a judgement
 # call, not a fit: lexical tells carry the most weight because word choice is
@@ -410,6 +417,14 @@ def normalize(df: pd.DataFrame, tells: Iterable[Tell] | Mapping | None = None) -
         unit = str(group["unit"].iloc[0])
         raw = group["raw"].to_numpy(dtype=float)
 
+        # The atlas is a frequency profile, so it gets no score at all — not a
+        # zero, which would read as "clean", and not a winsorized rate, which
+        # would be indistinguishable from a tell score one column over. Handled
+        # before the unit branches so `winsor_caps` never gains an atlas key.
+        if is_atlas(group):
+            score[idx] = np.nan
+            continue
+
         if unit == "count":
             rates = group["rate_per_1k"].to_numpy(dtype=float)
             # The cap comes from the evidence corpus alone. Excluding the annex
@@ -484,6 +499,24 @@ def dormant_tells(df: pd.DataFrame) -> list[str]:
 
 
 # --- aggregation -------------------------------------------------------------
+
+
+def is_atlas(df: pd.DataFrame) -> bool:
+    """True when every row of this frame belongs to the atlas profile layer.
+
+    Read off the `status` column that detection already writes, so a frame
+    recovered from scores.jsonl classifies the same way the live one did.
+    """
+    if df.empty or "status" not in df.columns:
+        return False
+    return bool((df["status"].astype(str) == ATLAS_STATUS).all())
+
+
+def atlas_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """The atlas rows of a detection frame, for profile reporting."""
+    if df.empty or "status" not in df.columns:
+        return df.iloc[0:0]
+    return df[df["status"].astype(str) == ATLAS_STATUS]
 
 
 def comparable(df: pd.DataFrame) -> pd.DataFrame:
@@ -992,7 +1025,9 @@ __all__ = [
     "binary_tell_rates",
     "bootstrap_ci",
     "category_rollup",
+    "atlas_rows",
     "comparable",
+    "is_atlas",
     "detect_all",
     "dormant_tells",
     "indices",
